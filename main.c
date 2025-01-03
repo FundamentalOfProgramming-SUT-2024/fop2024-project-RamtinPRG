@@ -11,6 +11,7 @@
 
 #define CREDENTIALS_MAX_LENGTH 16
 #define PASSWORD_MIN_LENGTH 7
+#define MAX_USERS 256
 
 // ______________ TYPES & VARIABLES___________
 
@@ -52,6 +53,7 @@ int current_window = LOGIN;
 bool screen_setup();
 WINDOW *init_win(int x, int y, int width, int height);
 bool handle_login();
+bool exists_username(char *username);
 
 int main()
 {
@@ -72,15 +74,22 @@ int main()
             if (current_window == LOGIN)
             {
                 if (!handle_login())
-                {
                     break;
-                }
+            }
+            else if (current_window == SIGNUP)
+            {
+                clear();
+                mvprintw(2, 2, "SIGNUP");
+                getch();
+                break;
             }
         }
         else
         {
             clear();
-            mvprintw(0, 0, "Have fun playing the game :)");
+            mvprintw(2, 2, "Have fun playing the game :)");
+            getch();
+            break;
         }
     }
 
@@ -90,12 +99,12 @@ int main()
 
 bool screen_setup()
 {
+    setlocale(LC_ALL, "");
     initscr();
     cbreak();
     noecho();
     curs_set(0);
     keypad(stdscr, TRUE);
-    setlocale(LC_ALL, "");
     getmaxyx(stdscr, screen_height, screen_width);
 
     if (!has_colors())
@@ -136,10 +145,11 @@ bool handle_login()
     init_pair(1, 9, COLOR_BLACK);
     init_pair(2, 8, COLOR_BLACK);
     init_pair(3, COLOR_CYAN, COLOR_BLACK);
+    init_pair(4, COLOR_RED, COLOR_BLACK);
 
     fields[0].label = (char *)calloc(50, sizeof(char));
     fields[0].label = "Username";
-    fields[0].position.y = 9;
+    fields[0].position.y = 10;
     fields[0].position.x = 2;
     fields[0].cursor_index = 0;
     fields[0].max_length = CREDENTIALS_MAX_LENGTH;
@@ -147,7 +157,7 @@ bool handle_login()
 
     fields[1].label = (char *)calloc(50, sizeof(char));
     fields[1].label = "Password";
-    fields[1].position.y = 11;
+    fields[1].position.y = 12;
     fields[1].position.x = 2;
     fields[1].cursor_index = 0;
     fields[1].max_length = CREDENTIALS_MAX_LENGTH;
@@ -168,6 +178,7 @@ bool handle_login()
     attron(A_ITALIC | A_UNDERLINE);
     printw("Use Enter to submit the form.");
     attroff(A_ITALIC | A_UNDERLINE | COLOR_PAIR(3));
+    mvprintw(8, 2, "Don't have an account? Press F4 to register.");
 
     attron(A_BOLD | COLOR_PAIR(2));
     mvprintw(fields[0].position.y, fields[0].position.x, "%s: ", fields[0].label);
@@ -183,6 +194,11 @@ bool handle_login()
         ch = getch();
         if (ch == KEY_F(1))
             return 0;
+        else if (ch == KEY_F(4))
+        {
+            current_window = SIGNUP;
+            return 1;
+        }
         else if (ch == KEY_BACKSPACE)
         {
             if (fields[field_index].cursor_index > 0)
@@ -202,12 +218,40 @@ bool handle_login()
         }
         else if (ch == '\n')
         {
-            move(15, 0);
+            move(15, 2);
             clrtoeol();
-            printw("%s", fields[0].value);
-            move(17, 0);
-            clrtoeol();
-            printw("%s", fields[1].value);
+            attron(A_STANDOUT | COLOR_PAIR(4));
+
+            if (strlen(fields[0].value) == 0)
+                printw("  The 'username' field is not filled!  ");
+            else if (strlen(fields[1].value) == 0)
+                printw("  The 'password' field is not filled!  ");
+            else if (exists_username(fields[0].value))
+            {
+                FILE *file;
+                char file_name[100] = "users/", password[CREDENTIALS_MAX_LENGTH + 2];
+                strcat(file_name, fields[0].value);
+                strcat(file_name, ".txt");
+                file = fopen(file_name, "r");
+                fgets(password, CREDENTIALS_MAX_LENGTH + 2, file);
+                fclose(file);
+                int len = strlen(password);
+                if (password[len - 1] == '\n')
+                    password[len - 1] = '\0';
+                if (strcmp(password, fields[1].value) == 0)
+                {
+                    attroff(A_STANDOUT | COLOR_PAIR(4));
+                    signed_in = 1;
+                    current_window = GAME;
+                    return 1;
+                }
+                else
+                    printw("  Incorrect password!  ");
+            }
+            else
+                printw("  Username does not exist!  ");
+
+            attroff(A_STANDOUT | COLOR_PAIR(4));
             move(fields[field_index].position.y, fields[field_index].position.x + strlen(fields[field_index].label) + fields[field_index].cursor_index + 2);
         }
         else if (isalnum(ch) || ispunct(ch))
@@ -224,4 +268,32 @@ bool handle_login()
             }
         }
     }
+}
+
+bool exists_username(char *username)
+{
+    FILE *file;
+    file = fopen("usernames.txt", "r");
+    if (file == NULL)
+    {
+        file = fopen("usernames.txt", "a");
+        fclose(file);
+        return false;
+    }
+    char lines[MAX_USERS][CREDENTIALS_MAX_LENGTH + 2];
+    int line_index = 0;
+    while (fgets(lines[line_index], CREDENTIALS_MAX_LENGTH + 2, file) != NULL)
+    {
+        int len = strlen(lines[line_index]);
+        if (lines[line_index][len - 1] == '\n')
+            lines[line_index][len - 1] = '\0';
+        if (strcmp(lines[line_index], username) == 0)
+        {
+            fclose(file);
+            return true;
+        }
+        line_index++;
+    }
+    fclose(file);
+    return false;
 }
