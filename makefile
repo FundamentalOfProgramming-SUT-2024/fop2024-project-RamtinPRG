@@ -1,7 +1,7 @@
 all: main run
 
-main: main.c
-	gcc main.c -lpanel -lncursesw -o rogue
+main:
+	gcc ./*.c -lncursesw -I./include/ -o rogue
 
 run:
 	./rogue

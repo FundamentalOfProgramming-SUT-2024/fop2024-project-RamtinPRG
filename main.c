@@ -1,75 +1,21 @@
-#include <ncurses.h>
-#include <panel.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <locale.h>
-#include <ctype.h>
-
-// _______________ DEFINES ___________________
-
-#define CREDENTIALS_MAX_LENGTH 16
-#define PASSWORD_MIN_LENGTH 7
-#define MAX_USERS 256
-
-// ______________ TYPES & VARIABLES___________
-
-enum Window
-{
-    LOGIN,
-    SIGNUP,
-    GAME
-};
-
-typedef struct
-{
-    char username[CREDENTIALS_MAX_LENGTH + 1];
-    char password[CREDENTIALS_MAX_LENGTH + 1];
-} Player;
-
-typedef struct
-{
-    int x;
-    int y;
-} Position;
-
-typedef struct
-{
-    Position position;
-    char *label;
-    int max_length;
-    int cursor_index;
-    char *value;
-} Field;
+#include "include/rogue.h"
 
 int ch;
-int signed_in = false;
 int screen_width, screen_height;
 int current_window = LOGIN;
-
-// ______________ FUNCTION PROTOTYPES ________
-
-bool screen_setup();
-WINDOW *init_win(int x, int y, int width, int height);
-bool handle_login();
-bool exists_username(char *username);
+Player *player;
 
 int main()
 {
     // Initializing
+    player = (Player *)malloc(sizeof(Player));
+    player->signed_in = false;
     screen_setup();
 
-    // WINDOW *login_win = init_win(screen_width / 4, screen_height / 4, screen_width / 2, screen_height / 2);
-    // WINDOW *signup_win = init_win(screen_width / 4, screen_height / 4, screen_width / 2, screen_height / 2);
-    // PANEL *panels[2] = {new_panel(sign_up_win), new_panel(log_in_win)};
-
-    // update_panels();
-    // doupdate();
-
+    // Mainloop
     while (1)
     {
-        if (!signed_in)
+        if (!player->signed_in)
         {
             if (current_window == LOGIN)
             {
@@ -95,41 +41,6 @@ int main()
 
     endwin();
     return 0;
-}
-
-bool screen_setup()
-{
-    setlocale(LC_ALL, "");
-    initscr();
-    cbreak();
-    noecho();
-    curs_set(0);
-    keypad(stdscr, TRUE);
-    getmaxyx(stdscr, screen_height, screen_width);
-
-    if (!has_colors())
-    {
-        char string[200] = "Your terminal doesn't support colors. Press a key to exit!";
-        move(screen_height / 2, (screen_width - strlen(string)) / 2);
-        printw("%s", string);
-        getch();
-        endwin();
-        exit_curses(1);
-        return 0;
-    }
-
-    start_color();
-
-    refresh();
-    return 1;
-}
-
-WINDOW *init_win(int x, int y, int width, int height)
-{
-    WINDOW *win = newwin(height, width, y, x);
-    box(win, 0, 0);
-    wrefresh(win);
-    return win;
 }
 
 bool handle_login()
@@ -218,19 +129,24 @@ bool handle_login()
         }
         else if (ch == '\n')
         {
+            char username[CREDENTIALS_MAX_LENGTH + 1];
+            char entered_password[CREDENTIALS_MAX_LENGTH + 1];
+            strcpy(username, fields[0].value);
+            strcpy(entered_password, fields[1].value);
+
             move(15, 2);
             clrtoeol();
             attron(A_STANDOUT | COLOR_PAIR(4));
 
-            if (strlen(fields[0].value) == 0)
+            if (strlen(username) == 0)
                 printw("  The 'username' field is not filled!  ");
-            else if (strlen(fields[1].value) == 0)
+            else if (strlen(entered_password) == 0)
                 printw("  The 'password' field is not filled!  ");
-            else if (exists_username(fields[0].value))
+            else if (exists_username(username))
             {
                 FILE *file;
                 char file_name[100] = "users/", password[CREDENTIALS_MAX_LENGTH + 2];
-                strcat(file_name, fields[0].value);
+                strcat(file_name, username);
                 strcat(file_name, ".txt");
                 file = fopen(file_name, "r");
                 fgets(password, CREDENTIALS_MAX_LENGTH + 2, file);
@@ -238,10 +154,12 @@ bool handle_login()
                 int len = strlen(password);
                 if (password[len - 1] == '\n')
                     password[len - 1] = '\0';
-                if (strcmp(password, fields[1].value) == 0)
+                if (strcmp(password, entered_password) == 0)
                 {
                     attroff(A_STANDOUT | COLOR_PAIR(4));
-                    signed_in = 1;
+                    player->signed_in = true;
+                    strcpy(player->username, username);
+                    strcpy(player->password, entered_password);
                     current_window = GAME;
                     return 1;
                 }
@@ -268,32 +186,4 @@ bool handle_login()
             }
         }
     }
-}
-
-bool exists_username(char *username)
-{
-    FILE *file;
-    file = fopen("usernames.txt", "r");
-    if (file == NULL)
-    {
-        file = fopen("usernames.txt", "a");
-        fclose(file);
-        return false;
-    }
-    char lines[MAX_USERS][CREDENTIALS_MAX_LENGTH + 2];
-    int line_index = 0;
-    while (fgets(lines[line_index], CREDENTIALS_MAX_LENGTH + 2, file) != NULL)
-    {
-        int len = strlen(lines[line_index]);
-        if (lines[line_index][len - 1] == '\n')
-            lines[line_index][len - 1] = '\0';
-        if (strcmp(lines[line_index], username) == 0)
-        {
-            fclose(file);
-            return true;
-        }
-        line_index++;
-    }
-    fclose(file);
-    return false;
 }
