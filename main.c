@@ -28,12 +28,10 @@ int main()
                     break;
             }
         }
-        else
+        else if (current_window == MAIN_MENU)
         {
-            clear();
-            mvprintw(2, 2, "Have fun playing the game :)");
-            getch();
-            break;
+            if (!handle_main_menu())
+                break;
         }
     }
 
@@ -45,14 +43,6 @@ bool handle_login()
 {
     Field fields[2];
     int field_index = 0;
-
-    init_color(8, 623, 588, 902);
-    init_color(9, 459, 796, 533);
-
-    init_pair(1, 9, COLOR_BLACK);
-    init_pair(2, 8, COLOR_BLACK);
-    init_pair(3, COLOR_CYAN, COLOR_BLACK);
-    init_pair(4, COLOR_RED, COLOR_BLACK);
 
     fields[0].label = (char *)calloc(50, sizeof(char));
     fields[0].label = "Username";
@@ -166,7 +156,7 @@ bool handle_login()
                     strcpy(player->username, username);
                     strcpy(player->password, entered_password);
                     strcpy(player->email, email);
-                    current_window = GAME;
+                    current_window = MAIN_MENU;
                     curs_set(0);
                     return 1;
                 }
@@ -199,14 +189,6 @@ bool handle_signup()
 {
     int field_index = 0, total_indices = 4;
     Field fields[total_indices];
-
-    init_color(8, 623, 588, 902);
-    init_color(9, 459, 796, 533);
-
-    init_pair(1, 9, COLOR_BLACK);
-    init_pair(2, 8, COLOR_BLACK);
-    init_pair(3, COLOR_CYAN, COLOR_BLACK);
-    init_pair(4, COLOR_RED, COLOR_BLACK);
 
     fields[0].label = (char *)calloc(50, sizeof(char));
     fields[0].label = "Username";
@@ -336,12 +318,13 @@ bool handle_signup()
                 printw("  The fields 'password' and 'confirm password' don't match!  ");
             else
             {
+                attroff(A_STANDOUT | COLOR_PAIR(4));
                 add_user(username, entered_password, email);
                 player->signed_in = true;
                 strcpy(player->username, username);
                 strcpy(player->password, entered_password);
                 strcpy(player->email, email);
-                current_window = GAME;
+                current_window = MAIN_MENU;
                 curs_set(0);
                 return 1;
             }
@@ -363,4 +346,83 @@ bool handle_signup()
             }
         }
     }
+}
+
+bool handle_main_menu()
+{
+    char menu_items[][21] = {"New Game", "Continue", "Scoreboard", "Settings", "Exit"};
+    int items_count = 5, item_index = 0, menu_width = 20;
+    MenuItem items[items_count];
+
+    for (int i = 0; i < items_count; i++)
+    {
+        items[i].label = (char *)calloc(50, sizeof(char));
+        strcpy(items[i].label, menu_items[i]);
+        items[i].position.y = 12 + i * 2;
+        items[i].position.x = 2;
+    }
+
+    erase();
+
+    attron(COLOR_PAIR(4));
+    mvprintw(1, 2, " ██▀███   ▒█████    ▄████  █    ██ ▓█████ \n");
+    mvprintw(2, 2, "▓██ ▒ ██▒▒██▒  ██▒ ██▒ ▀█▒ ██  ▓██▒▓█   ▀ \n");
+    mvprintw(3, 2, "▓██ ░▄█ ▒▒██░  ██▒▒██░▄▄▄░▓██  ▒██░▒███   \n");
+    mvprintw(4, 2, "▒██▀▀█▄  ▒██   ██░░▓█  ██▓▓▓█  ░██░▒▓█  ▄ \n");
+    mvprintw(5, 2, "░██▓ ▒██▒░ ████▓▒░░▒▓███▀▒▒▒█████▓ ░▒████▒\n");
+    mvprintw(6, 2, "░ ▒▓ ░▒▓░░ ▒░▒░▒░  ░▒   ▒ ░▒▓▒ ▒ ▒ ░░ ▒░ ░\n");
+    mvprintw(7, 2, "  ░▒ ░ ▒░  ░ ▒ ▒░   ░   ░ ░░▒░ ░ ░  ░ ░  ░\n");
+    mvprintw(8, 2, "  ░░   ░ ░ ░ ░ ▒  ░ ░   ░  ░░░ ░ ░    ░   \n");
+    mvprintw(9, 2, "   ░         ░ ░        ░    ░        ░  ░\n");
+    attroff(COLOR_PAIR(4));
+    draw_menu(stdscr, items, items_count, item_index);
+
+    while (1)
+    {
+        ch = getch();
+        if (ch == KEY_F(1))
+            return false;
+        else if (ch == KEY_UP)
+        {
+            item_index--;
+            if (item_index < 0)
+                item_index += items_count;
+            draw_menu(stdscr, items, items_count, item_index);
+        }
+        else if (ch == KEY_DOWN)
+        {
+            item_index++;
+            if (item_index >= items_count)
+                item_index -= items_count;
+            draw_menu(stdscr, items, items_count, item_index);
+        }
+        else if (ch == '\n')
+        {
+            if (item_index == 4)
+                return false;
+        }
+    }
+
+    return false;
+}
+
+void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index)
+{
+    attron(A_ITALIC);
+    for (int i = 0; i < n; i++)
+    {
+        if (i == selected_index)
+        {
+            attron(A_BOLD | COLOR_PAIR(3));
+            mvwprintw(win, items[i].position.y, items[i].position.x, " • ");
+            wprintw(win, "%s", items[i].label);
+            attroff(A_BOLD | COLOR_PAIR(3));
+            continue;
+        }
+        attron(A_DIM);
+        mvwprintw(win, items[i].position.y, items[i].position.x, "   ");
+        wprintw(win, "%s", items[i].label);
+        attroff(A_DIM);
+    }
+    attroff(A_ITALIC);
 }

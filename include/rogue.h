@@ -16,13 +16,18 @@
 #define PASSWORD_MIN_LENGTH 7
 #define MAX_USERS 256
 
+#define CUSTOM_PURPLE 8
+#define CUSTOM_GREEN 9
+
 // ______________ TYPES & VARIABLES___________
 
 enum Window
 {
     LOGIN,
     SIGNUP,
-    GAME
+    MAIN_MENU,
+    SCOREBOARD,
+    SETTINGS,
 };
 
 typedef struct
@@ -48,6 +53,13 @@ typedef struct
     char *value;
 } Field;
 
+typedef struct
+{
+    Position position;
+    char *label;
+    int width;
+} MenuItem;
+
 extern int ch;
 extern int screen_width, screen_height;
 extern int current_window;
@@ -59,10 +71,12 @@ bool screen_setup();
 WINDOW *init_win(int x, int y, int width, int height);
 bool handle_login();
 bool handle_signup();
+bool handle_main_menu();
 bool exists_username(char *username);
 bool validate_email(char *email);
 bool validate_password(char *password);
 bool add_user(char *username, char *password, char *email);
+void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index);
 
 // ______________ FUNCTIONS __________________
 
@@ -88,6 +102,18 @@ bool screen_setup()
     }
 
     start_color();
+
+    // Redefining black
+    init_color(COLOR_BLACK, 90, 78, 129);
+    // Purple
+    init_color(CUSTOM_PURPLE, 623, 588, 902);
+    // Green
+    init_color(CUSTOM_GREEN, 459, 796, 533);
+
+    init_pair(1, CUSTOM_GREEN, COLOR_BLACK);
+    init_pair(2, CUSTOM_PURPLE, COLOR_BLACK);
+    init_pair(3, COLOR_CYAN, COLOR_BLACK);
+    init_pair(4, COLOR_RED, COLOR_BLACK);
 
     refresh();
     return 1;
