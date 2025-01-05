@@ -1,4 +1,4 @@
-#include "include/rogue.h"
+#include "../include/rogue.h"
 
 int ch;
 int screen_width, screen_height;
