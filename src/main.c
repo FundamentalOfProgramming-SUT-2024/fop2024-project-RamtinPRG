@@ -1,16 +1,9 @@
 #include "../include/rogue.h"
 
-int ch;
-int screen_width, screen_height;
-int current_window = LOGIN;
-Player *player;
-
 int main()
 {
     // Initializing
-    player = (Player *)malloc(sizeof(Player));
-    player->signed_in = false;
-    screen_setup();
+    setup();
 
     // Mainloop
     while (1)
@@ -33,8 +26,16 @@ int main()
             if (!handle_main_menu())
                 break;
         }
+        else if (current_window == SETTINGS)
+        {
+            if (!handle_settings())
+                break;
+        }
     }
 
     endwin();
+    Mix_FreeMusic(music);
+    Mix_Quit();
+    SDL_Quit();
     return 0;
 }

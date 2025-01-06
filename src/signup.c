@@ -46,11 +46,11 @@ bool handle_signup()
     attron(COLOR_PAIR(3));
     mvprintw(5, 2, "* ");
     attron(A_ITALIC | A_UNDERLINE);
-    printw("Use Tab to to switch between fields.");
+    printw("Use TAB to to switch between fields.");
     attroff(A_ITALIC | A_UNDERLINE);
     mvprintw(6, 2, "* ");
     attron(A_ITALIC | A_UNDERLINE);
-    printw("Use Enter to submit the form.");
+    printw("Use ENTER to submit the form.");
     attroff(A_ITALIC | A_UNDERLINE | COLOR_PAIR(3));
     mvprintw(8, 2, "Already have an account? Press F4 to login.");
 

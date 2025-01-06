@@ -50,7 +50,13 @@ bool handle_main_menu()
         }
         else if (ch == '\n')
         {
-            if (item_index == 4)
+            if (item_index == 3)
+            {
+                current_window = SETTINGS;
+                previous_window = MAIN_MENU;
+                return true;
+            }
+            else if (item_index == 4)
                 return false;
         }
     }
