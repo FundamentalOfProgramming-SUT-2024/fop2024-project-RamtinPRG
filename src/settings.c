@@ -2,6 +2,7 @@
 
 bool handle_settings()
 {
+    bool applied = true;
     int items_count = 3, item_index = 0, labels_length = 30, options_length = 15;
     char settings_labels[][21] = {"Difficulty", "Character's color", "Music"};
     SettingItem items[items_count];
@@ -97,6 +98,11 @@ bool handle_settings()
                 music_settings->current_music_index = items[2].option_index;
                 load_music();
             }
+            if (!applied)
+            {
+                mvprintw(25, 2, "Changes applied!");
+                applied = true;
+            }
         }
         else if (ch == KEY_UP)
         {
@@ -114,6 +120,12 @@ bool handle_settings()
         }
         else if (ch == KEY_RIGHT)
         {
+            if (applied)
+            {
+                move(25, 0);
+                clrtoeol();
+                applied = false;
+            }
             items[item_index].option_index++;
             if (items[item_index].option_index >= items[item_index].options_count)
                 items[item_index].option_index -= items[item_index].options_count;
@@ -126,6 +138,12 @@ bool handle_settings()
         }
         else if (ch == KEY_LEFT)
         {
+            if (applied)
+            {
+                move(25, 0);
+                clrtoeol();
+                applied = false;
+            }
             items[item_index].option_index--;
             if (items[item_index].option_index < 0)
                 items[item_index].option_index += items[item_index].options_count;
