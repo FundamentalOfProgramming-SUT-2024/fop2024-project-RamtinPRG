@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
+#include "config.h"
 
 // _______________ DEFINES ___________________
 
@@ -138,6 +139,9 @@ bool validate_password(char *password);
 bool add_user(char *username, char *password, char *email);
 void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index);
 void draw_settings(WINDOW *win, SettingItem *items, int n, int selected_index);
+
+#if ENABLE_MUSIC
 void load_music();
+#endif
 
 #endif

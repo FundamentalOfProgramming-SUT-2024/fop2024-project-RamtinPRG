@@ -96,7 +96,9 @@ bool handle_settings()
             if (music_settings->current_music_index != items[2].option_index)
             {
                 music_settings->current_music_index = items[2].option_index;
+#if ENABLE_MUSIC
                 load_music();
+#endif
             }
             if (!applied)
             {

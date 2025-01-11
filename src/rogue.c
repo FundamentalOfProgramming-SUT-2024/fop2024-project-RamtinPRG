@@ -103,11 +103,13 @@ bool setup()
 
     refresh();
 
-    // ____________ MUSIC INITIALIZATION _______
+// ____________ MUSIC INITIALIZATION _______
+#if ENABLE_MUSIC
     SDL_Init(SDL_INIT_AUDIO);
     Mix_Init(MIX_INIT_MP3);
-    Mix_OpenAudio(44100, AUDIO_F32SYS, 1, 4096);
+    Mix_OpenAudio(44100, AUDIO_F32SYS, 2, 1024);
     load_music();
+#endif
 
     return 1;
 }
@@ -221,6 +223,7 @@ void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index)
     attroff(A_ITALIC);
 }
 
+#if ENABLE_MUSIC
 void load_music()
 {
     char music_file_name[100] = "musics/";
@@ -230,3 +233,4 @@ void load_music()
     music = Mix_LoadMUS(music_file_name);
     Mix_PlayMusic(music, -1);
 }
+#endif
