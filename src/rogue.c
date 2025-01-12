@@ -61,9 +61,20 @@ bool setup()
     keypad(stdscr, TRUE);
     getmaxyx(stdscr, screen_height, screen_width);
 
+    if (screen_height < MIN_SCREEN_HEIGHT || screen_width < MIN_SCREEN_WIDTH)
+    {
+        char string[200] = "You're screen is too small. Press any key to exit!";
+        move(screen_height / 2, (screen_width - strlen(string)) / 2);
+        printw("%s", string);
+        getch();
+        endwin();
+        exit_curses(1);
+        return 0;
+    }
+
     if (!has_colors())
     {
-        char string[200] = "Your terminal doesn't support colors. Press a key to exit!";
+        char string[200] = "Your terminal doesn't support colors. Press any key to exit!";
         move(screen_height / 2, (screen_width - strlen(string)) / 2);
         printw("%s", string);
         getch();
@@ -103,13 +114,17 @@ bool setup()
 
     refresh();
 
-// ____________ MUSIC INITIALIZATION _______
+    // ____________ MUSIC INITIALIZATION _______
+
 #if ENABLE_MUSIC
     SDL_Init(SDL_INIT_AUDIO);
     Mix_Init(MIX_INIT_MP3);
     Mix_OpenAudio(44100, AUDIO_F32SYS, 2, 1024);
     load_music();
 #endif
+
+    // ____________ RANDOM SEED ________________
+    srand(time(NULL));
 
     return 1;
 }
@@ -221,6 +236,11 @@ void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index)
         attroff(A_DIM);
     }
     attroff(A_ITALIC);
+}
+
+int nrandom(int min, int max)
+{
+    return rand() % (max - min + 1) + min;
 }
 
 #if ENABLE_MUSIC

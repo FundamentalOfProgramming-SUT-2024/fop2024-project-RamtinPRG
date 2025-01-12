@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <locale.h>
 #include <ctype.h>
 #include <SDL2/SDL.h>
@@ -29,6 +30,20 @@
 #define CHAR_VIOLET 33
 #define CHAR_PINK 34
 
+#define MIN_ROOM_WIDTH 4
+#define MIN_ROOM_HEIGHT 4
+#define MAX_ROOM_WIDTH 28
+#define MAX_ROOM_HEIGHT 8
+#define MIN_CORRIDOR_LENGTH 4
+#define MAP_WIDTH 3
+#define MAP_HEIGHT 2
+#define MIN_ROOMS 6
+#define MAX_ROOMS 6
+
+#define SCREEN_OFFSET 2
+#define MIN_SCREEN_WIDTH (MAP_WIDTH * (MAX_ROOM_WIDTH + 2) + (MAP_WIDTH - 1) * MIN_CORRIDOR_LENGTH + 2 * SCREEN_OFFSET)
+#define MIN_SCREEN_HEIGHT (MAP_HEIGHT * (MAX_ROOM_HEIGHT + 2) + (MAP_HEIGHT - 1) * MIN_CORRIDOR_LENGTH + 2 * SCREEN_OFFSET)
+
 // ______________ TYPES & VARIABLES___________
 
 enum Window
@@ -38,6 +53,7 @@ enum Window
     MAIN_MENU,
     SCOREBOARD,
     SETTINGS,
+    GAME,
 };
 
 enum Difficulty
@@ -115,6 +131,14 @@ typedef struct
     int option_color_pair_index;
 } SettingItem;
 
+typedef struct
+{
+    Position position;
+    Position block;
+    int width;
+    int height;
+} Room;
+
 extern int ch;
 extern int screen_width, screen_height;
 extern int current_window;
@@ -124,6 +148,8 @@ extern MusicSettings *music_settings;
 extern ColorSettings *color_settings;
 extern Settings *settings;
 extern Mix_Music *music;
+extern Room **rooms;
+extern int rooms_count;
 
 // ______________ FUNCTION PROTOTYPES ________
 
@@ -133,12 +159,15 @@ bool handle_login();
 bool handle_signup();
 bool handle_main_menu();
 bool handle_settings();
+bool handle_game();
 bool exists_username(char *username);
 bool validate_email(char *email);
 bool validate_password(char *password);
 bool add_user(char *username, char *password, char *email);
 void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index);
 void draw_settings(WINDOW *win, SettingItem *items, int n, int selected_index);
+int nrandom(int min, int max);
+void generate_map();
 
 #if ENABLE_MUSIC
 void load_music();
