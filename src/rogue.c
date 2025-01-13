@@ -101,6 +101,12 @@ bool setup()
     init_color(CHAR_VIOLET, 545, 360, 964);
     init_color(CHAR_PINK, 925, 282, 600);
 
+    // Game items
+    init_color(COLOR_WALL, 203, 443, 921);
+    init_pair(COLOR_WALL, COLOR_WALL, COLOR_BLACK);
+    init_color(COLOR_DOOR, 611, 313, 949);
+    init_pair(COLOR_DOOR, COLOR_DOOR, COLOR_BLACK);
+
     init_pair(1, CUSTOM_GREEN, COLOR_BLACK);
     init_pair(2, CUSTOM_PURPLE, COLOR_BLACK);
     init_pair(3, COLOR_CYAN, COLOR_BLACK);

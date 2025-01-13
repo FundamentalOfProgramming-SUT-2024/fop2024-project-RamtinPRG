@@ -30,15 +30,18 @@
 #define CHAR_VIOLET 33
 #define CHAR_PINK 34
 
+#define COLOR_WALL 100
+#define COLOR_DOOR 101
+
 #define MIN_ROOM_WIDTH 4
 #define MIN_ROOM_HEIGHT 4
 #define MAX_ROOM_WIDTH 28
 #define MAX_ROOM_HEIGHT 8
 #define MIN_CORRIDOR_LENGTH 4
-#define MAP_WIDTH 3
-#define MAP_HEIGHT 2
+#define MAP_WIDTH 4
+#define MAP_HEIGHT 3
 #define MIN_ROOMS 6
-#define MAX_ROOMS 6
+#define MAX_ROOMS 10
 
 #define SCREEN_OFFSET 2
 #define MIN_SCREEN_WIDTH (MAP_WIDTH * (MAX_ROOM_WIDTH + 2) + (MAP_WIDTH - 1) * MIN_CORRIDOR_LENGTH + 2 * SCREEN_OFFSET)
@@ -134,9 +137,18 @@ typedef struct
 typedef struct
 {
     Position position;
+    bool exists;
+} Door;
+
+typedef struct
+{
+    Position position;
     Position block;
     int width;
     int height;
+
+    // [0]: right door, [1]: top door, [2]: left door, [3]: bottom door
+    Door doors[4];
 } Room;
 
 extern int ch;
@@ -168,6 +180,10 @@ void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index);
 void draw_settings(WINDOW *win, SettingItem *items, int n, int selected_index);
 int nrandom(int min, int max);
 void generate_map();
+bool exists_room(int y, int x);
+Room *get_room(int y, int x);
+int empty_adjacent_blocks(Room *room, Position blocks[4]);
+int adjacent_room_direction(Room *a, Room *b);
 
 #if ENABLE_MUSIC
 void load_music();
