@@ -18,6 +18,7 @@ void generate_map()
     rooms[0]->height = nrandom(MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT);
     rooms[0]->position.x = nrandom(0, MAX_ROOM_WIDTH - rooms[0]->width);
     rooms[0]->position.y = nrandom(0, MAX_ROOM_HEIGHT - rooms[0]->height);
+    rooms[0]->visible = false;
 
     for (int i = 1; i < rooms_count; i++)
     {
@@ -36,6 +37,7 @@ void generate_map()
         rooms[i]->height = nrandom(MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT);
         rooms[i]->position.x = nrandom(0, MAX_ROOM_WIDTH - rooms[i]->width);
         rooms[i]->position.y = nrandom(0, MAX_ROOM_HEIGHT - rooms[i]->height);
+        rooms[i]->visible = false;
 
         int direction = adjacent_room_direction(rooms[i], rooms[room_index]);
         rooms[i]->doors[direction].exists = true;

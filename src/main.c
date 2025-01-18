@@ -33,7 +33,7 @@ int main()
         }
         else if (current_window == GAME)
         {
-            generate_map();
+            // generate_map();
             if (!handle_game())
                 break;
         }

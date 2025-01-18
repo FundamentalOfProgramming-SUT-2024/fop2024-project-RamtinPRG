@@ -1,6 +1,10 @@
 #ifndef ROGUE_H_
 #define ROGUE_H_
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -9,6 +13,7 @@
 #include <time.h>
 #include <locale.h>
 #include <ctype.h>
+#include <wchar.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include "config.h"
@@ -39,9 +44,9 @@
 #define MAX_ROOM_HEIGHT 8
 #define MIN_CORRIDOR_LENGTH 4
 #define MAP_WIDTH 4
-#define MAP_HEIGHT 3
+#define MAP_HEIGHT 2
 #define MIN_ROOMS 6
-#define MAX_ROOMS 10
+#define MAX_ROOMS (MAP_WIDTH * MAP_HEIGHT)
 
 #define SCREEN_OFFSET 2
 #define MIN_SCREEN_WIDTH (MAP_WIDTH * (MAX_ROOM_WIDTH + 2) + (MAP_WIDTH - 1) * MIN_CORRIDOR_LENGTH + 2 * SCREEN_OFFSET)
@@ -64,6 +69,18 @@ enum Difficulty
     EASY,
     MEDUIM,
     HARD,
+};
+
+enum Direction
+{
+    N,
+    NE,
+    E,
+    SE,
+    S,
+    SW,
+    W,
+    NW
 };
 
 typedef struct
@@ -146,10 +163,22 @@ typedef struct
     Position block;
     int width;
     int height;
-
+    bool visible;
     // [0]: right door, [1]: top door, [2]: left door, [3]: bottom door
     Door doors[4];
 } Room;
+
+typedef struct
+{
+
+} Corridor;
+
+typedef struct Character
+{
+    Position position;
+    Position prev_position;
+    cchar_t under;
+} Character;
 
 extern int ch;
 extern int screen_width, screen_height;
@@ -162,6 +191,8 @@ extern Settings *settings;
 extern Mix_Music *music;
 extern Room **rooms;
 extern int rooms_count;
+extern Character character;
+extern Room *initial_room;
 
 // ______________ FUNCTION PROTOTYPES ________
 
@@ -184,6 +215,12 @@ bool exists_room(int y, int x);
 Room *get_room(int y, int x);
 int empty_adjacent_blocks(Room *room, Position blocks[4]);
 int adjacent_room_direction(Room *a, Room *b);
+void draw_room(Room *room);
+void draw_rooms();
+void draw_corridors();
+Position get_absolute_position(Room *room);
+void move_character(int direction);
+void setup_new_map();
 
 #if ENABLE_MUSIC
 void load_music();
