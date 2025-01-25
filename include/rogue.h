@@ -2,13 +2,14 @@
 #define ROGUE_H_
 
 #ifndef _GNU_SOURCE
-#define _GNU_SOURCE 1
+#define _GNU_SOURCE
 #endif
 
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <time.h>
 #include <locale.h>
@@ -44,9 +45,10 @@
 #define MAX_ROOM_HEIGHT 8
 #define MIN_CORRIDOR_LENGTH 4
 #define MAP_WIDTH 4
-#define MAP_HEIGHT 2
+#define MAP_HEIGHT 3
 #define MIN_ROOMS 6
 #define MAX_ROOMS (MAP_WIDTH * MAP_HEIGHT)
+#define FLOORS 5
 
 #define SCREEN_OFFSET 2
 #define MIN_SCREEN_WIDTH (MAP_WIDTH * (MAX_ROOM_WIDTH + 2) + (MAP_WIDTH - 1) * MIN_CORRIDOR_LENGTH + 2 * SCREEN_OFFSET)
@@ -69,6 +71,12 @@ enum Difficulty
     EASY,
     MEDUIM,
     HARD,
+};
+
+enum GameMode
+{
+    CONTINUE,
+    NEW_GAME,
 };
 
 enum Direction
@@ -173,26 +181,46 @@ typedef struct
 
 } Corridor;
 
+typedef struct
+{
+    Position position;
+    Room *room;
+} Stair;
+
+typedef struct
+{
+    Room **rooms;
+    int rooms_count;
+    Stair down_stair;
+    Stair up_stair;
+    bool has_down_stair;
+    bool has_up_stair;
+} Floor;
+
 typedef struct Character
 {
     Position position;
     Position prev_position;
     cchar_t under;
+    int health;
 } Character;
 
 extern int ch;
 extern int screen_width, screen_height;
 extern int current_window;
 extern int previous_window;
+extern int game_mode;
 extern Player *player;
 extern MusicSettings *music_settings;
 extern ColorSettings *color_settings;
 extern Settings *settings;
 extern Mix_Music *music;
-extern Room **rooms;
-extern int rooms_count;
 extern Character character;
 extern Room *initial_room;
+extern Floor floors[FLOORS];
+extern Floor *current_floor;
+extern int current_floor_index;
+extern FILE *log_file;
 
 // ______________ FUNCTION PROTOTYPES ________
 
@@ -211,16 +239,24 @@ void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index);
 void draw_settings(WINDOW *win, SettingItem *items, int n, int selected_index);
 int nrandom(int min, int max);
 void generate_map();
-bool exists_room(int y, int x);
-Room *get_room(int y, int x);
-int empty_adjacent_blocks(Room *room, Position blocks[4]);
+void generate_floor(Floor *floor, Floor *prev_floor);
+bool exists_room(Floor *floor, int y, int x);
+Room *get_room(Floor *floor, int y, int x);
+int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);
 int adjacent_room_direction(Room *a, Room *b);
 void draw_room(Room *room);
-void draw_rooms();
-void draw_corridors();
+void draw_rooms(Floor *floor);
+void draw_corridors(Floor *floor);
+void draw_stairs(Floor *floor);
 Position get_absolute_position(Room *room);
+void remove_character();
+void place_character(Position position);
+void teleport_character(Position position);
 void move_character(int direction);
-void setup_new_map();
+bool ascend_character();
+bool descend_character();
+void setup_floor();
+bool register_command(char *command, int num, ...);
 
 #if ENABLE_MUSIC
 void load_music();

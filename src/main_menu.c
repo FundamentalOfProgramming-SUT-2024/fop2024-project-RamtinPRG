@@ -54,6 +54,7 @@ bool handle_main_menu()
             {
                 current_window = GAME;
                 previous_window = MAIN_MENU;
+                game_mode = NEW_GAME;
                 return true;
             }
             else if (item_index == 3)

@@ -3,3 +3,6 @@ rogue
 users/*.txt
 usernames.txt
 user_template.txt
+
+logs/*
+maps/*

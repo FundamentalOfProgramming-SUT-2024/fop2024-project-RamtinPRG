@@ -4,110 +4,195 @@
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
 Character character;
+Floor *current_floor;
 Room *initial_room;
+int current_floor_index;
+FILE *log_file;
 
 bool handle_game()
 {
-    generate_map();
-    erase();
-    setup_new_map();
+    if (game_mode == NEW_GAME)
+    {
+        char file_name[50] = "logs/";
+        strcat(file_name, player->username);
+        log_file = fopen(file_name, "w");
+        generate_map();
+        current_floor_index = 0;
+        current_floor = &floors[current_floor_index];
+        setup_floor();
+        Position position = get_absolute_position(initial_room);
+        position.x += rand() % initial_room->width + 1;
+        position.y += rand() % initial_room->height + 1;
+        place_character(position);
+    }
     while (1)
     {
         ch = getch();
         if (ch == KEY_F(1))
+        {
+            fclose(log_file);
             return false;
+        }
         else if (ch == KEY_F(4))
         {
+            fclose(log_file);
             current_window = MAIN_MENU;
             return true;
         }
-        else if (ch == 'r')
+        // else if (ch == 'r')
+        // {
+        //     generate_floor();
+        //     erase();
+        //     setup_new_map();
+        // }
+        else if (ch == KEY_UP && current_floor_index < FLOORS - 1)
         {
-            generate_map();
+            current_floor_index++;
+            current_floor = &floors[current_floor_index];
             erase();
-            setup_new_map();
+            setup_floor();
+        }
+        else if (ch == KEY_DOWN && current_floor_index > 0)
+        {
+            current_floor_index--;
+            current_floor = &floors[current_floor_index];
+            setup_floor();
         }
         else if (ch == 'w' || ch == 'W')
-            move_character(N);
+            register_command("move", 1, N);
         else if (ch == 'e' || ch == 'E')
-            move_character(NE);
+            register_command("move", 1, NE);
         else if (ch == 'd' || ch == 'D')
-            move_character(E);
+            register_command("move", 1, E);
         else if (ch == 'c' || ch == 'C')
-            move_character(SE);
+            register_command("move", 1, SE);
         else if (ch == 's' || ch == 'S')
-            move_character(S);
+            register_command("move", 1, S);
         else if (ch == 'z' || ch == 'Z')
-            move_character(SW);
+            register_command("move", 1, SW);
         else if (ch == 'a' || ch == 'A')
-            move_character(W);
+            register_command("move", 1, W);
         else if (ch == 'q' || ch == 'Q')
-            move_character(NW);
+            register_command("move", 1, NW);
+        else if (ch == '>' & 0x1F)
+            register_command("ascend", 0);
+        else if (ch == '<' & 0x1F)
+            register_command("descend", 0);
     }
     return false;
 }
 
-void setup_new_map()
+void setup_floor()
 {
-    initial_room = rooms[rand() % rooms_count];
+    erase();
+    initial_room = current_floor->rooms[0];
     initial_room->visible = true;
-    draw_rooms();
+    draw_rooms(current_floor);
     // attron(A_INVIS);
-    draw_corridors();
+    draw_corridors(current_floor);
+    draw_stairs(current_floor);
     // attroff(A_INVIS);
-    Position position;
-    position = get_absolute_position(initial_room);
-    position.x += rand() % initial_room->width + 1;
-    position.y += rand() % initial_room->height + 1;
+}
+
+void draw_stairs(Floor *floor)
+{
+    if (floor->has_down_stair)
+    {
+        Position position = get_absolute_position(floor->down_stair.room);
+        position.x += floor->down_stair.position.x;
+        position.y += floor->down_stair.position.y;
+        mvadd_wch(position.y, position.x, &((cchar_t){0, {L'▼', 0}, CHAR_LIME}));
+    }
+    if (floor->has_up_stair)
+    {
+        Position position = get_absolute_position(floor->up_stair.room);
+        position.x += floor->up_stair.position.x;
+        position.y += floor->up_stair.position.y;
+        mvadd_wch(position.y, position.x, &((cchar_t){0, {L'▲', 0}, CHAR_TEAL}));
+    }
+}
+
+void remove_character()
+{
+    mvadd_wch(character.position.y, character.position.x, &character.under);
+}
+
+void place_character(Position position)
+{
     character.position = position;
-    mvin_wch(position.y, position.x, &character.under);
-    mvaddch(position.y, position.x, '@' | COLOR_PAIR(color_settings->color_number[color_settings->current_color_index]) | A_BOLD | A_ITALIC);
+    mvin_wch(character.position.y, character.position.x, &character.under);
+    mvprintw(0, 0, "%lc%d", character.under.chars[0], character.under.chars[1]);
+    mvaddch(character.position.y, character.position.x, '@' | COLOR_PAIR(color_settings->color_number[color_settings->current_color_index]) | A_BOLD | A_ITALIC);
+}
+
+void teleport_character(Position position)
+{
+    remove_character();
+    place_character(position);
 }
 
 void move_character(int direction)
 {
-    character.prev_position = character.position;
+    Position position = character.position;
     switch (direction)
     {
     case N:
-        character.position.y--;
+        position.y--;
         break;
     case NE:
-        character.position.y--;
-        character.position.x++;
+        position.y--;
+        position.x++;
         break;
     case E:
-        character.position.x++;
+        position.x++;
         break;
     case SE:
-        character.position.y++;
-        character.position.x++;
+        position.y++;
+        position.x++;
         break;
     case S:
-        character.position.y++;
+        position.y++;
         break;
     case SW:
-        character.position.y++;
-        character.position.x--;
+        position.y++;
+        position.x--;
         break;
     case W:
-        character.position.x--;
+        position.x--;
         break;
     case NW:
-        character.position.y--;
-        character.position.x--;
+        position.y--;
+        position.x--;
         break;
     default:
         break;
     }
     cchar_t dest;
-    mvin_wch(character.position.y, character.position.x, &dest);
+    mvin_wch(position.y, position.x, &dest);
     if (!is_obstacle(dest.chars[0]))
     {
-        mvadd_wch(character.prev_position.y, character.prev_position.x, &character.under);
-        mvin_wch(character.position.y, character.position.x, &character.under);
-        mvaddch(character.position.y, character.position.x, '@' | COLOR_PAIR(color_settings->color_number[color_settings->current_color_index]) | A_BOLD | A_ITALIC);
+        teleport_character(position);
     }
-    else
-        character.position = character.prev_position;
+}
+
+bool ascend_character()
+{
+    if (character.under.chars[0] == L'▲')
+    {
+        current_floor_index++;
+        current_floor = &floors[current_floor_index];
+        return true;
+    }
+    return false;
+}
+
+bool descend_character()
+{
+    if (character.under.chars[0] == L'▼')
+    {
+        current_floor_index--;
+        current_floor = &floors[current_floor_index];
+        return true;
+    }
+    return false;
 }

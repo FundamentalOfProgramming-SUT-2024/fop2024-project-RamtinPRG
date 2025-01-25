@@ -4,6 +4,7 @@ int ch;
 int screen_width, screen_height;
 int current_window = LOGIN;
 int previous_window;
+int game_mode;
 Player *player;
 MusicSettings *music_settings;
 ColorSettings *color_settings;
@@ -263,7 +264,7 @@ void draw_room(Room *room)
             if (0 < i && i < height - 1 && 0 < j && j < width - 1)
             {
                 attron(A_DIM);
-                printw("•");
+                printw(".");
                 attroff(A_DIM);
             }
             else if (i == 0 && j == 0)
@@ -312,10 +313,10 @@ void draw_room(Room *room)
     attroff(COLOR_PAIR(COLOR_DOOR));
 }
 
-void draw_rooms()
+void draw_rooms(Floor *floor)
 {
-    for (int i = 0; i < rooms_count; i++)
-        draw_room(rooms[i]);
+    for (int i = 0; i < floor->rooms_count; i++)
+        draw_room(floor->rooms[i]);
 }
 
 Position get_absolute_position(Room *room)
@@ -326,16 +327,16 @@ Position get_absolute_position(Room *room)
     return position;
 }
 
-void draw_corridors()
+void draw_corridors(Floor *floor)
 {
     for (int i = 0; i < MAP_HEIGHT; i++)
     {
         for (int j = 0; j < MAP_WIDTH - 1; j++)
         {
-            Room *a = get_room(i, j);
+            Room *a = get_room(floor, i, j);
             if (a != NULL && a->doors[0].exists)
             {
-                Room *b = get_room(i, j + 1);
+                Room *b = get_room(floor, i, j + 1);
                 Position door_a, door_b;
                 door_a = get_absolute_position(a);
                 door_a.x += a->doors[0].position.x + 1;
@@ -373,10 +374,10 @@ void draw_corridors()
     {
         for (int j = 0; j < MAP_HEIGHT - 1; j++)
         {
-            Room *a = get_room(j, i);
+            Room *a = get_room(floor, j, i);
             if (a != NULL && a->doors[3].exists)
             {
-                Room *b = get_room(j + 1, i);
+                Room *b = get_room(floor, j + 1, i);
                 Position door_a, door_b;
                 door_a = get_absolute_position(a);
                 door_a.x += a->doors[3].position.x;
