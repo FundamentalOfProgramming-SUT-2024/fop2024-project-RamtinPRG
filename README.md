@@ -1,6 +1,28 @@
-# Project
+```
+ ██▀███   ▒█████    ▄████  █    ██ ▓█████ 
+▓██ ▒ ██▒▒██▒  ██▒ ██▒ ▀█▒ ██  ▓██▒▓█   ▀ 
+▓██ ░▄█ ▒▒██░  ██▒▒██░▄▄▄░▓██  ▒██░▒███   
+▒██▀▀█▄  ▒██   ██░░▓█  ██▓▓▓█  ░██░▒▓█  ▄ 
+░██▓ ▒██▒░ ████▓▒░░▒▓███▀▒▒▒█████▓ ░▒████▒
+░ ▒▓ ░▒▓░░ ▒░▒░▒░  ░▒   ▒ ░▒▓▒ ▒ ▒ ░░ ▒░ ░
+  ░▒ ░ ▒░  ░ ▒ ▒░   ░   ░ ░░▒░ ░ ░  ░ ░  ░
+  ░░   ░ ░ ░ ░ ▒  ░ ░   ░  ░░░ ░ ░    ░   
+   ░         ░ ░        ░    ░        ░  ░
+```
+**Name:** `Ramtin Barzkar`\
+**Student ID:** `403105782`
 
-## شما می‌توانید داک‌های هر فاز پروژه را از لینک‌های زیر دانلود کنید:
-فاز اول: 
+## setup
+After cloning the repo, you have to create the `users/`, `maps/` and `logs/` folders inside the main directory:
+```bash
+git clone https://github.com/FundamentalOfProgramming-SUT-2024/fop2024-project-RamtinPRG.git
+cd fop2024-project-RamtinPRG
+mkdir "users"
+mkdir "maps"
+mkdir "logs"
+```
 
-https://github.com/FundamentalOfProgramming-SUT-2024/fundamentalofprogramming-sut-2024-classroom-fop2024_project-Rogue_Project/blob/main/FOP_Project2024-Phase1.pdf
+To compile and run the project, simply use the `make` command:
+```bash
+make
+```
