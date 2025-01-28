@@ -57,6 +57,13 @@ bool handle_main_menu()
                 game_mode = NEW_GAME;
                 return true;
             }
+            else if (item_index == 1)
+            {
+                current_window = GAME;
+                previous_window = MAIN_MENU;
+                game_mode = CONTINUE;
+                return true;
+            }
             else if (item_index == 3)
             {
                 current_window = SETTINGS;

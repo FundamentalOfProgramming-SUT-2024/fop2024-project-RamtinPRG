@@ -221,6 +221,7 @@ extern Room *initial_room;
 extern Floor floors[FLOORS];
 extern int current_floor_index;
 extern FILE *log_file;
+extern FILE *map_file;
 
 // ______________ FUNCTION PROTOTYPES ________
 
@@ -257,6 +258,8 @@ bool ascend_character();
 bool descend_character();
 void setup_floor();
 bool register_command(char *command, int num, ...);
+void save_map(Position *position);
+void load_map(Position *position);
 
 #if ENABLE_MUSIC
 void load_music();

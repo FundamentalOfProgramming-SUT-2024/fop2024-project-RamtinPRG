@@ -7,29 +7,38 @@ Character character;
 Room *initial_room;
 int current_floor_index;
 FILE *log_file;
+FILE *map_file;
 
 bool handle_game()
 {
+    Position position;
+    char file_name[50] = "logs/";
+    strcat(file_name, player->username);
+    log_file = fopen(file_name, "w");
+
     if (game_mode == NEW_GAME)
     {
-        char file_name[50] = "logs/";
-        strcat(file_name, player->username);
-        log_file = fopen(file_name, "w");
-
         generate_map();
-        current_floor_index = 0;
-        for (int i = 0; i < floors[0].rooms_count; i++)
-        {
-            mvprintw(i, 0, "%d %d ", floors[0].rooms[i]->block.x, floors[0].rooms[i]->block.y);
-            for (int j = 0; j < 4; j++)
-                printw("%d ", floors[0].rooms[i]->doors[j].exists);
-        }
-        setup_floor();
-        Position position = get_absolute_position(initial_room);
-        position.x += rand() % initial_room->width + 1;
-        position.y += rand() % initial_room->height + 1;
-        place_character(position);
+
+        position = get_absolute_position(floors[0].rooms[0]);
+        position.x += rand() % floors[0].rooms[0]->width + 1;
+        position.y += rand() % floors[0].rooms[0]->height + 1;
+
+        save_map(&position);
     }
+    else
+    {
+        load_map(&position);
+        printw("hello");
+        refresh();
+    }
+
+    current_floor_index = 0;
+    initial_room = floors[0].rooms[0];
+    initial_room->visible = true;
+    setup_floor();
+    place_character(position);
+
     while (1)
     {
         ch = getch();
@@ -108,8 +117,6 @@ bool handle_game()
 void setup_floor()
 {
     erase();
-    initial_room = floors[0].rooms[0];
-    initial_room->visible = true;
     draw_rooms(&floors[current_floor_index]);
     // attron(A_INVIS);
     draw_corridors(&floors[current_floor_index]);
