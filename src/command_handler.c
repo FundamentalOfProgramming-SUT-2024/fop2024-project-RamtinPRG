@@ -18,9 +18,9 @@ bool register_command(char *command, int num, ...)
         if (ascend_character())
         {
             setup_floor();
-            Position position = get_absolute_position(current_floor->down_stair.room);
-            position.x += current_floor->down_stair.position.x;
-            position.y += current_floor->down_stair.position.y;
+            Position position = get_absolute_position(floors[current_floor_index].down_stair.room);
+            position.x += floors[current_floor_index].down_stair.position.x;
+            position.y += floors[current_floor_index].down_stair.position.y;
             place_character(position);
             return true;
         }
@@ -32,9 +32,9 @@ bool register_command(char *command, int num, ...)
         if (descend_character())
         {
             setup_floor();
-            Position position = get_absolute_position(current_floor->up_stair.room);
-            position.x += current_floor->up_stair.position.x;
-            position.y += current_floor->up_stair.position.y;
+            Position position = get_absolute_position(floors[current_floor_index].up_stair.room);
+            position.x += floors[current_floor_index].up_stair.position.x;
+            position.y += floors[current_floor_index].up_stair.position.y;
             place_character(position);
             return true;
         }

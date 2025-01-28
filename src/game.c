@@ -4,7 +4,6 @@
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
 Character character;
-Floor *current_floor;
 Room *initial_room;
 int current_floor_index;
 FILE *log_file;
@@ -16,9 +15,15 @@ bool handle_game()
         char file_name[50] = "logs/";
         strcat(file_name, player->username);
         log_file = fopen(file_name, "w");
+
         generate_map();
         current_floor_index = 0;
-        current_floor = &floors[current_floor_index];
+        for (int i = 0; i < floors[0].rooms_count; i++)
+        {
+            mvprintw(i, 0, "%d %d ", floors[0].rooms[i]->block.x, floors[0].rooms[i]->block.y);
+            for (int j = 0; j < 4; j++)
+                printw("%d ", floors[0].rooms[i]->doors[j].exists);
+        }
         setup_floor();
         Position position = get_absolute_position(initial_room);
         position.x += rand() % initial_room->width + 1;
@@ -31,12 +36,32 @@ bool handle_game()
         if (ch == KEY_F(1))
         {
             fclose(log_file);
+            for (int i = 0; i < FLOORS; i++)
+            {
+                for (int j = 0; j < floors[i].rooms_count; j++)
+                {
+                    free(floors[i].rooms[j]);
+                }
+                free(floors[i].rooms);
+                floors[i].up_stair.room = NULL;
+                floors[i].down_stair.room = NULL;
+            }
             return false;
         }
         else if (ch == KEY_F(4))
         {
             fclose(log_file);
             current_window = MAIN_MENU;
+            for (int i = 0; i < FLOORS; i++)
+            {
+                for (int j = 0; j < floors[i].rooms_count; j++)
+                {
+                    free(floors[i].rooms[j]);
+                }
+                free(floors[i].rooms);
+                floors[i].up_stair.room = NULL;
+                floors[i].down_stair.room = NULL;
+            }
             return true;
         }
         // else if (ch == 'r')
@@ -48,14 +73,12 @@ bool handle_game()
         else if (ch == KEY_UP && current_floor_index < FLOORS - 1)
         {
             current_floor_index++;
-            current_floor = &floors[current_floor_index];
             erase();
             setup_floor();
         }
         else if (ch == KEY_DOWN && current_floor_index > 0)
         {
             current_floor_index--;
-            current_floor = &floors[current_floor_index];
             setup_floor();
         }
         else if (ch == 'w' || ch == 'W')
@@ -85,12 +108,12 @@ bool handle_game()
 void setup_floor()
 {
     erase();
-    initial_room = current_floor->rooms[0];
+    initial_room = floors[0].rooms[0];
     initial_room->visible = true;
-    draw_rooms(current_floor);
+    draw_rooms(&floors[current_floor_index]);
     // attron(A_INVIS);
-    draw_corridors(current_floor);
-    draw_stairs(current_floor);
+    draw_corridors(&floors[current_floor_index]);
+    draw_stairs(&floors[current_floor_index]);
     // attroff(A_INVIS);
 }
 
@@ -180,7 +203,6 @@ bool ascend_character()
     if (character.under.chars[0] == L'▲')
     {
         current_floor_index++;
-        current_floor = &floors[current_floor_index];
         return true;
     }
     return false;
@@ -191,7 +213,6 @@ bool descend_character()
     if (character.under.chars[0] == L'▼')
     {
         current_floor_index--;
-        current_floor = &floors[current_floor_index];
         return true;
     }
     return false;

@@ -15,6 +15,7 @@
 #include <locale.h>
 #include <ctype.h>
 #include <wchar.h>
+#include <errno.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include "config.h"
@@ -218,7 +219,6 @@ extern Mix_Music *music;
 extern Character character;
 extern Room *initial_room;
 extern Floor floors[FLOORS];
-extern Floor *current_floor;
 extern int current_floor_index;
 extern FILE *log_file;
 

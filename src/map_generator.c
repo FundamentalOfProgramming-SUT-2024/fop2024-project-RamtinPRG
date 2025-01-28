@@ -21,13 +21,13 @@ void generate_map()
 void generate_floor(Floor *floor, Floor *prev_floor)
 {
     floor->rooms_count = nrandom(MIN_ROOMS, MAX_ROOMS);
-    floor->rooms = (Room **)malloc(sizeof(Room *) * floor->rooms_count);
+    floor->rooms = (Room **)calloc(floor->rooms_count, sizeof(Room *));
     Room **rooms = floor->rooms;
     int rooms_count = floor->rooms_count;
     for (int i = 0; i < rooms_count; i++)
         rooms[i] = NULL;
 
-    rooms[0] = (Room *)malloc(sizeof(Room));
+    rooms[0] = (Room *)calloc(1, sizeof(Room));
     if (prev_floor == NULL)
     {
         int y = rand() % MAP_HEIGHT, x = rand() % MAP_WIDTH;
@@ -58,7 +58,7 @@ void generate_floor(Floor *floor, Floor *prev_floor)
             total = empty_adjacent_blocks(floor, rooms[room_index], blocks);
         } while (total == 0);
         int block_index = rand() % total;
-        rooms[i] = (Room *)malloc(sizeof(Room));
+        rooms[i] = (Room *)calloc(1, sizeof(Room));
         rooms[i]->block = blocks[block_index];
 
         rooms[i]->width = nrandom(MIN_ROOM_WIDTH, MAX_ROOM_WIDTH);
