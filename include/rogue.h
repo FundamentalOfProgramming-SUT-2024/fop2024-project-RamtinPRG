@@ -16,6 +16,7 @@
 #include <ctype.h>
 #include <wchar.h>
 #include <errno.h>
+#include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include "config.h"
@@ -258,6 +259,7 @@ bool ascend_character();
 bool descend_character();
 void setup_floor();
 bool register_command(char *command, int num, ...);
+void replay_commands();
 void save_map(Position *position);
 void load_map(Position *position);
 

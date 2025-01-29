@@ -14,7 +14,6 @@ bool handle_game()
     Position position;
     char file_name[50] = "logs/";
     strcat(file_name, player->username);
-    log_file = fopen(file_name, "w");
 
     if (game_mode == NEW_GAME)
     {
@@ -29,8 +28,6 @@ bool handle_game()
     else
     {
         load_map(&position);
-        printw("hello");
-        refresh();
     }
 
     current_floor_index = 0;
@@ -38,6 +35,14 @@ bool handle_game()
     initial_room->visible = true;
     setup_floor();
     place_character(position);
+    refresh();
+    if (game_mode == NEW_GAME)
+        log_file = fopen(file_name, "w");
+    else
+    {
+        replay_commands();
+        log_file = fopen(file_name, "a");
+    }
 
     while (1)
     {
