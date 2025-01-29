@@ -270,25 +270,25 @@ void draw_room(Room *room)
             else if (i == 0 && j == 0)
             {
                 attron(COLOR_PAIR(COLOR_WALL));
-                printw("┌");
+                printw("╭");
                 attroff(COLOR_PAIR(COLOR_WALL));
             }
             else if (i == 0 && j == width - 1)
             {
                 attron(COLOR_PAIR(COLOR_WALL));
-                printw("┐");
+                printw("╮");
                 attroff(COLOR_PAIR(COLOR_WALL));
             }
             else if (i == height - 1 && j == width - 1)
             {
                 attron(COLOR_PAIR(COLOR_WALL));
-                printw("┘");
+                printw("╯");
                 attroff(COLOR_PAIR(COLOR_WALL));
             }
             else if (i == height - 1 && j == 0)
             {
                 attron(COLOR_PAIR(COLOR_WALL));
-                printw("└");
+                printw("╰");
                 attroff(COLOR_PAIR(COLOR_WALL));
             }
             else if (i == 0 || i == height - 1)

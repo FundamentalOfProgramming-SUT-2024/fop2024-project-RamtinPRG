@@ -33,6 +33,7 @@ bool handle_game()
     current_floor_index = 0;
     initial_room = floors[0].rooms[0];
     initial_room->visible = true;
+    character.health = 100;
     setup_floor();
     place_character(position);
     refresh();

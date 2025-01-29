@@ -47,7 +47,7 @@
 #define MAX_ROOM_HEIGHT 8
 #define MIN_CORRIDOR_LENGTH 4
 #define MAP_WIDTH 4
-#define MAP_HEIGHT 3
+#define MAP_HEIGHT 2
 #define MIN_ROOMS 6
 #define MAX_ROOMS (MAP_WIDTH * MAP_HEIGHT)
 #define FLOORS 5

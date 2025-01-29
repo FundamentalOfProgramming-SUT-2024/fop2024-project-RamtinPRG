@@ -39,10 +39,14 @@ void load_map(Position *position)
     for (int i = 0; i < FLOORS; i++)
     {
         Floor *floor = &floors[i];
-        fscanf(map_file, "%d %d", &floor->has_down_stair, &floor->has_up_stair);
+        int has_down_stair, has_up_stair;
+        fscanf(map_file, "%d %d", &has_down_stair, &has_up_stair);
         fscanf(map_file, "%d %d", &floor->down_stair.position.x, &floor->down_stair.position.y);
         fscanf(map_file, "%d %d", &floor->up_stair.position.x, &floor->up_stair.position.y);
         fscanf(map_file, "%d", &floor->rooms_count);
+
+        floor->has_down_stair = (bool)has_down_stair;
+        floor->has_up_stair = (bool)has_up_stair;
 
         floor->rooms = (Room **)calloc(floor->rooms_count, sizeof(Room *));
 
@@ -50,9 +54,16 @@ void load_map(Position *position)
         {
             floor->rooms[j] = (Room *)calloc(1, sizeof(Room));
             Room *room = floor->rooms[j];
-            fscanf(map_file, "%d %d %d %d %d %d %d", &room->position.x, &room->position.y, &room->block.x, &room->block.y, &room->width, &room->height, &room->visible);
+            int visible;
+            fscanf(map_file, "%d %d %d %d %d %d %d", &room->position.x, &room->position.y, &room->block.x, &room->block.y, &room->width, &room->height, &visible);
+            room->visible = (bool)visible;
+
             for (int k = 0; k < 4; k++)
-                fscanf(map_file, "%d %d %d", &room->doors[k].position.x, &room->doors[k].position.y, &room->doors[k].exists);
+            {
+                int exists;
+                fscanf(map_file, "%d %d %d", &room->doors[k].position.x, &room->doors[k].position.y, &exists);
+                room->doors[k].exists = (bool)exists;
+            }
         }
 
         floor->down_stair.room = floor->rooms[0];
