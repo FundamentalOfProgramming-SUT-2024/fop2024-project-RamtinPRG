@@ -2,6 +2,16 @@
 
 bool handle_main_menu()
 {
+    wchar_t logo[LOGO_HEIGHT][LOGO_WIDTH + 1] =
+        {L" ██▀███   ▒█████    ▄████  █    ██ ▓█████ ",
+         L"▓██ ▒ ██▒▒██▒  ██▒ ██▒ ▀█▒ ██  ▓██▒▓█   ▀ ",
+         L"▓██ ░▄█ ▒▒██░  ██▒▒██░▄▄▄░▓██  ▒██░▒███   ",
+         L"▒██▀▀█▄  ▒██   ██░░▓█  ██▓▓▓█  ░██░▒▓█  ▄ ",
+         L"░██▓ ▒██▒░ ████▓▒░░▒▓███▀▒▒▒█████▓ ░▒████▒",
+         L"░ ▒▓ ░▒▓░░ ▒░▒░▒░  ░▒   ▒ ░▒▓▒ ▒ ▒ ░░ ▒░ ░",
+         L"  ░▒ ░ ▒░  ░ ▒ ▒░   ░   ░ ░░▒░ ░ ░  ░ ░  ░",
+         L"  ░░   ░ ░ ░ ░ ▒  ░ ░   ░  ░░░ ░ ░    ░   ",
+         L"   ░         ░ ░        ░    ░        ░  ░"};
     char menu_items[][21] = {"New Game", "Continue", "Scoreboard", "Settings", "Exit"};
     int items_count = 5, item_index = 0, menu_width = 20;
     MenuItem items[items_count];
@@ -14,19 +24,11 @@ bool handle_main_menu()
         items[i].position.x = 2;
     }
 
-    erase();
+    erase_scr();
 
-    attron(COLOR_PAIR(4));
-    mvprintw(1, 2, " ██▀███   ▒█████    ▄████  █    ██ ▓█████ \n");
-    mvprintw(2, 2, "▓██ ▒ ██▒▒██▒  ██▒ ██▒ ▀█▒ ██  ▓██▒▓█   ▀ \n");
-    mvprintw(3, 2, "▓██ ░▄█ ▒▒██░  ██▒▒██░▄▄▄░▓██  ▒██░▒███   \n");
-    mvprintw(4, 2, "▒██▀▀█▄  ▒██   ██░░▓█  ██▓▓▓█  ░██░▒▓█  ▄ \n");
-    mvprintw(5, 2, "░██▓ ▒██▒░ ████▓▒░░▒▓███▀▒▒▒█████▓ ░▒████▒\n");
-    mvprintw(6, 2, "░ ▒▓ ░▒▓░░ ▒░▒░▒░  ░▒   ▒ ░▒▓▒ ▒ ▒ ░░ ▒░ ░\n");
-    mvprintw(7, 2, "  ░▒ ░ ▒░  ░ ▒ ▒░   ░   ░ ░░▒░ ░ ░  ░ ░  ░\n");
-    mvprintw(8, 2, "  ░░   ░ ░ ░ ░ ▒  ░ ░   ░  ░░░ ░ ░    ░   \n");
-    mvprintw(9, 2, "   ░         ░ ░        ░    ░        ░  ░\n");
-    attroff(COLOR_PAIR(4));
+    for (int i = 0; i < LOGO_HEIGHT; i++)
+        for (int j = 0; j < LOGO_WIDTH; j++)
+            mvadd_wch(i + 1, j + 2, &((cchar_t){0, {logo[i][j]}, 4}));
     draw_menu(stdscr, items, items_count, item_index);
 
     while (1)

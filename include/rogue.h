@@ -41,20 +41,28 @@
 #define COLOR_WALL 100
 #define COLOR_DOOR 101
 
+#define LOGO_WIDTH 42
+#define LOGO_HEIGHT 9
+
 #define MIN_ROOM_WIDTH 4
 #define MIN_ROOM_HEIGHT 4
 #define MAX_ROOM_WIDTH 28
 #define MAX_ROOM_HEIGHT 8
 #define MIN_CORRIDOR_LENGTH 4
 #define MAP_WIDTH 4
-#define MAP_HEIGHT 2
+#define MAP_HEIGHT 3
 #define MIN_ROOMS 6
 #define MAX_ROOMS (MAP_WIDTH * MAP_HEIGHT)
 #define FLOORS 5
 
+#define MAP_SCREEN_WIDTH (MAP_WIDTH * (MAX_ROOM_WIDTH + 2) + (MAP_WIDTH - 1) * MIN_CORRIDOR_LENGTH)
+#define MAP_SCREEN_HEIGHT (MAP_HEIGHT * (MAX_ROOM_HEIGHT + 2) + (MAP_HEIGHT - 1) * MIN_CORRIDOR_LENGTH)
+#define SIDEBAR_WIDTH 50
+
 #define SCREEN_OFFSET 2
-#define MIN_SCREEN_WIDTH (MAP_WIDTH * (MAX_ROOM_WIDTH + 2) + (MAP_WIDTH - 1) * MIN_CORRIDOR_LENGTH + 2 * SCREEN_OFFSET)
-#define MIN_SCREEN_HEIGHT (MAP_HEIGHT * (MAX_ROOM_HEIGHT + 2) + (MAP_HEIGHT - 1) * MIN_CORRIDOR_LENGTH + 2 * SCREEN_OFFSET)
+#define GAP 2
+#define MIN_SCREEN_WIDTH (SCREEN_OFFSET * 2 + MAP_SCREEN_WIDTH + GAP + SIDEBAR_WIDTH)
+#define MIN_SCREEN_HEIGHT (SCREEN_OFFSET * 2 + MAP_SCREEN_HEIGHT)
 
 // ______________ TYPES & VARIABLES___________
 
@@ -205,6 +213,7 @@ typedef struct Character
     Position prev_position;
     cchar_t under;
     int health;
+    int gold;
 } Character;
 
 extern int ch;
@@ -227,6 +236,8 @@ extern FILE *map_file;
 // ______________ FUNCTION PROTOTYPES ________
 
 bool setup();
+void draw_box(Position start, int width, int height);
+void erase_scr();
 WINDOW *init_win(int x, int y, int width, int height);
 bool handle_login();
 bool handle_signup();
@@ -262,6 +273,10 @@ bool register_command(char *command, int num, ...);
 void replay_commands();
 void save_map(Position *position);
 void load_map(Position *position);
+void setup_sidebar();
+Position get_sidebar_position();
+void update_health();
+void update_gold();
 
 #if ENABLE_MUSIC
 void load_music();

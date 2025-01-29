@@ -37,7 +37,7 @@ bool handle_signup()
     fields[3].max_length = CREDENTIALS_MAX_LENGTH;
     fields[3].value = (char *)calloc(fields[3].max_length + 1, sizeof(char));
 
-    erase();
+    erase_scr();
 
     attron(A_BOLD | COLOR_PAIR(1));
     mvprintw(2, 2, "Sign Up");

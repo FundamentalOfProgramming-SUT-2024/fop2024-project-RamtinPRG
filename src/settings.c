@@ -2,6 +2,16 @@
 
 bool handle_settings()
 {
+    wchar_t logo[LOGO_HEIGHT][LOGO_WIDTH + 1] =
+        {L" ██▀███   ▒█████    ▄████  █    ██ ▓█████ ",
+         L"▓██ ▒ ██▒▒██▒  ██▒ ██▒ ▀█▒ ██  ▓██▒▓█   ▀ ",
+         L"▓██ ░▄█ ▒▒██░  ██▒▒██░▄▄▄░▓██  ▒██░▒███   ",
+         L"▒██▀▀█▄  ▒██   ██░░▓█  ██▓▓▓█  ░██░▒▓█  ▄ ",
+         L"░██▓ ▒██▒░ ████▓▒░░▒▓███▀▒▒▒█████▓ ░▒████▒",
+         L"░ ▒▓ ░▒▓░░ ▒░▒░▒░  ░▒   ▒ ░▒▓▒ ▒ ▒ ░░ ▒░ ░",
+         L"  ░▒ ░ ▒░  ░ ▒ ▒░   ░   ░ ░░▒░ ░ ░  ░ ░  ░",
+         L"  ░░   ░ ░ ░ ░ ▒  ░ ░   ░  ░░░ ░ ░    ░   ",
+         L"   ░         ░ ░        ░    ░        ░  ░"};
     bool applied = true;
     int items_count = 3, item_index = 0, labels_length = 30, options_length = 15;
     char settings_labels[][21] = {"Difficulty", "Character's color", "Music"};
@@ -49,19 +59,11 @@ bool handle_settings()
     }
     items[2].option_index = music_settings->current_music_index;
 
-    erase();
+    erase_scr();
 
-    attron(COLOR_PAIR(4));
-    mvprintw(1, 2, " ██▀███   ▒█████    ▄████  █    ██ ▓█████ \n");
-    mvprintw(2, 2, "▓██ ▒ ██▒▒██▒  ██▒ ██▒ ▀█▒ ██  ▓██▒▓█   ▀ \n");
-    mvprintw(3, 2, "▓██ ░▄█ ▒▒██░  ██▒▒██░▄▄▄░▓██  ▒██░▒███   \n");
-    mvprintw(4, 2, "▒██▀▀█▄  ▒██   ██░░▓█  ██▓▓▓█  ░██░▒▓█  ▄ \n");
-    mvprintw(5, 2, "░██▓ ▒██▒░ ████▓▒░░▒▓███▀▒▒▒█████▓ ░▒████▒\n");
-    mvprintw(6, 2, "░ ▒▓ ░▒▓░░ ▒░▒░▒░  ░▒   ▒ ░▒▓▒ ▒ ▒ ░░ ▒░ ░\n");
-    mvprintw(7, 2, "  ░▒ ░ ▒░  ░ ▒ ▒░   ░   ░ ░░▒░ ░ ░  ░ ░  ░\n");
-    mvprintw(8, 2, "  ░░   ░ ░ ░ ░ ▒  ░ ░   ░  ░░░ ░ ░    ░   \n");
-    mvprintw(9, 2, "   ░         ░ ░        ░    ░        ░  ░\n");
-    attroff(COLOR_PAIR(4));
+    for (int i = 0; i < LOGO_HEIGHT; i++)
+        for (int j = 0; j < LOGO_WIDTH; j++)
+            mvadd_wch(i + 1, j + 2, &((cchar_t){0, {logo[i][j]}, 4}));
 
     attron(A_BOLD | COLOR_PAIR(1));
     mvprintw(12, 2, "Settings");

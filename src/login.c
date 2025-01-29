@@ -21,7 +21,7 @@ bool handle_login()
     fields[1].max_length = CREDENTIALS_MAX_LENGTH;
     fields[1].value = (char *)calloc(fields[1].max_length + 1, sizeof(char));
 
-    erase();
+    erase_scr();
 
     attron(A_BOLD | COLOR_PAIR(1));
     mvprintw(2, 2, "Login");

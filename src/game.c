@@ -34,6 +34,7 @@ bool handle_game()
     initial_room = floors[0].rooms[0];
     initial_room->visible = true;
     character.health = 100;
+    character.gold = 0;
     setup_floor();
     place_character(position);
     refresh();
@@ -88,7 +89,7 @@ bool handle_game()
         else if (ch == KEY_UP && current_floor_index < FLOORS - 1)
         {
             current_floor_index++;
-            erase();
+            erase_scr();
             setup_floor();
         }
         else if (ch == KEY_DOWN && current_floor_index > 0)
@@ -122,11 +123,12 @@ bool handle_game()
 
 void setup_floor()
 {
-    erase();
+    erase_scr();
     draw_rooms(&floors[current_floor_index]);
     // attron(A_INVIS);
     draw_corridors(&floors[current_floor_index]);
     draw_stairs(&floors[current_floor_index]);
+    setup_sidebar();
     // attroff(A_INVIS);
 }
 
@@ -157,7 +159,6 @@ void place_character(Position position)
 {
     character.position = position;
     mvin_wch(character.position.y, character.position.x, &character.under);
-    mvprintw(0, 0, "%lc%d", character.under.chars[0], character.under.chars[1]);
     mvaddch(character.position.y, character.position.x, '@' | COLOR_PAIR(color_settings->color_number[color_settings->current_color_index]) | A_BOLD | A_ITALIC);
 }
 
