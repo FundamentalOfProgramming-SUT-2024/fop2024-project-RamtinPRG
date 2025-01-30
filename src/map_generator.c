@@ -43,7 +43,7 @@ void generate_traps()
             trap.room = trap.floor->rooms[trap.room_index];
             trap.position.x = nrandom(1, trap.room->width);
             trap.position.y = nrandom(1, trap.room->height);
-        } while (exists_trap(trap.floor, trap.room, trap.position) || exists_trap(trap.floor, trap.room, trap.position));
+        } while (exists_trap(trap.floor, trap.room, trap.position) || exists_stair(trap.floor, trap.room, trap.position));
         trap.is_discovered = false;
         trap.damage = nrandom(MIN_TRAP_DAMAGE, MAX_TRAP_DAMAGE);
         traps[i] = trap;
