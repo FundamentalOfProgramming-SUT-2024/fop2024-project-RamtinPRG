@@ -8,6 +8,7 @@ Room *initial_room;
 int current_floor_index;
 FILE *log_file;
 FILE *map_file;
+char game_message[500];
 
 bool handle_game()
 {
@@ -35,6 +36,7 @@ bool handle_game()
     initial_room->visible = true;
     character.health = 100;
     character.gold = 0;
+    strcpy(game_message, "Welcome to the game !");
     setup_floor();
     place_character(position);
     refresh();
@@ -169,7 +171,7 @@ void teleport_character(Position position)
     place_character(position);
 }
 
-void move_character(int direction)
+void move_character(int direction, char *message)
 {
     Position position = character.position;
     switch (direction)
@@ -210,25 +212,30 @@ void move_character(int direction)
     if (!is_obstacle(dest.chars[0]))
     {
         teleport_character(position);
+        strcpy(message, "");
     }
 }
 
-bool ascend_character()
+bool ascend_character(char *message)
 {
     if (character.under.chars[0] == L'▲')
     {
         current_floor_index++;
+        strcpy(message, "");
         return true;
     }
+    strcpy(message, "I see no way up!");
     return false;
 }
 
-bool descend_character()
+bool descend_character(char *message)
 {
     if (character.under.chars[0] == L'▼')
     {
         current_floor_index--;
+        strcpy(message, "");
         return true;
     }
+    strcpy(message, "I see no way down!");
     return false;
 }

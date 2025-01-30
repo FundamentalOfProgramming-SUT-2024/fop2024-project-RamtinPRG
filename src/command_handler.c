@@ -8,14 +8,15 @@ bool register_command(char *command, int num, ...)
         va_start(args, num);
         int direction = va_arg(args, int);
         fprintf(log_file, "move %d\n", direction);
-        move_character(direction);
+        move_character(direction, game_message);
+        setup_message_box();
         va_end(args);
         return true;
     }
     if (strcmp(command, "ascend") == 0)
     {
         fprintf(log_file, "ascend\n");
-        if (ascend_character())
+        if (ascend_character(game_message))
         {
             setup_floor();
             Position position = get_absolute_position(floors[current_floor_index].down_stair.room);
@@ -24,12 +25,13 @@ bool register_command(char *command, int num, ...)
             place_character(position);
             return true;
         }
+        setup_message_box();
         return false;
     }
     if (strcmp(command, "descend") == 0)
     {
         fprintf(log_file, "descend\n");
-        if (descend_character())
+        if (descend_character(game_message))
         {
             setup_floor();
             Position position = get_absolute_position(floors[current_floor_index].up_stair.room);
@@ -38,6 +40,7 @@ bool register_command(char *command, int num, ...)
             place_character(position);
             return true;
         }
+        setup_message_box();
         return false;
     }
 }
@@ -58,12 +61,12 @@ void replay_commands()
         {
             int direction;
             sscanf(line, "move %d", &direction);
-            move_character(direction);
+            move_character(direction, game_message);
         }
-        
+
         else if (strcmp(command, "ascend") == 0)
         {
-            if (ascend_character())
+            if (ascend_character(game_message))
             {
                 setup_floor();
                 Position position = get_absolute_position(floors[current_floor_index].down_stair.room);
@@ -75,7 +78,7 @@ void replay_commands()
 
         else if (strcmp(command, "descend") == 0)
         {
-            if (descend_character())
+            if (descend_character(game_message))
             {
                 setup_floor();
                 Position position = get_absolute_position(floors[current_floor_index].up_stair.room);
@@ -85,6 +88,7 @@ void replay_commands()
             }
         }
 
+        setup_message_box();
         refresh();
         usleep(50000);
     }

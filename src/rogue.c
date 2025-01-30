@@ -136,6 +136,30 @@ bool setup()
     return 1;
 }
 
+void erase_box(Position start, int width, int height)
+{
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            if (i == 0 && j == 0)
+                mvprintw(i + start.y, j + start.x, "╭");
+            else if (i == 0 && j == width - 1)
+                mvprintw(i + start.y, j + start.x, "╮");
+            else if (i == height - 1 && j == width - 1)
+                mvprintw(i + start.y, j + start.x, "╯");
+            else if (i == height - 1 && j == 0)
+                mvprintw(i + start.y, j + start.x, "╰");
+            else if (i == 0 || i == height - 1)
+                mvprintw(i + start.y, j + start.x, "─");
+            else if (j == 0 || j == width - 1)
+                mvprintw(i + start.y, j + start.x, "│");
+            else
+                mvprintw(i + start.y, j + start.x, " ");
+        }
+    }
+}
+
 void draw_box(Position start, int width, int height)
 {
     for (int i = 0; i < height; i++)
@@ -162,24 +186,6 @@ void erase_scr()
 {
     erase();
     attron(COLOR_PAIR(COLOR_WALL));
-    // for (int i = 0; i < MIN_SCREEN_HEIGHT; i++)
-    // {
-    //     for (int j = 0; j < MIN_SCREEN_WIDTH; j++)
-    //     {
-    //         if (i == 0 && j == 0)
-    //             mvprintw(i, j, "╭");
-    //         else if (i == 0 && j == MIN_SCREEN_WIDTH - 1)
-    //             mvprintw(i, j, "╮");
-    //         else if (i == MIN_SCREEN_HEIGHT - 1 && j == MIN_SCREEN_WIDTH - 1)
-    //             mvprintw(i, j, "╯");
-    //         else if (i == MIN_SCREEN_HEIGHT - 1 && j == 0)
-    //             mvprintw(i, j, "╰");
-    //         else if (i == 0 || i == MIN_SCREEN_HEIGHT - 1)
-    //             mvprintw(i, j, "─");
-    //         else if (j == 0 || j == MIN_SCREEN_WIDTH - 1)
-    //             mvprintw(i, j, "│");
-    //     }
-    // }
     draw_box(((Position){0, 0}), MIN_SCREEN_WIDTH, MIN_SCREEN_HEIGHT);
     attroff(COLOR_PAIR(COLOR_WALL));
 }

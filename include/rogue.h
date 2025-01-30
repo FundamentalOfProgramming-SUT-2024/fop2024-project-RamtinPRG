@@ -234,10 +234,12 @@ extern Floor floors[FLOORS];
 extern int current_floor_index;
 extern FILE *log_file;
 extern FILE *map_file;
+extern char game_message[500];
 
 // ______________ FUNCTION PROTOTYPES ________
 
 bool setup();
+void erase_box(Position start, int width, int height);
 void draw_box(Position start, int width, int height);
 void erase_scr();
 WINDOW *init_win(int x, int y, int width, int height);
@@ -267,9 +269,9 @@ Position get_absolute_position(Room *room);
 void remove_character();
 void place_character(Position position);
 void teleport_character(Position position);
-void move_character(int direction);
-bool ascend_character();
-bool descend_character();
+void move_character(int direction, char *message);
+bool ascend_character(char *message);
+bool descend_character(char *message);
 void setup_floor();
 bool register_command(char *command, int num, ...);
 void replay_commands();
