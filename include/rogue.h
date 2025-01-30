@@ -277,6 +277,8 @@ void setup_sidebar();
 Position get_sidebar_position();
 void update_health();
 void update_gold();
+void draw_guides();
+void draw_hline(Position position, int length);
 
 #if ENABLE_MUSIC
 void load_music();
