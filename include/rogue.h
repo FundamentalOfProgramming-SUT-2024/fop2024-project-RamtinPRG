@@ -67,9 +67,9 @@
 #define MIN_SCREEN_HEIGHT (SCREEN_OFFSET * 2 + MAP_SCREEN_HEIGHT + V_GAP + MESSAGES_HEIGHT)
 
 #define TRAPS_TO_ROOMS_RATIO 2
-#define TRAP_DAMAGE 7
-// #define MIN_TRAP_DAMAGE 5
-// #define MAX_TRAP_DAMAGE 10
+// #define TRAP_DAMAGE 7
+#define MIN_TRAP_DAMAGE 5
+#define MAX_TRAP_DAMAGE 10
 
 // ______________ TYPES & VARIABLES___________
 
@@ -229,6 +229,7 @@ typedef struct Trap
     int floor_index;
     int room_index;
     Position position;
+    int damage;
     bool is_discovered;
 } Trap;
 

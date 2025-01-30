@@ -10,4 +10,4 @@
             [ Door[2].position.x ] [ Door[2].position.y ] [ Door[2].exists ]
             [ Door[3].position.x ] [ Door[3].position.y ] [ Door[3].exists ]
 [ traps_count ]
-[ traps[n].position.x ] [ traps[n].position.y ] [ traps[n].floor_index ] [ traps[n].room_index ]
+[ traps[n].position.x ] [ traps[n].position.y ] [ traps[n].floor_index ] [ traps[n].room_index ] [ traps[n].damage ]

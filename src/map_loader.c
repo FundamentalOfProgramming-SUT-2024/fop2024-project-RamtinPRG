@@ -27,7 +27,7 @@ void save_map(Position *position)
     fprintf(map_file, "%d\n", traps_count);
     for (int i = 0; i < traps_count; i++)
     {
-        fprintf(map_file, "%d %d %d %d\n", traps[i].position.x, traps[i].position.y, traps[i].floor_index, traps[i].room_index);
+        fprintf(map_file, "%d %d %d %d %d\n", traps[i].position.x, traps[i].position.y, traps[i].floor_index, traps[i].room_index, traps[i].damage);
     }
 
     fclose(map_file);
@@ -80,7 +80,7 @@ void load_map(Position *position)
     traps = calloc(traps_count, sizeof(Trap));
     for (int i = 0; i < traps_count; i++)
     {
-        fscanf(map_file, "%d %d %d %d", &traps[i].position.x, &traps[i].position.y, &traps[i].floor_index, &traps[i].room_index);
+        fscanf(map_file, "%d %d %d %d %d", &traps[i].position.x, &traps[i].position.y, &traps[i].floor_index, &traps[i].room_index, &traps[i].damage);
         traps[i].floor = &floors[traps[i].floor_index];
         traps[i].room = traps[i].floor->rooms[traps[i].room_index];
         traps[i].is_discovered = false;

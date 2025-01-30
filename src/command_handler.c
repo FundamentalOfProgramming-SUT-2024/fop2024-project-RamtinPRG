@@ -51,9 +51,9 @@ bool register_command(char *command, int num, ...)
             position.y += traps[i].position.y;
             if (character.position.x == position.x && character.position.y == position.y)
             {
-                sprintf(game_message, "You stepped on a trap. Health reduced by %d%%", TRAP_DAMAGE);
+                sprintf(game_message, "You stepped on a trap. Health reduced by %d%%", traps[i].damage);
                 traps[i].is_discovered = true;
-                character.health -= TRAP_DAMAGE;
+                character.health -= traps[i].damage;
                 character.under = trap_character;
             }
         }
@@ -117,9 +117,9 @@ void replay_commands()
                 position.y += traps[i].position.y;
                 if (character.position.x == position.x && character.position.y == position.y)
                 {
-                    sprintf(game_message, "You stepped on a trap. Health reduced by %d%%", TRAP_DAMAGE);
+                    sprintf(game_message, "You stepped on a trap. Health reduced by %d%%", traps[i].damage);
                     traps[i].is_discovered = true;
-                    character.health -= TRAP_DAMAGE;
+                    character.health -= traps[i].damage;
                     character.under = trap_character;
                 }
             }
