@@ -2,7 +2,9 @@
 
 Floor floors[FLOORS];
 Trap *traps;
-int traps_count;
+Gold *golds;
+int traps_count = 0;
+int golds_count = 0;
 
 void generate_map()
 {
@@ -21,6 +23,7 @@ void generate_map()
     floors[FLOORS - 1].rooms[floors[FLOORS - 1].rooms_count - 1]->type = TREASURE_ROOM;
 
     generate_traps();
+    generate_golds();
 }
 
 void generate_traps()
@@ -29,7 +32,7 @@ void generate_traps()
     for (int i = 0; i < FLOORS; i++)
         total_rooms_count += floors[i].rooms_count;
 
-    int temp_traps_count = total_rooms_count * TRAPS_TO_ROOMS_RATIO;
+    int temp_traps_count = total_rooms_count * TRAPS_TO_ROOMS_RATIO / ROOMS_TO_TRAPS_RATIO;
     traps = (Trap *)calloc(temp_traps_count, sizeof(Trap));
 
     for (int i = 0; i < temp_traps_count; i++)
@@ -67,6 +70,44 @@ bool exists_stair(Floor *floor, Room *room, Position position)
         return true;
     if (floor->up_stair.room == room && floor->up_stair.position.x == position.x && floor->up_stair.position.y == position.y)
         return true;
+    return false;
+}
+
+void generate_golds()
+{
+    int total_rooms_count = 0;
+    for (int i = 0; i < FLOORS; i++)
+        total_rooms_count += floors[i].rooms_count;
+
+    int temp_golds_count = total_rooms_count * GOLDS_TO_ROOMS_RATIO / ROOMS_TO_GOLDS_RATIO;
+    golds = (Gold *)calloc(temp_golds_count, sizeof(Gold));
+
+    for (int i = 0; i < temp_golds_count; i++)
+    {
+        Gold gold;
+        do
+        {
+            gold.floor_index = rand() % FLOORS;
+            gold.floor = &floors[gold.floor_index];
+            gold.room_index = rand() % gold.floor->rooms_count;
+            gold.room = gold.floor->rooms[gold.room_index];
+            gold.position.x = nrandom(1, gold.room->width);
+            gold.position.y = nrandom(1, gold.room->height);
+        } while (exists_gold(gold.floor, gold.room, gold.position) || exists_trap(gold.floor, gold.room, gold.position) || exists_stair(gold.floor, gold.room, gold.position));
+        gold.is_discovered = false;
+        gold.value = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
+        golds[i] = gold;
+        golds_count++;
+    }
+}
+
+bool exists_gold(Floor *floor, Room *room, Position position)
+{
+    for (int i = 0; i < golds_count; i++)
+    {
+        if (golds[i].floor == floor && golds[i].room == room && golds[i].position.x == position.x && golds[i].position.y == position.y)
+            return true;
+    }
     return false;
 }
 

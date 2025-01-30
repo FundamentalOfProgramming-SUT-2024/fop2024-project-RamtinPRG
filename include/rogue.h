@@ -66,10 +66,15 @@
 #define MIN_SCREEN_WIDTH (SCREEN_OFFSET * 2 + MAP_SCREEN_WIDTH + H_GAP + SIDEBAR_WIDTH)
 #define MIN_SCREEN_HEIGHT (SCREEN_OFFSET * 2 + MAP_SCREEN_HEIGHT + V_GAP + MESSAGES_HEIGHT)
 
-#define TRAPS_TO_ROOMS_RATIO 2
-// #define TRAP_DAMAGE 7
+#define TRAPS_TO_ROOMS_RATIO 3
+#define ROOMS_TO_TRAPS_RATIO 2
 #define MIN_TRAP_DAMAGE 5
 #define MAX_TRAP_DAMAGE 10
+
+#define GOLDS_TO_ROOMS_RATIO 3
+#define ROOMS_TO_GOLDS_RATIO 2
+#define MIN_GOLD_VALUE 20
+#define MAX_GOLD_VALUE 50
 
 // ______________ TYPES & VARIABLES___________
 
@@ -233,6 +238,17 @@ typedef struct Trap
     bool is_discovered;
 } Trap;
 
+typedef struct Gold
+{
+    Floor *floor;
+    Room *room;
+    int floor_index;
+    int room_index;
+    Position position;
+    int value;
+    bool is_discovered;
+} Gold;
+
 typedef struct Character
 {
     Position position;
@@ -257,12 +273,15 @@ extern Room *initial_room;
 extern Floor floors[FLOORS];
 extern Trap *traps;
 extern int traps_count;
+extern Gold *golds;
+extern int golds_count;
 extern int current_floor_index;
 extern FILE *log_file;
 extern FILE *map_file;
 extern char game_message[500];
 
 extern cchar_t trap_character;
+extern cchar_t ground_character;
 
 // ______________ FUNCTION PROTOTYPES ________
 
@@ -286,6 +305,8 @@ int nrandom(int min, int max);
 void generate_map();
 void generate_floor(Floor *floor, Floor *prev_floor);
 void generate_traps();
+void generate_golds();
+bool exists_gold(Floor *floor, Room *room, Position position);
 bool exists_trap(Floor *floor, Room *room, Position position);
 bool exists_stair(Floor *floor, Room *room, Position position);
 bool exists_room(Floor *floor, int y, int x);
@@ -297,6 +318,7 @@ void draw_rooms(Floor *floor);
 void draw_corridors(Floor *floor);
 void draw_stairs(Floor *floor);
 void draw_traps(Floor *floor);
+void draw_golds(Floor *floor);
 Position get_absolute_position(Room *room);
 void remove_character();
 void place_character(Position position);

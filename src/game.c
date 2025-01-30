@@ -4,6 +4,7 @@
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
 cchar_t trap_character = {0, {L'•'}, 4};
+cchar_t ground_character = {A_DIM, {L'.'}, 0};
 
 Character character;
 Room *initial_room;
@@ -135,6 +136,7 @@ void setup_floor()
     draw_corridors(&floors[current_floor_index]);
     draw_stairs(&floors[current_floor_index]);
     draw_traps(&floors[current_floor_index]);
+    draw_golds(&floors[current_floor_index]);
     setup_sidebar();
     setup_message_box();
     // attroff(A_INVIS);
@@ -170,6 +172,22 @@ void draw_traps(Floor *floor)
             attron(COLOR_PAIR(4));
             mvprintw(position.y, position.x, "•");
             attroff(COLOR_PAIR(4));
+        }
+    }
+}
+
+void draw_golds(Floor *floor)
+{
+    for (int i = 0; i < golds_count; i++)
+    {
+        if (golds[i].floor == floor && !golds[i].is_discovered)
+        {
+            Position position = get_absolute_position(golds[i].room);
+            position.x += golds[i].position.x;
+            position.y += golds[i].position.y;
+            attron(COLOR_PAIR(CHAR_YELLOW));
+            mvprintw(position.y, position.x, "$");
+            attroff(COLOR_PAIR(CHAR_YELLOW));
         }
     }
 }

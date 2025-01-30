@@ -51,10 +51,27 @@ bool register_command(char *command, int num, ...)
             position.y += traps[i].position.y;
             if (character.position.x == position.x && character.position.y == position.y)
             {
-                sprintf(game_message, "You stepped on a trap. Health reduced by %d%%", traps[i].damage);
+                sprintf(game_message, "You stepped on a trap; Health reduced by %d%%!", traps[i].damage);
                 traps[i].is_discovered = true;
                 character.health -= traps[i].damage;
                 character.under = trap_character;
+            }
+        }
+    }
+
+    for (int i = 0; i < golds_count; i++)
+    {
+        if (!golds[i].is_discovered && golds[i].floor == &floors[current_floor_index])
+        {
+            Position position = get_absolute_position(golds[i].room);
+            position.x += golds[i].position.x;
+            position.y += golds[i].position.y;
+            if (character.position.x == position.x && character.position.y == position.y)
+            {
+                sprintf(game_message, "You found some gold; Added %d to your collection!", golds[i].value);
+                golds[i].is_discovered = true;
+                character.gold += golds[i].value;
+                character.under = ground_character;
             }
         }
     }
@@ -117,7 +134,7 @@ void replay_commands()
                 position.y += traps[i].position.y;
                 if (character.position.x == position.x && character.position.y == position.y)
                 {
-                    sprintf(game_message, "You stepped on a trap. Health reduced by %d%%", traps[i].damage);
+                    sprintf(game_message, "You stepped on a trap; Health reduced by %d%%!", traps[i].damage);
                     traps[i].is_discovered = true;
                     character.health -= traps[i].damage;
                     character.under = trap_character;
@@ -125,10 +142,27 @@ void replay_commands()
             }
         }
 
+        for (int i = 0; i < golds_count; i++)
+        {
+            if (!golds[i].is_discovered && golds[i].floor == &floors[current_floor_index])
+            {
+                Position position = get_absolute_position(golds[i].room);
+                position.x += golds[i].position.x;
+                position.y += golds[i].position.y;
+                if (character.position.x == position.x && character.position.y == position.y)
+                {
+                    sprintf(game_message, "You found some gold; Added %d to your collection!", golds[i].value);
+                    golds[i].is_discovered = true;
+                    character.gold += golds[i].value;
+                    character.under = ground_character;
+                }
+            }
+        }
+
         setup_message_box();
         setup_sidebar();
         refresh();
-        usleep(50000);
+        usleep(5000);
     }
 
     fclose(log_file);

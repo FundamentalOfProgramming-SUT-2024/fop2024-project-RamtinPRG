@@ -30,6 +30,12 @@ void save_map(Position *position)
         fprintf(map_file, "%d %d %d %d %d\n", traps[i].position.x, traps[i].position.y, traps[i].floor_index, traps[i].room_index, traps[i].damage);
     }
 
+    fprintf(map_file, "%d\n", golds_count);
+    for (int i = 0; i < golds_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d\n", golds[i].position.x, golds[i].position.y, golds[i].floor_index, golds[i].room_index, golds[i].value);
+    }
+
     fclose(map_file);
 }
 
@@ -77,13 +83,23 @@ void load_map(Position *position)
     }
 
     fscanf(map_file, "%d", &traps_count);
-    traps = calloc(traps_count, sizeof(Trap));
+    traps = (Trap *)calloc(traps_count, sizeof(Trap));
     for (int i = 0; i < traps_count; i++)
     {
         fscanf(map_file, "%d %d %d %d %d", &traps[i].position.x, &traps[i].position.y, &traps[i].floor_index, &traps[i].room_index, &traps[i].damage);
         traps[i].floor = &floors[traps[i].floor_index];
         traps[i].room = traps[i].floor->rooms[traps[i].room_index];
         traps[i].is_discovered = false;
+    }
+
+    fscanf(map_file, "%d", &golds_count);
+    golds = (Gold *)calloc(golds_count, sizeof(Gold));
+    for (int i = 0; i < golds_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d", &golds[i].position.x, &golds[i].position.y, &golds[i].floor_index, &golds[i].room_index, &golds[i].value);
+        golds[i].floor = &floors[golds[i].floor_index];
+        golds[i].room = golds[i].floor->rooms[golds[i].room_index];
+        golds[i].is_discovered = false;
     }
 
     fclose(map_file);
