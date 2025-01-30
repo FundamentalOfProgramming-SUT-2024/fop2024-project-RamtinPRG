@@ -304,61 +304,22 @@ int nrandom(int min, int max)
     return rand() % (max - min + 1) + min;
 }
 
-void draw_room(Room *room)
+void draw_room(Room *room, int walls_color_pair)
 {
     int height = room->height + 2, width = room->width + 2;
     Position position = get_absolute_position(room);
     int x = position.x;
     int y = position.y;
-    for (int i = 0; i < height; i++)
-    {
-        move(i + y, x);
-        for (int j = 0; j < width; j++)
-        {
-            if (0 < i && i < height - 1 && 0 < j && j < width - 1)
-            {
-                attron(A_DIM);
-                printw(".");
-                attroff(A_DIM);
-            }
-            else if (i == 0 && j == 0)
-            {
-                attron(COLOR_PAIR(COLOR_WALL));
-                printw("╭");
-                attroff(COLOR_PAIR(COLOR_WALL));
-            }
-            else if (i == 0 && j == width - 1)
-            {
-                attron(COLOR_PAIR(COLOR_WALL));
-                printw("╮");
-                attroff(COLOR_PAIR(COLOR_WALL));
-            }
-            else if (i == height - 1 && j == width - 1)
-            {
-                attron(COLOR_PAIR(COLOR_WALL));
-                printw("╯");
-                attroff(COLOR_PAIR(COLOR_WALL));
-            }
-            else if (i == height - 1 && j == 0)
-            {
-                attron(COLOR_PAIR(COLOR_WALL));
-                printw("╰");
-                attroff(COLOR_PAIR(COLOR_WALL));
-            }
-            else if (i == 0 || i == height - 1)
-            {
-                attron(COLOR_PAIR(COLOR_WALL));
-                printw("─");
-                attroff(COLOR_PAIR(COLOR_WALL));
-            }
-            else if (j == 0 || j == width - 1)
-            {
-                attron(COLOR_PAIR(COLOR_WALL));
-                printw("│");
-                attroff(COLOR_PAIR(COLOR_WALL));
-            }
-        }
-    }
+
+    attron(COLOR_PAIR(walls_color_pair) | A_BOLD);
+    draw_box(position, width, height);
+    attroff(COLOR_PAIR(walls_color_pair) | A_BOLD);
+
+    attron(A_DIM);
+    for (int i = 0; i < room->height; i++)
+        for (int j = 0; j < room->width; j++)
+            mvprintw(i + position.y + 1, j + position.x + 1, ".");
+    attroff(A_DIM);
 
     attron(COLOR_PAIR(COLOR_DOOR));
     for (int i = 0; i < 4; i++)
@@ -370,7 +331,12 @@ void draw_room(Room *room)
 void draw_rooms(Floor *floor)
 {
     for (int i = 0; i < floor->rooms_count; i++)
-        draw_room(floor->rooms[i]);
+    {
+        if (floor->rooms[i]->type == REGULAR_ROOM)
+            draw_room(floor->rooms[i], COLOR_WALL);
+        else if (floor->rooms[i]->type == TREASURE_ROOM)
+            draw_room(floor->rooms[i], CHAR_YELLOW);
+    }
 }
 
 Position get_absolute_position(Room *room)

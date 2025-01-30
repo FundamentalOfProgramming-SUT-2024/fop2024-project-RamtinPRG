@@ -18,10 +18,16 @@ void save_map(Position *position)
         for (int j = 0; j < floor->rooms_count; j++)
         {
             Room *room = floor->rooms[j];
-            fprintf(map_file, "%d %d %d %d %d %d %d\n", room->position.x, room->position.y, room->block.x, room->block.y, room->width, room->height, room->visible);
+            fprintf(map_file, "%d %d %d %d %d %d %d %d\n", room->position.x, room->position.y, room->block.x, room->block.y, room->width, room->height, room->visible, room->type);
             for (int k = 0; k < 4; k++)
                 fprintf(map_file, "%d %d %d\n", room->doors[k].position.x, room->doors[k].position.y, room->doors[k].exists);
         }
+    }
+
+    fprintf(map_file, "%d\n", traps_count);
+    for (int i = 0; i < traps_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d\n", traps[i].position.x, traps[i].position.y, traps[i].floor_index, traps[i].room_index);
     }
 
     fclose(map_file);
@@ -55,7 +61,7 @@ void load_map(Position *position)
             floor->rooms[j] = (Room *)calloc(1, sizeof(Room));
             Room *room = floor->rooms[j];
             int visible;
-            fscanf(map_file, "%d %d %d %d %d %d %d", &room->position.x, &room->position.y, &room->block.x, &room->block.y, &room->width, &room->height, &visible);
+            fscanf(map_file, "%d %d %d %d %d %d %d %d", &room->position.x, &room->position.y, &room->block.x, &room->block.y, &room->width, &room->height, &visible, &room->type);
             room->visible = (bool)visible;
 
             for (int k = 0; k < 4; k++)
@@ -68,6 +74,16 @@ void load_map(Position *position)
 
         floor->down_stair.room = floor->rooms[0];
         floor->up_stair.room = floor->rooms[floor->rooms_count - 1];
+    }
+
+    fscanf(map_file, "%d", &traps_count);
+    traps = calloc(traps_count, sizeof(Trap));
+    for (int i = 0; i < traps_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d", &traps[i].position.x, &traps[i].position.y, &traps[i].floor_index, &traps[i].room_index);
+        traps[i].floor = &floors[traps[i].floor_index];
+        traps[i].room = traps[i].floor->rooms[traps[i].room_index];
+        traps[i].is_discovered = false;
     }
 
     fclose(map_file);

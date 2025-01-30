@@ -2,6 +2,7 @@
 
 bool register_command(char *command, int num, ...)
 {
+    bool output;
     if (strcmp(command, "move") == 0)
     {
         va_list args;
@@ -9,9 +10,8 @@ bool register_command(char *command, int num, ...)
         int direction = va_arg(args, int);
         fprintf(log_file, "move %d\n", direction);
         move_character(direction, game_message);
-        setup_message_box();
         va_end(args);
-        return true;
+        output = true;
     }
     if (strcmp(command, "ascend") == 0)
     {
@@ -23,10 +23,9 @@ bool register_command(char *command, int num, ...)
             position.x += floors[current_floor_index].down_stair.position.x;
             position.y += floors[current_floor_index].down_stair.position.y;
             place_character(position);
-            return true;
+            output = true;
         }
-        setup_message_box();
-        return false;
+        output = false;
     }
     if (strcmp(command, "descend") == 0)
     {
@@ -38,11 +37,32 @@ bool register_command(char *command, int num, ...)
             position.x += floors[current_floor_index].up_stair.position.x;
             position.y += floors[current_floor_index].up_stair.position.y;
             place_character(position);
-            return true;
+            output = true;
         }
-        setup_message_box();
-        return false;
+        output = false;
     }
+
+    for (int i = 0; i < traps_count; i++)
+    {
+        if (traps[i].floor == &floors[current_floor_index])
+        {
+            Position position = get_absolute_position(traps[i].room);
+            position.x += traps[i].position.x;
+            position.y += traps[i].position.y;
+            if (character.position.x == position.x && character.position.y == position.y)
+            {
+                sprintf(game_message, "You stepped on a trap. Health reduced by %d%%", TRAP_DAMAGE);
+                traps[i].is_discovered = true;
+                character.health -= TRAP_DAMAGE;
+                character.under = trap_character;
+            }
+        }
+    }
+
+    setup_message_box();
+    setup_sidebar();
+
+    return output;
 }
 
 void replay_commands()
@@ -88,7 +108,25 @@ void replay_commands()
             }
         }
 
+        for (int i = 0; i < traps_count; i++)
+        {
+            if (traps[i].floor == &floors[current_floor_index])
+            {
+                Position position = get_absolute_position(traps[i].room);
+                position.x += traps[i].position.x;
+                position.y += traps[i].position.y;
+                if (character.position.x == position.x && character.position.y == position.y)
+                {
+                    sprintf(game_message, "You stepped on a trap. Health reduced by %d%%", TRAP_DAMAGE);
+                    traps[i].is_discovered = true;
+                    character.health -= TRAP_DAMAGE;
+                    character.under = trap_character;
+                }
+            }
+        }
+
         setup_message_box();
+        setup_sidebar();
         refresh();
         usleep(50000);
     }

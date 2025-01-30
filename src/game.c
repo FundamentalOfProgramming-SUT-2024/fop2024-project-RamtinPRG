@@ -3,6 +3,8 @@
 #define is_obstacle(c) (c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ')
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
+cchar_t trap_character = {0, {L'•'}, 4};
+
 Character character;
 Room *initial_room;
 int current_floor_index;
@@ -64,6 +66,7 @@ bool handle_game()
                 floors[i].up_stair.room = NULL;
                 floors[i].down_stair.room = NULL;
             }
+            free(traps);
             return false;
         }
         else if (ch == KEY_F(4))
@@ -80,6 +83,7 @@ bool handle_game()
                 floors[i].up_stair.room = NULL;
                 floors[i].down_stair.room = NULL;
             }
+            free(traps);
             return true;
         }
         // else if (ch == 'r')
@@ -130,6 +134,7 @@ void setup_floor()
     // attron(A_INVIS);
     draw_corridors(&floors[current_floor_index]);
     draw_stairs(&floors[current_floor_index]);
+    draw_traps(&floors[current_floor_index]);
     setup_sidebar();
     setup_message_box();
     // attroff(A_INVIS);
@@ -150,6 +155,22 @@ void draw_stairs(Floor *floor)
         position.x += floor->up_stair.position.x;
         position.y += floor->up_stair.position.y;
         mvadd_wch(position.y, position.x, &((cchar_t){0, {L'▲', 0}, CHAR_TEAL}));
+    }
+}
+
+void draw_traps(Floor *floor)
+{
+    for (int i = 0; i < traps_count; i++)
+    {
+        if (traps[i].floor == floor && traps[i].is_discovered)
+        {
+            Position position = get_absolute_position(traps[i].room);
+            position.x += traps[i].position.x;
+            position.y += traps[i].position.y;
+            attron(COLOR_PAIR(4));
+            mvprintw(position.y, position.x, "•");
+            attroff(COLOR_PAIR(4));
+        }
     }
 }
 

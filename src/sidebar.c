@@ -5,9 +5,11 @@ void setup_sidebar()
     Position position;
     position.x = SCREEN_OFFSET + MAP_SCREEN_WIDTH + H_GAP;
     position.y = SCREEN_OFFSET;
+
     attron(COLOR_PAIR(CHAR_TEAL));
-    draw_box(position, SIDEBAR_WIDTH, MAP_SCREEN_HEIGHT + 1);
+    erase_box(position, SIDEBAR_WIDTH, MAP_SCREEN_HEIGHT + 1);
     attroff(COLOR_PAIR(CHAR_TEAL));
+
     update_health();
     update_gold();
 

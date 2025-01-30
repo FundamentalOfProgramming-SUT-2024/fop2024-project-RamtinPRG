@@ -66,6 +66,11 @@
 #define MIN_SCREEN_WIDTH (SCREEN_OFFSET * 2 + MAP_SCREEN_WIDTH + H_GAP + SIDEBAR_WIDTH)
 #define MIN_SCREEN_HEIGHT (SCREEN_OFFSET * 2 + MAP_SCREEN_HEIGHT + V_GAP + MESSAGES_HEIGHT)
 
+#define TRAPS_TO_ROOMS_RATIO 2
+#define TRAP_DAMAGE 7
+// #define MIN_TRAP_DAMAGE 5
+// #define MAX_TRAP_DAMAGE 10
+
 // ______________ TYPES & VARIABLES___________
 
 enum Window
@@ -101,6 +106,13 @@ enum Direction
     SW,
     W,
     NW
+};
+
+enum RoomType
+{
+    REGULAR_ROOM,
+    TREASURE_ROOM,
+    ENCHANT_ROOM
 };
 
 typedef struct
@@ -186,6 +198,7 @@ typedef struct
     bool visible;
     // [0]: right door, [1]: top door, [2]: left door, [3]: bottom door
     Door doors[4];
+    int type;
 } Room;
 
 typedef struct
@@ -209,6 +222,16 @@ typedef struct
     bool has_up_stair;
 } Floor;
 
+typedef struct Trap
+{
+    Floor *floor;
+    Room *room;
+    int floor_index;
+    int room_index;
+    Position position;
+    bool is_discovered;
+} Trap;
+
 typedef struct Character
 {
     Position position;
@@ -231,10 +254,14 @@ extern Mix_Music *music;
 extern Character character;
 extern Room *initial_room;
 extern Floor floors[FLOORS];
+extern Trap *traps;
+extern int traps_count;
 extern int current_floor_index;
 extern FILE *log_file;
 extern FILE *map_file;
 extern char game_message[500];
+
+extern cchar_t trap_character;
 
 // ______________ FUNCTION PROTOTYPES ________
 
@@ -257,14 +284,18 @@ void draw_settings(WINDOW *win, SettingItem *items, int n, int selected_index);
 int nrandom(int min, int max);
 void generate_map();
 void generate_floor(Floor *floor, Floor *prev_floor);
+void generate_traps();
+bool exists_trap(Floor *floor, Room *room, Position position);
+bool exists_stair(Floor *floor, Room *room, Position position);
 bool exists_room(Floor *floor, int y, int x);
 Room *get_room(Floor *floor, int y, int x);
 int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);
 int adjacent_room_direction(Room *a, Room *b);
-void draw_room(Room *room);
+void draw_room(Room *room, int walls_color_pair);
 void draw_rooms(Floor *floor);
 void draw_corridors(Floor *floor);
 void draw_stairs(Floor *floor);
+void draw_traps(Floor *floor);
 Position get_absolute_position(Room *room);
 void remove_character();
 void place_character(Position position);
