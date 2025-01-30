@@ -58,11 +58,13 @@
 #define MAP_SCREEN_WIDTH (MAP_WIDTH * (MAX_ROOM_WIDTH + 2) + (MAP_WIDTH - 1) * MIN_CORRIDOR_LENGTH)
 #define MAP_SCREEN_HEIGHT (MAP_HEIGHT * (MAX_ROOM_HEIGHT + 2) + (MAP_HEIGHT - 1) * MIN_CORRIDOR_LENGTH)
 #define SIDEBAR_WIDTH 50
+#define MESSAGES_HEIGHT 4
 
 #define SCREEN_OFFSET 2
-#define GAP 2
-#define MIN_SCREEN_WIDTH (SCREEN_OFFSET * 2 + MAP_SCREEN_WIDTH + GAP + SIDEBAR_WIDTH)
-#define MIN_SCREEN_HEIGHT (SCREEN_OFFSET * 2 + MAP_SCREEN_HEIGHT)
+#define H_GAP 2
+#define V_GAP 1
+#define MIN_SCREEN_WIDTH (SCREEN_OFFSET * 2 + MAP_SCREEN_WIDTH + H_GAP + SIDEBAR_WIDTH)
+#define MIN_SCREEN_HEIGHT (SCREEN_OFFSET * 2 + MAP_SCREEN_HEIGHT + V_GAP + MESSAGES_HEIGHT)
 
 // ______________ TYPES & VARIABLES___________
 
@@ -279,6 +281,7 @@ void update_health();
 void update_gold();
 void draw_guides();
 void draw_hline(Position position, int length);
+void setup_message_box();
 
 #if ENABLE_MUSIC
 void load_music();

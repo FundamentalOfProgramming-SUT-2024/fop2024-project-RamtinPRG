@@ -129,6 +129,7 @@ void setup_floor()
     draw_corridors(&floors[current_floor_index]);
     draw_stairs(&floors[current_floor_index]);
     setup_sidebar();
+    setup_message_box();
     // attroff(A_INVIS);
 }
 
