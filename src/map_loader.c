@@ -36,6 +36,12 @@ void save_map(Position *position)
         fprintf(map_file, "%d %d %d %d %d\n", golds[i].position.x, golds[i].position.y, golds[i].floor_index, golds[i].room_index, golds[i].value);
     }
 
+    fprintf(map_file, "%d\n", black_golds_count);
+    for (int i = 0; i < black_golds_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d\n", black_golds[i].position.x, black_golds[i].position.y, black_golds[i].floor_index, black_golds[i].room_index, black_golds[i].value);
+    }
+
     fclose(map_file);
 }
 
@@ -100,6 +106,16 @@ void load_map(Position *position)
         golds[i].floor = &floors[golds[i].floor_index];
         golds[i].room = golds[i].floor->rooms[golds[i].room_index];
         golds[i].is_discovered = false;
+    }
+
+    fscanf(map_file, "%d", &black_golds_count);
+    black_golds = (BlackGold *)calloc(black_golds_count, sizeof(BlackGold));
+    for (int i = 0; i < black_golds_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d", &black_golds[i].position.x, &black_golds[i].position.y, &black_golds[i].floor_index, &black_golds[i].room_index, &black_golds[i].value);
+        black_golds[i].floor = &floors[black_golds[i].floor_index];
+        black_golds[i].room = black_golds[i].floor->rooms[black_golds[i].room_index];
+        black_golds[i].is_discovered = false;
     }
 
     fclose(map_file);

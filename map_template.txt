@@ -13,3 +13,5 @@
 [ traps[n].position.x ] [ traps[n].position.y ] [ traps[n].floor_index ] [ traps[n].room_index ] [ traps[n].damage ]
 [ golds_count ]
 [ golds[n].position.x ] [ golds[n].position.y ] [ golds[n].floor_index ] [ golds[n].room_index ] [ golds[n].value ]
+[ black_golds_count ]
+[ black_golds[n].position.x ] [ black_golds[n].position.y ] [ black_golds[n].floor_index ] [ black_golds[n].room_index ] [ black_golds[n].value ]

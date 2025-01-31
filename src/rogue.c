@@ -101,6 +101,7 @@ bool setup()
     init_color(CHAR_TEAL, 78, 721, 650);
     init_color(CHAR_VIOLET, 545, 360, 964);
     init_color(CHAR_PINK, 925, 282, 600);
+    init_color(CHAR_SLATE, 384, 454, 556);
 
     // Game items
     init_color(COLOR_WALL, 203, 443, 921);
@@ -118,6 +119,7 @@ bool setup()
     init_pair(CHAR_TEAL, CHAR_TEAL, COLOR_BLACK);
     init_pair(CHAR_VIOLET, CHAR_VIOLET, COLOR_BLACK);
     init_pair(CHAR_PINK, CHAR_PINK, COLOR_BLACK);
+    init_pair(CHAR_SLATE, CHAR_SLATE, COLOR_BLACK);
 
     refresh();
 
@@ -369,22 +371,22 @@ void draw_corridors(Floor *floor)
                 move(door_a.y, door_a.x);
                 for (int k = 0; k < first_half; k++)
                 {
-                    printw("█");
+                    printw("░");
                 }
                 if (door_b.y > door_a.y)
                     for (int k = 0; k < door_b.y - door_a.y; k++)
                     {
-                        mvprintw(door_a.y + k + 1, door_a.x + first_half - 1, "█");
+                        mvprintw(door_a.y + k + 1, door_a.x + first_half - 1, "░");
                     }
                 else if (door_b.y < door_a.y)
                     for (int k = 0; k < door_a.y - door_b.y; k++)
                     {
-                        mvprintw(door_a.y - k - 1, door_a.x + first_half - 1, "█");
+                        mvprintw(door_a.y - k - 1, door_a.x + first_half - 1, "░");
                     }
                 move(door_b.y, door_a.x + first_half);
                 for (int k = 0; k < second_half; k++)
                 {
-                    printw("█");
+                    printw("░");
                 }
             }
         }
@@ -409,21 +411,21 @@ void draw_corridors(Floor *floor)
                 int second_half = door_b.y - door_a.y + 1 - first_half;
                 for (int k = 0; k < first_half; k++)
                 {
-                    mvprintw(door_a.y + k, door_a.x, "█");
+                    mvprintw(door_a.y + k, door_a.x, "░");
                 }
                 if (door_b.x > door_a.x)
                     for (int k = 0; k < door_b.x - door_a.x; k++)
                     {
-                        mvprintw(door_a.y + first_half - 1, door_a.x + k + 1, "█");
+                        mvprintw(door_a.y + first_half - 1, door_a.x + k + 1, "░");
                     }
                 else if (door_b.x < door_a.x)
                     for (int k = 0; k < door_a.x - door_b.x; k++)
                     {
-                        mvprintw(door_a.y + first_half - 1, door_a.x - k - 1, "█");
+                        mvprintw(door_a.y + first_half - 1, door_a.x - k - 1, "░");
                     }
                 for (int k = 0; k < second_half; k++)
                 {
-                    mvprintw(door_a.y + first_half + k, door_b.x, "█");
+                    mvprintw(door_a.y + first_half + k, door_b.x, "░");
                 }
             }
         }

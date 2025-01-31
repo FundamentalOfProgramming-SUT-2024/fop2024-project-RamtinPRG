@@ -76,6 +76,23 @@ bool register_command(char *command, int num, ...)
         }
     }
 
+    for (int i = 0; i < black_golds_count; i++)
+    {
+        if (!black_golds[i].is_discovered && black_golds[i].floor == &floors[current_floor_index])
+        {
+            Position position = get_absolute_position(black_golds[i].room);
+            position.x += black_golds[i].position.x;
+            position.y += black_golds[i].position.y;
+            if (character.position.x == position.x && character.position.y == position.y)
+            {
+                sprintf(game_message, "You found some BLACK gold; Added %d to your collection!", black_golds[i].value);
+                black_golds[i].is_discovered = true;
+                character.gold += black_golds[i].value;
+                character.under = ground_character;
+            }
+        }
+    }
+
     setup_message_box();
     setup_sidebar();
 
@@ -154,6 +171,23 @@ void replay_commands()
                     sprintf(game_message, "You found some gold; Added %d to your collection!", golds[i].value);
                     golds[i].is_discovered = true;
                     character.gold += golds[i].value;
+                    character.under = ground_character;
+                }
+            }
+        }
+
+        for (int i = 0; i < black_golds_count; i++)
+        {
+            if (!black_golds[i].is_discovered && black_golds[i].floor == &floors[current_floor_index])
+            {
+                Position position = get_absolute_position(black_golds[i].room);
+                position.x += black_golds[i].position.x;
+                position.y += black_golds[i].position.y;
+                if (character.position.x == position.x && character.position.y == position.y)
+                {
+                    sprintf(game_message, "You found some BLACK gold; Added %d to your collection!", black_golds[i].value);
+                    black_golds[i].is_discovered = true;
+                    character.gold += black_golds[i].value;
                     character.under = ground_character;
                 }
             }

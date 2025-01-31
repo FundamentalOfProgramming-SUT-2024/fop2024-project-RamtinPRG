@@ -1,6 +1,6 @@
 #include "../include/rogue.h"
 
-#define is_obstacle(c) (c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ')
+#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ')
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
 cchar_t trap_character = {0, {L'•'}, 4};
@@ -32,6 +32,8 @@ bool handle_game()
     else
     {
         load_map(&position);
+        printw("hello");
+        refresh();
     }
 
     current_floor_index = 0;
@@ -68,6 +70,11 @@ bool handle_game()
                 floors[i].down_stair.room = NULL;
             }
             free(traps);
+            free(golds);
+            free(black_golds);
+            traps_count = 0;
+            golds_count = 0;
+            black_golds_count = 0;
             return false;
         }
         else if (ch == KEY_F(4))
@@ -85,6 +92,11 @@ bool handle_game()
                 floors[i].down_stair.room = NULL;
             }
             free(traps);
+            free(golds);
+            free(black_golds);
+            traps_count = 0;
+            golds_count = 0;
+            black_golds_count = 0;
             return true;
         }
         // else if (ch == 'r')
@@ -137,6 +149,7 @@ void setup_floor()
     draw_stairs(&floors[current_floor_index]);
     draw_traps(&floors[current_floor_index]);
     draw_golds(&floors[current_floor_index]);
+    draw_black_golds(&floors[current_floor_index]);
     setup_sidebar();
     setup_message_box();
     // attroff(A_INVIS);
@@ -188,6 +201,22 @@ void draw_golds(Floor *floor)
             attron(COLOR_PAIR(CHAR_YELLOW));
             mvprintw(position.y, position.x, "$");
             attroff(COLOR_PAIR(CHAR_YELLOW));
+        }
+    }
+}
+
+void draw_black_golds(Floor *floor)
+{
+    for (int i = 0; i < black_golds_count; i++)
+    {
+        if (black_golds[i].floor == floor && !black_golds[i].is_discovered)
+        {
+            Position position = get_absolute_position(black_golds[i].room);
+            position.x += black_golds[i].position.x;
+            position.y += black_golds[i].position.y;
+            attron(COLOR_PAIR(CHAR_SLATE));
+            mvprintw(position.y, position.x, "♦");
+            attroff(COLOR_PAIR(CHAR_SLATE));
         }
     }
 }
@@ -260,7 +289,7 @@ bool ascend_character(char *message)
     if (character.under.chars[0] == L'▲')
     {
         current_floor_index++;
-        strcpy(message, "");
+        strcpy(message, "To the next floor!");
         return true;
     }
     strcpy(message, "I see no way up!");
@@ -272,7 +301,7 @@ bool descend_character(char *message)
     if (character.under.chars[0] == L'▼')
     {
         current_floor_index--;
-        strcpy(message, "");
+        strcpy(message, "To the previous floor!");
         return true;
     }
     strcpy(message, "I see no way down!");

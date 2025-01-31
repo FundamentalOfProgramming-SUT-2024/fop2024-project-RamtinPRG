@@ -37,6 +37,7 @@
 #define CHAR_TEAL 32
 #define CHAR_VIOLET 33
 #define CHAR_PINK 34
+#define CHAR_SLATE 35
 
 #define COLOR_WALL 100
 #define COLOR_DOOR 101
@@ -71,10 +72,15 @@
 #define MIN_TRAP_DAMAGE 5
 #define MAX_TRAP_DAMAGE 10
 
-#define GOLDS_TO_ROOMS_RATIO 3
-#define ROOMS_TO_GOLDS_RATIO 2
+#define GOLDS_TO_ROOMS_RATIO 4
+#define ROOMS_TO_GOLDS_RATIO 3
 #define MIN_GOLD_VALUE 20
 #define MAX_GOLD_VALUE 50
+
+#define BLACK_GOLDS_TO_ROOMS_RATIO 1
+#define ROOMS_TO_BLACK_GOLDS_RATIO 10
+#define MIN_BLACK_GOLD_VALUE 100
+#define MAX_BLACK_GOLD_VALUE 300
 
 // ______________ TYPES & VARIABLES___________
 
@@ -126,6 +132,9 @@ typedef struct
     char password[CREDENTIALS_MAX_LENGTH + 5];
     char email[EMAIL_MAX_LENGTH + 1];
     bool signed_in;
+    int score;
+    int games_count;
+    int best_score;
 } Player;
 
 typedef struct
@@ -249,6 +258,17 @@ typedef struct Gold
     bool is_discovered;
 } Gold;
 
+typedef struct BlackGold
+{
+    Floor *floor;
+    Room *room;
+    int floor_index;
+    int room_index;
+    Position position;
+    int value;
+    bool is_discovered;
+} BlackGold;
+
 typedef struct Character
 {
     Position position;
@@ -275,6 +295,8 @@ extern Trap *traps;
 extern int traps_count;
 extern Gold *golds;
 extern int golds_count;
+extern BlackGold *black_golds;
+extern int black_golds_count;
 extern int current_floor_index;
 extern FILE *log_file;
 extern FILE *map_file;
@@ -306,7 +328,9 @@ void generate_map();
 void generate_floor(Floor *floor, Floor *prev_floor);
 void generate_traps();
 void generate_golds();
+void generate_black_golds();
 bool exists_gold(Floor *floor, Room *room, Position position);
+bool exists_black_gold(Floor *floor, Room *room, Position position);
 bool exists_trap(Floor *floor, Room *room, Position position);
 bool exists_stair(Floor *floor, Room *room, Position position);
 bool exists_room(Floor *floor, int y, int x);
@@ -319,6 +343,7 @@ void draw_corridors(Floor *floor);
 void draw_stairs(Floor *floor);
 void draw_traps(Floor *floor);
 void draw_golds(Floor *floor);
+void draw_black_golds(Floor *floor);
 Position get_absolute_position(Room *room);
 void remove_character();
 void place_character(Position position);
