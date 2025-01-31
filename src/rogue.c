@@ -265,17 +265,14 @@ bool validate_password(char *password)
 bool add_user(char *username, char *password, char *email)
 {
     FILE *file = fopen("usernames.txt", "a");
-    fputs(username, file);
-    fputc('\n', file);
+    fprintf(file, "%s\n", username);
     fclose(file);
     char file_name[100] = "users/";
     strcat(file_name, username);
     strcat(file_name, ".txt");
     file = fopen(file_name, "w");
-    fputs(password, file);
-    fputc('\n', file);
-    fputs(email, file);
-    fputc('\n', file);
+    fprintf(file, "%s\n", password);
+    fprintf(file, "%s\n", email);
     fclose(file);
     return 1;
 }

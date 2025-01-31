@@ -59,7 +59,7 @@ bool handle_main_menu()
                 game_mode = NEW_GAME;
                 return true;
             }
-            else if (item_index == 1)
+            else if (item_index == 1 && player->continuable)
             {
                 current_window = GAME;
                 previous_window = MAIN_MENU;

@@ -1,0 +1,4 @@
+[continuable]
+[score]
+[best_score]
+[games_count]

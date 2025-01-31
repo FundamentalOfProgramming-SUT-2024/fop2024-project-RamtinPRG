@@ -13,15 +13,15 @@ void generate_map()
     floors[0].has_down_stair = false;
     floors[0].has_up_stair = true;
     generate_floor(&floors[0], NULL);
-    for (int i = 1; i < FLOORS - 1; i++)
+    for (int i = 1; i < FLOORS; i++)
     {
         floors[i].has_down_stair = true;
         floors[i].has_up_stair = true;
         generate_floor(&floors[i], &floors[i - 1]);
     }
-    floors[FLOORS - 1].has_down_stair = true;
-    floors[FLOORS - 1].has_up_stair = false;
-    generate_floor(&floors[FLOORS - 1], &floors[FLOORS - 2]);
+    // floors[FLOORS - 1].has_down_stair = true;
+    // floors[FLOORS - 1].has_up_stair = false;
+    // generate_floor(&floors[FLOORS - 1], &floors[FLOORS - 2]);
     floors[FLOORS - 1].rooms[floors[FLOORS - 1].rooms_count - 1]->type = TREASURE_ROOM;
 
     generate_traps();

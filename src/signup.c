@@ -139,6 +139,13 @@ bool handle_signup()
                 strcpy(player->username, username);
                 strcpy(player->password, entered_password);
                 strcpy(player->email, email);
+                player->continuable = false;
+                player->score = 0;
+                player->best_score = 0;
+                player->games_count = 0;
+
+                save_user_data();
+
                 current_window = MAIN_MENU;
                 curs_set(0);
                 return 1;

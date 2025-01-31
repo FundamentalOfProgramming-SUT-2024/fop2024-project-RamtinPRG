@@ -44,6 +44,10 @@
 
 #define LOGO_WIDTH 42
 #define LOGO_HEIGHT 9
+#define GAMEOVER_WIDTH 73
+#define GAMEOVER_HEIGHT 10
+#define VICTORY_WIDTH 57
+#define VICTORY_HEIGHT 10
 
 #define MIN_ROOM_WIDTH 4
 #define MIN_ROOM_HEIGHT 4
@@ -92,6 +96,8 @@ enum Window
     SCOREBOARD,
     SETTINGS,
     GAME,
+    DEFEAT,
+    VICTORY
 };
 
 enum Difficulty
@@ -132,6 +138,7 @@ typedef struct
     char password[CREDENTIALS_MAX_LENGTH + 5];
     char email[EMAIL_MAX_LENGTH + 1];
     bool signed_in;
+    bool continuable;
     int score;
     int games_count;
     int best_score;
@@ -276,6 +283,7 @@ typedef struct Character
     cchar_t under;
     int health;
     int gold;
+    int score;
 } Character;
 
 extern int ch;
@@ -317,10 +325,14 @@ bool handle_signup();
 bool handle_main_menu();
 bool handle_settings();
 bool handle_game();
+bool handle_defeat();
+bool handle_victory();
 bool exists_username(char *username);
 bool validate_email(char *email);
 bool validate_password(char *password);
 bool add_user(char *username, char *password, char *email);
+void load_user_data();
+void save_user_data();
 void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index);
 void draw_settings(WINDOW *win, SettingItem *items, int n, int selected_index);
 int nrandom(int min, int max);
@@ -337,6 +349,7 @@ bool exists_room(Floor *floor, int y, int x);
 Room *get_room(Floor *floor, int y, int x);
 int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);
 int adjacent_room_direction(Room *a, Room *b);
+void game_exit_routine();
 void draw_room(Room *room, int walls_color_pair);
 void draw_rooms(Floor *floor);
 void draw_corridors(Floor *floor);
@@ -360,6 +373,7 @@ void setup_sidebar();
 Position get_sidebar_position();
 void update_health();
 void update_gold();
+void update_score();
 void draw_guides();
 void draw_hline(Position position, int length);
 void setup_message_box();

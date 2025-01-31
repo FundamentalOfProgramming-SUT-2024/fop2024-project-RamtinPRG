@@ -37,8 +37,20 @@ int main()
             if (!handle_game())
                 break;
         }
+        else if (current_window == DEFEAT)
+        {
+            if (!handle_defeat())
+                break;
+        }
+        else if (current_window == VICTORY)
+        {
+            if (!handle_victory())
+                break;
+        }
     }
 
+    if (player->signed_in)
+        save_user_data();
     endwin();
     Mix_FreeMusic(music);
     Mix_Quit();

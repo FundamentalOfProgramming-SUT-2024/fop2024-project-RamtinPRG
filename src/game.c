@@ -39,9 +39,11 @@ bool handle_game()
     current_floor_index = 0;
     initial_room = floors[0].rooms[0];
     initial_room->visible = true;
+    player->continuable = true;
     character.health = 100;
     character.gold = 0;
-    strcpy(game_message, "Welcome to the game !");
+    character.score = 0;
+    strcpy(game_message, "Welcome to the dungeons of DOOM!");
     setup_floor();
     place_character(position);
     refresh();
@@ -58,53 +60,15 @@ bool handle_game()
         ch = getch();
         if (ch == KEY_F(1))
         {
-            fclose(log_file);
-            for (int i = 0; i < FLOORS; i++)
-            {
-                for (int j = 0; j < floors[i].rooms_count; j++)
-                {
-                    free(floors[i].rooms[j]);
-                }
-                free(floors[i].rooms);
-                floors[i].up_stair.room = NULL;
-                floors[i].down_stair.room = NULL;
-            }
-            free(traps);
-            free(golds);
-            free(black_golds);
-            traps_count = 0;
-            golds_count = 0;
-            black_golds_count = 0;
+            game_exit_routine();
             return false;
         }
         else if (ch == KEY_F(4))
         {
-            fclose(log_file);
             current_window = MAIN_MENU;
-            for (int i = 0; i < FLOORS; i++)
-            {
-                for (int j = 0; j < floors[i].rooms_count; j++)
-                {
-                    free(floors[i].rooms[j]);
-                }
-                free(floors[i].rooms);
-                floors[i].up_stair.room = NULL;
-                floors[i].down_stair.room = NULL;
-            }
-            free(traps);
-            free(golds);
-            free(black_golds);
-            traps_count = 0;
-            golds_count = 0;
-            black_golds_count = 0;
+            game_exit_routine();
             return true;
         }
-        // else if (ch == 'r')
-        // {
-        //     generate_floor();
-        //     erase();
-        //     setup_new_map();
-        // }
         else if (ch == KEY_UP && current_floor_index < FLOORS - 1)
         {
             current_floor_index++;
@@ -136,8 +100,35 @@ bool handle_game()
             register_command("ascend", 0);
         else if (ch == '<' & 0x1F)
             register_command("descend", 0);
+
+        if (current_window != GAME)
+        {
+            game_exit_routine();
+            return true;
+        }
     }
     return false;
+}
+
+void game_exit_routine()
+{
+    fclose(log_file);
+    for (int i = 0; i < FLOORS; i++)
+    {
+        for (int j = 0; j < floors[i].rooms_count; j++)
+        {
+            free(floors[i].rooms[j]);
+        }
+        free(floors[i].rooms);
+        floors[i].up_stair.room = NULL;
+        floors[i].down_stair.room = NULL;
+    }
+    free(traps);
+    free(golds);
+    free(black_golds);
+    traps_count = 0;
+    golds_count = 0;
+    black_golds_count = 0;
 }
 
 void setup_floor()

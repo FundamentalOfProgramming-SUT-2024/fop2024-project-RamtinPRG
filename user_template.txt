@@ -1,5 +1,2 @@
 [password]
 [email]
-[score]
-[games_count]
-[best_score]

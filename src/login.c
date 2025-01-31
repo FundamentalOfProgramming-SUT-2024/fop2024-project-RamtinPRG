@@ -101,15 +101,9 @@ bool handle_login()
                 strcat(file_name, username);
                 strcat(file_name, ".txt");
                 file = fopen(file_name, "r");
-                fgets(password, CREDENTIALS_MAX_LENGTH + 2, file);
-                fgets(email, EMAIL_MAX_LENGTH + 2, file);
+                fscanf(file, "%s", password);
+                fscanf(file, "%s", email);
                 fclose(file);
-                int len = strlen(password);
-                if (password[len - 1] == '\n')
-                    password[len - 1] = '\0';
-                len = strlen(email);
-                if (email[len - 1] == '\n')
-                    email[len - 1] = '\0';
                 if (strcmp(password, entered_password) == 0)
                 {
                     attroff(A_STANDOUT | COLOR_PAIR(4));
@@ -117,6 +111,9 @@ bool handle_login()
                     strcpy(player->username, username);
                     strcpy(player->password, entered_password);
                     strcpy(player->email, email);
+
+                    load_user_data();
+
                     current_window = MAIN_MENU;
                     curs_set(0);
                     return 1;

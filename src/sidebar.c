@@ -12,9 +12,10 @@ void setup_sidebar()
 
     update_health();
     update_gold();
+    update_score();
 
     attron(COLOR_PAIR(CHAR_TEAL));
-    draw_hline(((Position){position.x + 1, position.y + 6}), SIDEBAR_WIDTH - 2);
+    draw_hline(((Position){position.x + 1, position.y + 8}), SIDEBAR_WIDTH - 2);
     attroff(COLOR_PAIR(CHAR_TEAL));
 
     draw_guides();
@@ -68,11 +69,27 @@ void update_gold()
     attroff(COLOR_PAIR(CHAR_YELLOW));
 }
 
+void update_score()
+{
+    Position position = get_sidebar_position();
+    position.x += 3;
+    position.y += 6;
+    attron(COLOR_PAIR(CHAR_VIOLET) | A_BOLD);
+    mvprintw(position.y, position.x, "Score:  ");
+    attroff(A_BOLD);
+
+    attron(A_ITALIC);
+    printw("%d", character.score);
+    attroff(A_ITALIC);
+
+    attroff(COLOR_PAIR(CHAR_VIOLET));
+}
+
 void draw_guides()
 {
     Position position = get_sidebar_position();
     position.x += 3;
-    position.y += 8;
+    position.y += 10;
 
     attron(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
     mvprintw(position.y, position.x, "Guides:");
