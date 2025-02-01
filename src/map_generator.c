@@ -7,9 +7,29 @@ BlackGold *black_golds;
 int traps_count = 0;
 int golds_count = 0;
 int black_golds_count = 0;
+int traps_to_rooms_ratio;
+int rooms_to_traps_ratio;
+int score_multiplier;
 
 void generate_map()
 {
+    if (settings->difficulty == EASY)
+    {
+        traps_to_rooms_ratio = 3;
+        rooms_to_traps_ratio = 2;
+    }
+    if (settings->difficulty == MEDUIM)
+    {
+        traps_to_rooms_ratio = 6;
+        rooms_to_traps_ratio = 2;
+    }
+    if (settings->difficulty == HARD)
+    {
+        traps_to_rooms_ratio = 9;
+        rooms_to_traps_ratio = 2;
+    }
+    score_multiplier = settings->difficulty + 1;
+
     floors[0].has_down_stair = false;
     floors[0].has_up_stair = true;
     generate_floor(&floors[0], NULL);
@@ -19,9 +39,6 @@ void generate_map()
         floors[i].has_up_stair = true;
         generate_floor(&floors[i], &floors[i - 1]);
     }
-    // floors[FLOORS - 1].has_down_stair = true;
-    // floors[FLOORS - 1].has_up_stair = false;
-    // generate_floor(&floors[FLOORS - 1], &floors[FLOORS - 2]);
     floors[FLOORS - 1].rooms[floors[FLOORS - 1].rooms_count - 1]->type = TREASURE_ROOM;
 
     generate_traps();
@@ -35,7 +52,7 @@ void generate_traps()
     for (int i = 0; i < FLOORS; i++)
         total_rooms_count += floors[i].rooms_count;
 
-    int temp_traps_count = total_rooms_count * TRAPS_TO_ROOMS_RATIO / ROOMS_TO_TRAPS_RATIO;
+    int temp_traps_count = total_rooms_count * traps_to_rooms_ratio / rooms_to_traps_ratio;
     traps = (Trap *)calloc(temp_traps_count, sizeof(Trap));
 
     for (int i = 0; i < temp_traps_count; i++)

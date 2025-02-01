@@ -1,3 +1,4 @@
+[ score_multiplier ]
 [ character.position.x ][ character.position.y ]
 [ floors count ]
     [ floors[n].has_down_stair ] [ floors[n].has_up_stair ]

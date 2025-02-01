@@ -81,7 +81,7 @@ bool register_command(char *command, int num, ...)
                 sprintf(game_message, "You found some gold; Added %d to your collection!", golds[i].value);
                 golds[i].is_discovered = true;
                 character.gold += golds[i].value;
-                character.score += golds[i].value;
+                character.score += golds[i].value * score_multiplier;
                 character.under = ground_character;
             }
         }
@@ -99,7 +99,7 @@ bool register_command(char *command, int num, ...)
                 sprintf(game_message, "You found some BLACK gold; Added %d to your collection!", black_golds[i].value);
                 black_golds[i].is_discovered = true;
                 character.gold += black_golds[i].value;
-                character.score += black_golds[i].value;
+                character.score += black_golds[i].value * score_multiplier;
                 character.under = ground_character;
             }
         }
@@ -189,7 +189,7 @@ void replay_commands()
                     sprintf(game_message, "You found some gold; Added %d to your collection!", golds[i].value);
                     golds[i].is_discovered = true;
                     character.gold += golds[i].value;
-                    character.score += golds[i].value;
+                    character.score += golds[i].value * score_multiplier;
                     character.under = ground_character;
                 }
             }
@@ -207,7 +207,7 @@ void replay_commands()
                     sprintf(game_message, "You found some BLACK gold; Added %d to your collection!", black_golds[i].value);
                     black_golds[i].is_discovered = true;
                     character.gold += black_golds[i].value;
-                    character.score += black_golds[i].value;
+                    character.score += black_golds[i].value * score_multiplier;
                     character.under = ground_character;
                 }
             }

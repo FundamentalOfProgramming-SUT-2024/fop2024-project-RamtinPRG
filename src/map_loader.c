@@ -6,6 +6,7 @@ void save_map(Position *position)
     strcat(map_file_name, player->username);
     map_file = fopen(map_file_name, "w");
 
+    fprintf(map_file, "%d\n", score_multiplier);
     fprintf(map_file, "%d %d\n", position->x, position->y);
     fprintf(map_file, "%d\n", FLOORS);
     for (int i = 0; i < FLOORS; i++)
@@ -52,6 +53,7 @@ void load_map(Position *position)
     strcat(map_file_name, player->username);
     map_file = fopen(map_file_name, "r");
 
+    fscanf(map_file, "%d", &score_multiplier);
     fscanf(map_file, "%d %d", &position->x, &position->y);
     fscanf(map_file, "%d", &floors_count);
     for (int i = 0; i < FLOORS; i++)

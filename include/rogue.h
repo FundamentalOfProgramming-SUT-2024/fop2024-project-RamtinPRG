@@ -73,8 +73,6 @@
 #define MIN_SCREEN_WIDTH (SCREEN_OFFSET * 2 + MAP_SCREEN_WIDTH + H_GAP + SIDEBAR_WIDTH)
 #define MIN_SCREEN_HEIGHT (SCREEN_OFFSET * 2 + MAP_SCREEN_HEIGHT + V_GAP + MESSAGES_HEIGHT)
 
-#define TRAPS_TO_ROOMS_RATIO 3
-#define ROOMS_TO_TRAPS_RATIO 2
 #define MIN_TRAP_DAMAGE 5
 #define MAX_TRAP_DAMAGE 10
 
@@ -304,6 +302,7 @@ extern ColorSettings *color_settings;
 extern Settings *settings;
 extern Mix_Music *music;
 extern Character character;
+extern int score_multiplier;
 extern Room *initial_room;
 extern Floor floors[FLOORS];
 extern Trap *traps;
