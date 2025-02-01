@@ -102,6 +102,8 @@ bool setup()
     init_color(CHAR_VIOLET, 545, 360, 964);
     init_color(CHAR_PINK, 925, 282, 600);
     init_color(CHAR_SLATE, 384, 454, 556);
+    init_color(CHAR_BRONZE, 1000, 341, 200);
+    init_color(CHAR_SILVER, 752, 752, 752);
 
     // Game items
     init_color(COLOR_WALL, 203, 443, 921);
@@ -120,6 +122,8 @@ bool setup()
     init_pair(CHAR_VIOLET, CHAR_VIOLET, COLOR_BLACK);
     init_pair(CHAR_PINK, CHAR_PINK, COLOR_BLACK);
     init_pair(CHAR_SLATE, CHAR_SLATE, COLOR_BLACK);
+    init_pair(CHAR_BRONZE, CHAR_BRONZE, COLOR_BLACK);
+    init_pair(CHAR_SILVER, CHAR_SILVER, COLOR_BLACK);
 
     refresh();
 

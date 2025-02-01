@@ -127,9 +127,11 @@ void setup_scoreboard(Player players[])
     position.x = MIN_SCREEN_WIDTH / 2 - scoreboard_wdith / 2;
     position.y = MIN_SCREEN_HEIGHT / 2 - scoreboard_height / 2;
 
+    erase_scr();
+
     attron(COLOR_PAIR(CHAR_VIOLET));
 
-    erase_box(position, scoreboard_wdith, scoreboard_height);
+    draw_box(position, scoreboard_wdith, scoreboard_height);
 
     for (int i = 0; i < scoreboard_wdith; i++)
         if (i % (scoreboard_columns_width + 1) == 0 && i != 0 && i != scoreboard_wdith - 1)
@@ -170,14 +172,53 @@ void setup_scoreboard(Player players[])
         end = scoreboard_items_count;
     for (int i = start; i < end; i++)
     {
+        move(position.y + 4 + (i - start) * 2, position.x - 3);
+        if (i == 0)
+            printw("🥇");
+        else if (i == 1)
+            printw("🥈");
+        else if (i == 2)
+            printw("🥉");
+
+        if (strcmp(players[i].username, player->username) == 0)
+            attron(A_BOLD | A_UNDERLINE | A_BLINK);
+        if (i == 0)
+            attron(COLOR_PAIR(CHAR_YELLOW) | A_ITALIC) | A_ITALIC;
+        else if (i == 1)
+            attron(COLOR_PAIR(CHAR_SILVER) | A_ITALIC);
+        else if (i == 2)
+            attron(COLOR_PAIR(CHAR_BRONZE) | A_ITALIC);
+        else if (strcmp(players[i].username, player->username) != 0)
+            attron(A_DIM);
+
         for (int j = 0; j < scoreboard_columns_count; j++)
         {
             move(position.y + 4 + (i - start) * 2, position.x + j * (scoreboard_columns_width + 1) + 2);
             if (j == 0)
-                printw("%d", i + 1);
+            {
+                if (i == 0)
+                    printw("%d (LEGEND)", i + 1);
+                else if (i == 1)
+                    printw("%d (IMMORTAL)", i + 1);
+                else if (i == 2)
+                    printw("%d (ASCENDANT)", i + 1);
+                else
+                    printw("%d", i + 1);
+            }
             else
                 print_by_index(players + i, j);
         }
+
+        if (strcmp(players[i].username, player->username) == 0)
+            attroff(A_BOLD | A_UNDERLINE | A_BLINK);
+        if (i == 0)
+            attroff(COLOR_PAIR(CHAR_YELLOW) | A_ITALIC);
+        else if (i == 1)
+            attroff(COLOR_PAIR(CHAR_SILVER) | A_ITALIC);
+        else if (i == 2)
+            attroff(COLOR_PAIR(CHAR_BRONZE) | A_ITALIC);
+        else if (strcmp(players[i].username, player->username) != 0)
+            attroff(A_DIM);
     }
 
     move(position.y + scoreboard_height + 2, position.x + scoreboard_wdith / 2 - ((scoreboard_pages_count - 1) * 3 + 1) / 2);

@@ -38,6 +38,8 @@
 #define CHAR_VIOLET 33
 #define CHAR_PINK 34
 #define CHAR_SLATE 35
+#define CHAR_BRONZE 36
+#define CHAR_SILVER 37
 
 #define COLOR_WALL 100
 #define COLOR_DOOR 101
