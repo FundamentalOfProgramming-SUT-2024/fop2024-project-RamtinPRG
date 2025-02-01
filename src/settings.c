@@ -1,5 +1,33 @@
 #include "../include/rogue.h"
 
+FILE *settings_file;
+
+void load_settings()
+{
+    char settings_file_name[50] = "settings/";
+    strcat(settings_file_name, player->username);
+    strcat(settings_file_name, ".txt");
+
+    settings_file = fopen(settings_file_name, "r");
+    fscanf(settings_file, "%d", &settings->difficulty);
+    fscanf(settings_file, "%d", &settings->color_settings->current_color_index);
+    fscanf(settings_file, "%d", &settings->music_settings->current_music_index);
+    fclose(settings_file);
+}
+
+void save_settings()
+{
+    char settings_file_name[50] = "settings/";
+    strcat(settings_file_name, player->username);
+    strcat(settings_file_name, ".txt");
+
+    settings_file = fopen(settings_file_name, "w");
+    fprintf(settings_file, "%d\n", settings->difficulty);
+    fprintf(settings_file, "%d\n", settings->color_settings->current_color_index);
+    fprintf(settings_file, "%d\n", settings->music_settings->current_music_index);
+    fclose(settings_file);
+}
+
 bool handle_settings()
 {
     wchar_t logo[LOGO_HEIGHT][LOGO_WIDTH + 1] =

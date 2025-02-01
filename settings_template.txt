@@ -1,0 +1,3 @@
+[difficulty]
+[color_index]
+[music_index]

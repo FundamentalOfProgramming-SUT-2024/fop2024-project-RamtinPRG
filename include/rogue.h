@@ -341,6 +341,8 @@ bool validate_password(char *password);
 bool add_user(char *username, char *password, char *email);
 void load_user_data(char *username, Player *player);
 void save_user_data();
+void load_settings();
+void save_settings();
 bool get_file_line(FILE *file, int line_number);
 int file_lines_count(FILE *file);
 void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index);

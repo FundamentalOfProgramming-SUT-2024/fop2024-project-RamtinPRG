@@ -55,7 +55,10 @@ int main()
     }
 
     if (player->signed_in)
+    {
         save_user_data();
+        save_settings();
+    }
     endwin();
     Mix_FreeMusic(music);
     Mix_Quit();

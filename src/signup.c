@@ -145,6 +145,7 @@ bool handle_signup()
                 player->games_count = 0;
 
                 save_user_data();
+                save_settings();
 
                 current_window = MAIN_MENU;
                 curs_set(0);
