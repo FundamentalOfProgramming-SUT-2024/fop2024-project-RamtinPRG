@@ -200,6 +200,16 @@ WINDOW *init_win(int x, int y, int width, int height)
     return win;
 }
 
+void to_lowercase(char *str)
+{
+    int length = strlen(str);
+    for (int i = 0; i < length; i++)
+    {
+        if (isalnum(str[i]) && isupper(str[i]))
+            str[i] += 'a' - 'A';
+    }
+}
+
 bool exists_username(char *username)
 {
     FILE *file;
@@ -210,6 +220,11 @@ bool exists_username(char *username)
         fclose(file);
         return false;
     }
+
+    char username_copy[100];
+    strcpy(username_copy, username);
+    to_lowercase(username_copy);
+
     char lines[MAX_USERS][CREDENTIALS_MAX_LENGTH + 2];
     int line_index = 0;
     while (fgets(lines[line_index], CREDENTIALS_MAX_LENGTH + 2, file) != NULL)
@@ -217,7 +232,8 @@ bool exists_username(char *username)
         int len = strlen(lines[line_index]);
         if (lines[line_index][len - 1] == '\n')
             lines[line_index][len - 1] = '\0';
-        if (strcmp(lines[line_index], username) == 0)
+        to_lowercase(lines[line_index]);
+        if (strcmp(lines[line_index], username_copy) == 0)
         {
             fclose(file);
             return true;

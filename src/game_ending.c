@@ -60,6 +60,7 @@ bool handle_defeat()
 
     player->continuable = false;
     player->games_count++;
+    player->defeats_count++;
 
     flushinp();
 
@@ -141,6 +142,7 @@ bool handle_victory()
     if (character.score > player->best_score)
         player->best_score = character.score;
     player->games_count++;
+    player->victories_count++;
 
     flushinp();
 

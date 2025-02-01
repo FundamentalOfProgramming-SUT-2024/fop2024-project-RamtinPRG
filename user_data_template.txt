@@ -1,4 +1,7 @@
 [continuable]
+[gold]
 [score]
 [best_score]
 [games_count]
+[victories_count]
+[defeats_count]

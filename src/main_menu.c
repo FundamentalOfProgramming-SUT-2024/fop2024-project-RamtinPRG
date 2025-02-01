@@ -66,6 +66,12 @@ bool handle_main_menu()
                 game_mode = CONTINUE;
                 return true;
             }
+            else if (item_index == 2)
+            {
+                current_window = SCOREBOARD;
+                previous_window = MAIN_MENU;
+                return true;
+            }
             else if (item_index == 3)
             {
                 current_window = SETTINGS;

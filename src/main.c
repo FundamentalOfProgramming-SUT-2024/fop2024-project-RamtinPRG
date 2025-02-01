@@ -47,6 +47,11 @@ int main()
             if (!handle_victory())
                 break;
         }
+        else if (current_window == SCOREBOARD)
+        {
+            if (!handle_scoreboard())
+                break;
+        }
     }
 
     if (player->signed_in)

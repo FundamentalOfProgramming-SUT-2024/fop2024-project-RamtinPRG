@@ -112,7 +112,7 @@ bool handle_login()
                     strcpy(player->password, entered_password);
                     strcpy(player->email, email);
 
-                    load_user_data();
+                    load_user_data(username, player);
 
                     current_window = MAIN_MENU;
                     curs_set(0);

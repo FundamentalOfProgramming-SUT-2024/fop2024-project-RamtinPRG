@@ -86,6 +86,8 @@
 #define MIN_BLACK_GOLD_VALUE 100
 #define MAX_BLACK_GOLD_VALUE 300
 
+#define SCOREBOARD_ITEM_PER_PAGE 10
+
 // ______________ TYPES & VARIABLES___________
 
 enum Window
@@ -139,9 +141,12 @@ typedef struct
     char email[EMAIL_MAX_LENGTH + 1];
     bool signed_in;
     bool continuable;
+    int gold;
     int score;
-    int games_count;
     int best_score;
+    int games_count;
+    int victories_count;
+    int defeats_count;
 } Player;
 
 typedef struct
@@ -327,12 +332,15 @@ bool handle_settings();
 bool handle_game();
 bool handle_defeat();
 bool handle_victory();
+bool handle_scoreboard();
 bool exists_username(char *username);
 bool validate_email(char *email);
 bool validate_password(char *password);
 bool add_user(char *username, char *password, char *email);
-void load_user_data();
+void load_user_data(char *username, Player *player);
 void save_user_data();
+bool get_file_line(FILE *file, int line_number);
+int file_lines_count(FILE *file);
 void draw_menu(WINDOW *win, MenuItem *items, int n, int selected_index);
 void draw_settings(WINDOW *win, SettingItem *items, int n, int selected_index);
 int nrandom(int min, int max);
@@ -377,6 +385,9 @@ void update_score();
 void draw_guides();
 void draw_hline(Position position, int length);
 void setup_message_box();
+void setup_scoreboard(Player players[]);
+int compare_players(const void *ap, const void *bp);
+int compare_strings(char *a, char *b);
 
 #if ENABLE_MUSIC
 void load_music();
