@@ -14,15 +14,18 @@ void setup_sidebar(int list)
     update_stomach();
     update_gold();
     update_score();
+    update_weapon();
 
     attron(COLOR_PAIR(CHAR_TEAL));
-    draw_hline(((Position){position.x + 1, position.y + 10}), SIDEBAR_WIDTH - 2);
+    draw_hline(((Position){position.x + 1, position.y + 12}), SIDEBAR_WIDTH - 2);
     attroff(COLOR_PAIR(CHAR_TEAL));
 
     if (list == GUIDES)
         draw_guides();
     if (list == FOODS)
         draw_food_inventory();
+    if (list == WEAPONS)
+        draw_weapon_inventory();
 }
 
 Position get_sidebar_position()
@@ -113,11 +116,43 @@ void update_score()
     attroff(COLOR_PAIR(CHAR_VIOLET));
 }
 
+void update_weapon()
+{
+    Position position = get_sidebar_position();
+    position.x += 3;
+    position.y += 10;
+    attron(A_BOLD);
+    mvprintw(position.y, position.x, "Weapon: ");
+    attroff(A_BOLD);
+
+    for (int i = 0; i < weapons_count; i++)
+    {
+        if (weapons[i].in_hand)
+        {
+            char current_weapon[20];
+            if (weapons[i].type == MACE)
+                strcpy(current_weapon, "MACE");
+            if (weapons[i].type == DAGGER)
+                strcpy(current_weapon, "DAGGER");
+            if (weapons[i].type == WAND)
+                strcpy(current_weapon, "WAND");
+            if (weapons[i].type == ARROW)
+                strcpy(current_weapon, "ARROW");
+            if (weapons[i].type == SWORD)
+                strcpy(current_weapon, "SWORD");
+            attron(A_ITALIC);
+            printw("%s", current_weapon);
+            attroff(A_ITALIC);
+            break;
+        }
+    }
+}
+
 void draw_guides()
 {
     Position position = get_sidebar_position();
     position.x += 3;
-    position.y += 12;
+    position.y += 14;
 
     attron(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
     mvprintw(position.y, position.x, "Guides:");
@@ -147,7 +182,7 @@ void draw_food_inventory()
 {
     Position position = get_sidebar_position();
     position.x += 3;
-    position.y += 12;
+    position.y += 14;
 
     attron(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
     mvprintw(position.y, position.x, "Foods:");
@@ -182,4 +217,94 @@ void draw_hline(Position position, int length)
     move(position.y, position.x);
     for (int i = 0; i < length; i++)
         printw("─");
+}
+
+void draw_weapon_inventory()
+{
+    Position position = get_sidebar_position();
+    position.x += 3;
+    position.y += 14;
+
+    attron(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
+    mvprintw(position.y, position.x, "Weapons:");
+    attroff(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
+
+    int count = 0;
+    position.y += 2;
+    for (int i = 0; i < weapons_count; i++)
+        if (weapons[i].is_picked && weapons[i].type == MACE)
+            count++;
+    move(position.y, position.x);
+    if (count == 0)
+        attron(A_DIM);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'a');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("MACE   ( %d )", count);
+    if (count == 0)
+        attroff(A_DIM);
+
+    count = 0;
+    position.y += 2;
+    for (int i = 0; i < weapons_count; i++)
+        if (weapons[i].is_picked && weapons[i].type == DAGGER)
+            count++;
+    move(position.y, position.x);
+    if (count == 0)
+        attron(A_DIM);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'b');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("DAGGER ( %d )", count);
+    if (count == 0)
+        attroff(A_DIM);
+
+    count = 0;
+    position.y += 2;
+    for (int i = 0; i < weapons_count; i++)
+        if (weapons[i].is_picked && weapons[i].type == WAND)
+            count++;
+    move(position.y, position.x);
+    if (count == 0)
+        attron(A_DIM);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'c');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("WAND   ( %d )", count);
+    if (count == 0)
+        attroff(A_DIM);
+
+    count = 0;
+    position.y += 2;
+    for (int i = 0; i < weapons_count; i++)
+        if (weapons[i].is_picked && weapons[i].type == ARROW)
+            count++;
+    move(position.y, position.x);
+    if (count == 0)
+        attron(A_DIM);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'd');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("ARROW  ( %d )", count);
+    if (count == 0)
+        attroff(A_DIM);
+
+    count = 0;
+    position.y += 2;
+    for (int i = 0; i < weapons_count; i++)
+        if (weapons[i].is_picked && weapons[i].type == SWORD)
+            count++;
+    move(position.y, position.x);
+    if (count == 0)
+        attron(A_DIM);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'e');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("SWORD  ( %d )", count);
+    if (count == 0)
+        attroff(A_DIM);
+
+    attron(A_ITALIC);
+    mvprintw(position.y + 4, position.x, "Press Q to exit...");
+    attroff(A_ITALIC);
 }

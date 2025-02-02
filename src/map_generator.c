@@ -5,14 +5,18 @@ Trap *traps;
 Gold *golds;
 BlackGold *black_golds;
 Food *foods;
+Weapon *weapons;
 int traps_count = 0;
 int golds_count = 0;
 int black_golds_count = 0;
 int foods_count = 0;
+int weapons_count = 0;
 int traps_to_rooms_ratio;
 int rooms_to_traps_ratio;
 int foods_to_rooms_ratio;
 int rooms_to_foods_ratio;
+int weapons_to_rooms_ratio;
+int rooms_to_weapons_ratio;
 int score_multiplier;
 
 void generate_map()
@@ -34,6 +38,8 @@ void generate_map()
     }
     foods_to_rooms_ratio = 1;
     rooms_to_foods_ratio = 3;
+    weapons_to_rooms_ratio = 1;
+    rooms_to_weapons_ratio = 4;
     score_multiplier = settings->difficulty + 1;
 
     floors[0].has_down_stair = false;
@@ -51,6 +57,7 @@ void generate_map()
     generate_golds();
     generate_black_golds();
     generate_foods();
+    generate_weapons();
 }
 
 void generate_traps()
@@ -160,9 +167,51 @@ void generate_foods()
         } while (exists_gold(food.floor, food.room, food.position) || exists_trap(food.floor, food.room, food.position) || exists_stair(food.floor, food.room, food.position) || exists_food(food.floor, food.room, food.position));
         food.is_picked = false;
         food.is_eaten = false;
-        food.value = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
+        food.value = nrandom(MIN_FOOD_VALUE, MAX_FOOD_VALUE);
         foods[i] = food;
         foods_count++;
+    }
+}
+
+void generate_weapons()
+{
+    int total_rooms_count = 0;
+    for (int i = 0; i < FLOORS; i++)
+        total_rooms_count += floors[i].rooms_count;
+
+    int temp_weapons_count = total_rooms_count * weapons_to_rooms_ratio / rooms_to_weapons_ratio;
+    weapons = (Weapon *)calloc(temp_weapons_count, sizeof(Weapon));
+
+    weapons[0].floor_index = 0;
+    weapons[0].floor = &floors[weapons[0].floor_index];
+    weapons[0].room_index = 0;
+    weapons[0].room = weapons[0].floor->rooms[weapons[0].room_index];
+    weapons[0].position.x = 0;
+    weapons[0].position.y = 0;
+    weapons[0].is_picked = true;
+    weapons[0].in_hand = true;
+    weapons[0].type = 0;
+    weapons_count++;
+
+    for (int i = 1; i < temp_weapons_count; i++)
+    {
+        Weapon weapon;
+        do
+        {
+            weapon.floor_index = rand() % FLOORS;
+            weapon.floor = &floors[weapon.floor_index];
+            weapon.room_index = rand() % weapon.floor->rooms_count;
+            weapon.room = weapon.floor->rooms[weapon.room_index];
+            weapon.position.x = nrandom(1, weapon.room->width);
+            weapon.position.y = nrandom(1, weapon.room->height);
+        } while (exists_gold(weapon.floor, weapon.room, weapon.position) || exists_trap(weapon.floor, weapon.room, weapon.position) || exists_stair(weapon.floor, weapon.room, weapon.position) || exists_food(weapon.floor, weapon.room, weapon.position) || exists_weapon(weapon.floor, weapon.room, weapon.position));
+        weapon.type = rand() % 5;
+        weapon.is_picked = false;
+        weapon.in_hand = false;
+        // weapon.damage = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
+        weapon.damage = 10;
+        weapons[i] = weapon;
+        weapons_count++;
     }
 }
 
@@ -210,6 +259,16 @@ bool exists_food(Floor *floor, Room *room, Position position)
     for (int i = 0; i < foods_count; i++)
     {
         if (foods[i].floor == floor && foods[i].room == room && foods[i].position.x == position.x && foods[i].position.y == position.y)
+            return true;
+    }
+    return false;
+}
+
+bool exists_weapon(Floor *floor, Room *room, Position position)
+{
+    for (int i = 0; i < weapons_count; i++)
+    {
+        if (weapons[i].floor == floor && weapons[i].room == room && weapons[i].position.x == position.x && weapons[i].position.y == position.y)
             return true;
     }
     return false;

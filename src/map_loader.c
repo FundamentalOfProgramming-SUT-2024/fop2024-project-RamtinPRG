@@ -49,6 +49,12 @@ void save_map(Position *position)
         fprintf(map_file, "%d %d %d %d %d\n", foods[i].position.x, foods[i].position.y, foods[i].floor_index, foods[i].room_index, foods[i].value);
     }
 
+    fprintf(map_file, "%d\n", weapons_count);
+    for (int i = 0; i < weapons_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d %d\n", weapons[i].position.x, weapons[i].position.y, weapons[i].floor_index, weapons[i].room_index, weapons[i].damage, weapons[i].type);
+    }
+
     fclose(map_file);
 }
 
@@ -136,6 +142,19 @@ void load_map(Position *position)
         foods[i].is_picked = false;
         foods[i].is_eaten = false;
     }
+
+    fscanf(map_file, "%d", &weapons_count);
+    weapons = (Weapon *)calloc(weapons_count, sizeof(Weapon));
+    for (int i = 0; i < weapons_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d %d", &weapons[i].position.x, &weapons[i].position.y, &weapons[i].floor_index, &weapons[i].room_index, &weapons[i].damage, &weapons[i].type);
+        weapons[i].floor = &floors[weapons[i].floor_index];
+        weapons[i].room = weapons[i].floor->rooms[weapons[i].room_index];
+        weapons[i].is_picked = false;
+        weapons[i].in_hand = false;
+    }
+    weapons[0].is_picked = true;
+    weapons[0].in_hand = true;
 
     fclose(map_file);
 }

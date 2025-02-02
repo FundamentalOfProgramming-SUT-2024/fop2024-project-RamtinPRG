@@ -105,6 +105,8 @@ bool handle_game()
             register_command("pick", 0);
         else if (ch == ('e' & 0x1F))
             eat_food();
+        else if (ch == ('w' & 0x1F))
+            take_weapon();
 
         if (current_window != GAME)
         {
@@ -132,10 +134,12 @@ void game_exit_routine()
     free(golds);
     free(black_golds);
     free(foods);
+    free(weapons);
     traps_count = 0;
     golds_count = 0;
     black_golds_count = 0;
     foods_count = 0;
+    weapons_count = 0;
 }
 
 void setup_floor()
@@ -149,6 +153,7 @@ void setup_floor()
     draw_golds(&floors[current_floor_index]);
     draw_black_golds(&floors[current_floor_index]);
     draw_foods(&floors[current_floor_index]);
+    draw_weapons(&floors[current_floor_index]);
     setup_sidebar(GUIDES);
     setup_message_box();
     // attroff(A_INVIS);
@@ -232,6 +237,31 @@ void draw_foods(Floor *floor)
             attron(COLOR_PAIR(CHAR_BRONZE));
             mvprintw(position.y, position.x, "♥");
             attroff(COLOR_PAIR(CHAR_BRONZE));
+        }
+    }
+}
+
+void draw_weapons(Floor *floor)
+{
+    for (int i = 0; i < weapons_count; i++)
+    {
+        if (weapons[i].floor == floor && !weapons[i].is_picked)
+        {
+            Position position = get_absolute_position(weapons[i].room);
+            position.x += weapons[i].position.x;
+            position.y += weapons[i].position.y;
+            attron(COLOR_PAIR(CHAR_PINK));
+            if (weapons[i].type == MACE)
+                mvprintw(position.y, position.x, "₸");
+            if (weapons[i].type == DAGGER)
+                mvprintw(position.y, position.x, "𐃉");
+            if (weapons[i].type == WAND)
+                mvprintw(position.y, position.x, "/");
+            if (weapons[i].type == ARROW)
+                mvprintw(position.y, position.x, "↑");
+            if (weapons[i].type == SWORD)
+                mvprintw(position.y, position.x, "⁋");
+            attroff(COLOR_PAIR(CHAR_PINK));
         }
     }
 }
@@ -332,6 +362,15 @@ int inventory_foods_count()
     return count;
 }
 
+int inventory_weapons_count()
+{
+    int existence[5] = {0, 0, 0, 0, 0};
+    for (int i = 0; i < weapons_count; i++)
+        if (weapons[i].is_picked)
+            existence[weapons[i].type] = 1;
+    return existence[0] + existence[1] + existence[2] + existence[3] + existence[4];
+}
+
 Food *food_inventory_by_index(int index)
 {
     int count = 0;
@@ -371,6 +410,34 @@ void pick_character(char *message)
             }
         }
     }
+
+    for (int i = 0; i < weapons_count; i++)
+    {
+        if (!weapons[i].is_picked && weapons[i].floor == &floors[current_floor_index])
+        {
+            Position position = get_absolute_position(weapons[i].room);
+            position.x += weapons[i].position.x;
+            position.y += weapons[i].position.y;
+            if (character.position.x == position.x && character.position.y == position.y)
+            {
+                found = true;
+                char found_weapon[20];
+                if (weapons[i].type == MACE)
+                    strcpy(found_weapon, "MACE");
+                if (weapons[i].type == DAGGER)
+                    strcpy(found_weapon, "DAGGER");
+                if (weapons[i].type == WAND)
+                    strcpy(found_weapon, "WAND");
+                if (weapons[i].type == ARROW)
+                    strcpy(found_weapon, "ARROW");
+                if (weapons[i].type == SWORD)
+                    strcpy(found_weapon, "SWORD");
+                sprintf(message, "You found a %s; It's added to your weapon inventory!", found_weapon);
+                weapons[i].is_picked = true;
+                character.under = ground_character;
+            }
+        }
+    }
     if (!found)
         sprintf(message, "There's nothing to pick!");
 }
@@ -406,6 +473,32 @@ void eat_food()
                 }
             }
             break;
+        }
+        else if (ch == 'q')
+            break;
+    }
+    setup_sidebar(GUIDES);
+}
+
+void take_weapon()
+{
+    setup_sidebar(WEAPONS);
+    while (1)
+    {
+        ch = getch();
+        if ('a' <= ch && ch <= 'e')
+        {
+            int index = ch - 'a';
+            bool found = false;
+            for (int i = 0; i < weapons_count; i++)
+                if (weapons[i].is_picked && weapons[i].type == index)
+                {
+                    register_command("weapon", 1, index);
+                    found = true;
+                    break;
+                }
+            if (found)
+                break;
         }
         else if (ch == 'q')
             break;

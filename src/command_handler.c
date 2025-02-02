@@ -70,6 +70,36 @@ bool register_command(char *command, int num, ...)
         va_end(args);
     }
 
+    if (strcmp(command, "weapon") == 0)
+    {
+        va_list args;
+        va_start(args, num);
+        int index = va_arg(args, int);
+        fprintf(log_file, "weapon %d\n", index);
+        for (int i = 0; i < weapons_count; i++)
+            if (weapons[i].in_hand)
+            {
+                weapons[i].in_hand = false;
+                break;
+            }
+        for (int i = 0; i < weapons_count; i++)
+            if (weapons[i].is_picked && weapons[i].type == index)
+                weapons[i].in_hand = true;
+        char found_weapon[20];
+        if (index == MACE)
+            strcpy(found_weapon, "MACE");
+        if (index == DAGGER)
+            strcpy(found_weapon, "DAGGER");
+        if (index == WAND)
+            strcpy(found_weapon, "WAND");
+        if (index == ARROW)
+            strcpy(found_weapon, "ARROW");
+        if (index == SWORD)
+            strcpy(found_weapon, "SWORD");
+        sprintf(game_message, "You're now holding a %s!", found_weapon);
+        va_end(args);
+    }
+
     for (int i = 0; i < traps_count; i++)
     {
         if (traps[i].floor == &floors[current_floor_index])
@@ -159,6 +189,8 @@ void replay_commands()
     {
         char command[50];
         sscanf(line, "%s", command);
+
+        timeline_counter++;
 
         if (strcmp(command, "move") == 0)
         {
@@ -256,8 +288,18 @@ void replay_commands()
             }
         }
 
-        if (strcmp(command, "eat") != 0 && character.stomach > 0 && timeline_counter % 5 == 0)
-            character.stomach -= 1;
+        if (strcmp(command, "eat") != 0)
+        {
+            if (character.stomach == 0 && timeline_counter % 3 == 0)
+                character.health--;
+            if (character.health < 100 && character.stomach > 0 && timeline_counter % 3 == 0)
+            {
+                character.health++;
+                character.stomach--;
+            }
+            if (character.stomach > 0 && timeline_counter % 5 == 0)
+                character.stomach--;
+        }
 
         setup_message_box();
         setup_sidebar(GUIDES);

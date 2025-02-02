@@ -86,8 +86,8 @@
 #define MIN_BLACK_GOLD_VALUE 100
 #define MAX_BLACK_GOLD_VALUE 300
 
-#define MIN_FOOD_VALUE 10
-#define MAX_FOOD_VALUE 30
+#define MIN_FOOD_VALUE 20
+#define MAX_FOOD_VALUE 40
 
 #define SCOREBOARD_ITEM_PER_PAGE 10
 
@@ -137,10 +137,20 @@ enum RoomType
     ENCHANT_ROOM
 };
 
+enum WeaponTypes
+{
+    MACE,
+    DAGGER,
+    WAND,
+    ARROW,
+    SWORD
+};
+
 enum SidebarList
 {
     GUIDES,
-    FOODS
+    FOODS,
+    WEAPONS
 };
 
 typedef struct
@@ -302,6 +312,19 @@ typedef struct Food
     bool is_eaten;
 } Food;
 
+typedef struct Weapon
+{
+    Floor *floor;
+    Room *room;
+    int floor_index;
+    int room_index;
+    Position position;
+    int damage;
+    int type;
+    bool is_picked;
+    bool in_hand;
+} Weapon;
+
 typedef struct Character
 {
     Position position;
@@ -335,6 +358,8 @@ extern BlackGold *black_golds;
 extern int black_golds_count;
 extern Food *foods;
 extern int foods_count;
+extern Weapon *weapons;
+extern int weapons_count;
 extern int timeline_counter;
 extern int current_floor_index;
 extern FILE *log_file;
@@ -378,11 +403,13 @@ void generate_traps();
 void generate_golds();
 void generate_black_golds();
 void generate_foods();
+void generate_weapons();
 bool exists_gold(Floor *floor, Room *room, Position position);
 bool exists_black_gold(Floor *floor, Room *room, Position position);
 bool exists_trap(Floor *floor, Room *room, Position position);
 bool exists_stair(Floor *floor, Room *room, Position position);
 bool exists_food(Floor *floor, Room *room, Position position);
+bool exists_weapon(Floor *floor, Room *room, Position position);
 bool exists_room(Floor *floor, int y, int x);
 Room *get_room(Floor *floor, int y, int x);
 int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);
@@ -396,6 +423,7 @@ void draw_traps(Floor *floor);
 void draw_golds(Floor *floor);
 void draw_black_golds(Floor *floor);
 void draw_foods(Floor *floor);
+void draw_weapons(Floor *floor);
 Position get_absolute_position(Room *room);
 void remove_character();
 void place_character(Position position);
@@ -406,6 +434,7 @@ bool descend_character(char *message);
 void pick_character(char *message);
 void eat_character(int index, char *message);
 void eat_food();
+void take_weapon();
 int inventory_foods_count();
 Food *food_inventory_by_index(int index);
 void setup_floor();
@@ -419,8 +448,10 @@ void update_health();
 void update_stomach();
 void update_gold();
 void update_score();
+void update_weapon();
 void draw_guides();
 void draw_food_inventory();
+void draw_weapon_inventory();
 void draw_hline(Position position, int length);
 void setup_message_box();
 void setup_scoreboard(Player players[]);
