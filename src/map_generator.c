@@ -6,17 +6,27 @@ Gold *golds;
 BlackGold *black_golds;
 Food *foods;
 Weapon *weapons;
+Daemon *daemons;
+
 int traps_count = 0;
 int golds_count = 0;
 int black_golds_count = 0;
 int foods_count = 0;
 int weapons_count = 0;
+int daemons_count = 0;
+
 int traps_to_rooms_ratio;
 int rooms_to_traps_ratio;
+
 int foods_to_rooms_ratio;
 int rooms_to_foods_ratio;
+
 int weapons_to_rooms_ratio;
 int rooms_to_weapons_ratio;
+
+int daemons_to_rooms_ratio;
+int rooms_to_daemons_ratio;
+
 int score_multiplier;
 
 void generate_map()
@@ -40,6 +50,8 @@ void generate_map()
     rooms_to_foods_ratio = 3;
     weapons_to_rooms_ratio = 1;
     rooms_to_weapons_ratio = 4;
+    daemons_to_rooms_ratio = 1;
+    rooms_to_daemons_ratio = 4;
     score_multiplier = settings->difficulty + 1;
 
     floors[0].has_down_stair = false;
@@ -58,6 +70,7 @@ void generate_map()
     generate_black_golds();
     generate_foods();
     generate_weapons();
+    generate_daemons();
 }
 
 void generate_traps()
@@ -215,6 +228,35 @@ void generate_weapons()
     }
 }
 
+void generate_daemons()
+{
+    int total_rooms_count = 0;
+    for (int i = 0; i < FLOORS; i++)
+        total_rooms_count += floors[i].rooms_count;
+
+    int temp_daemons_count = total_rooms_count * daemons_to_rooms_ratio / rooms_to_daemons_ratio;
+    daemons = (Daemon *)calloc(temp_daemons_count, sizeof(Daemon));
+
+    for (int i = 0; i < temp_daemons_count; i++)
+    {
+        Daemon daemon;
+        do
+        {
+            daemon.floor_index = rand() % FLOORS;
+            daemon.floor = &floors[daemon.floor_index];
+            daemon.room_index = rand() % daemon.floor->rooms_count;
+            daemon.room = daemon.floor->rooms[daemon.room_index];
+            daemon.position.x = nrandom(1, daemon.room->width);
+            daemon.position.y = nrandom(1, daemon.room->height);
+        } while (exists_gold(daemon.floor, daemon.room, daemon.position) || exists_trap(daemon.floor, daemon.room, daemon.position) || exists_stair(daemon.floor, daemon.room, daemon.position) || exists_food(daemon.floor, daemon.room, daemon.position) || exists_daemon(daemon.floor, daemon.room, daemon.position));
+        daemon.is_alive = true;
+        daemon.health = 5;
+        daemon.damage = 5;
+        daemons[i] = daemon;
+        daemons_count++;
+    }
+}
+
 bool exists_trap(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < traps_count; i++)
@@ -269,6 +311,16 @@ bool exists_weapon(Floor *floor, Room *room, Position position)
     for (int i = 0; i < weapons_count; i++)
     {
         if (weapons[i].floor == floor && weapons[i].room == room && weapons[i].position.x == position.x && weapons[i].position.y == position.y)
+            return true;
+    }
+    return false;
+}
+
+bool exists_daemon(Floor *floor, Room *room, Position position)
+{
+    for (int i = 0; i < daemons_count; i++)
+    {
+        if (daemons[i].floor == floor && daemons[i].room == room && daemons[i].position.x == position.x && daemons[i].position.y == position.y)
             return true;
     }
     return false;

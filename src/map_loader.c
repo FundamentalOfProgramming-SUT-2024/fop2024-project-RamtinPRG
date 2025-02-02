@@ -55,6 +55,12 @@ void save_map(Position *position)
         fprintf(map_file, "%d %d %d %d %d %d\n", weapons[i].position.x, weapons[i].position.y, weapons[i].floor_index, weapons[i].room_index, weapons[i].damage, weapons[i].type);
     }
 
+    fprintf(map_file, "%d\n", daemons_count);
+    for (int i = 0; i < daemons_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d %d\n", daemons[i].position.x, daemons[i].position.y, daemons[i].floor_index, daemons[i].room_index, daemons[i].damage, daemons[i].health);
+    }
+
     fclose(map_file);
 }
 
@@ -155,6 +161,16 @@ void load_map(Position *position)
     }
     weapons[0].is_picked = true;
     weapons[0].in_hand = true;
+
+    fscanf(map_file, "%d", &daemons_count);
+    daemons = (Daemon *)calloc(daemons_count, sizeof(Daemon));
+    for (int i = 0; i < daemons_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d %d", &daemons[i].position.x, &daemons[i].position.y, &daemons[i].floor_index, &daemons[i].room_index, &daemons[i].damage, &daemons[i].health);
+        daemons[i].floor = &floors[daemons[i].floor_index];
+        daemons[i].room = daemons[i].floor->rooms[daemons[i].room_index];
+        daemons[i].is_alive = true;
+    }
 
     fclose(map_file);
 }

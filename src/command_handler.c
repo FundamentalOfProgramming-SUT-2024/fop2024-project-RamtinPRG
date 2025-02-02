@@ -153,6 +153,49 @@ bool register_command(char *command, int num, ...)
         }
     }
 
+    // mvprintw(0, 0, "%d, %d", get_current_room()->block.x, get_current_room()->block.y);
+
+    for (int i = 0; i < daemons_count; i++)
+    {
+        if (get_current_room() == daemons[i].room)
+        {
+            // mvprintw(0, 0, "hello");
+            Position position = get_absolute_position(daemons[i].room);
+            Position position_copy = daemons[i].position;
+            position.x += daemons[i].position.x;
+            position.y += daemons[i].position.y;
+            Position absolute_position_copy = position;
+            if (position.x < character.position.x)
+            {
+                absolute_position_copy.x++;
+                position_copy.x++;
+            }
+            else if (position.x > character.position.x)
+            {
+                absolute_position_copy.x--;
+                position_copy.x--;
+            }
+            if (position.y < character.position.y)
+            {
+                absolute_position_copy.y++;
+                position_copy.y++;
+            }
+            else if (position.y > character.position.y)
+            {
+                absolute_position_copy.y--;
+                position_copy.y--;
+            }
+
+            if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+            {
+                mvadd_wch(position.y, position.x, &daemons[i].under);
+                mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &daemons[i].under);
+                mvprintw(absolute_position_copy.y, absolute_position_copy.x, "D");
+                daemons[i].position = position_copy;
+            }
+        }
+    }
+
     if (strcmp(command, "eat") != 0)
     {
         if (character.stomach == 0 && timeline_counter % 3 == 0)

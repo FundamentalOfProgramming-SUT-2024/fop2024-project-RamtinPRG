@@ -325,6 +325,19 @@ typedef struct Weapon
     bool in_hand;
 } Weapon;
 
+typedef struct Daemon
+{
+    Floor *floor;
+    Room *room;
+    int floor_index;
+    int room_index;
+    Position position;
+    int damage;
+    int health;
+    bool is_alive;
+    cchar_t under;
+} Daemon;
+
 typedef struct Character
 {
     Position position;
@@ -360,6 +373,8 @@ extern Food *foods;
 extern int foods_count;
 extern Weapon *weapons;
 extern int weapons_count;
+extern Daemon *daemons;
+extern int daemons_count;
 extern int timeline_counter;
 extern int current_floor_index;
 extern FILE *log_file;
@@ -404,12 +419,14 @@ void generate_golds();
 void generate_black_golds();
 void generate_foods();
 void generate_weapons();
+void generate_daemons();
 bool exists_gold(Floor *floor, Room *room, Position position);
 bool exists_black_gold(Floor *floor, Room *room, Position position);
 bool exists_trap(Floor *floor, Room *room, Position position);
 bool exists_stair(Floor *floor, Room *room, Position position);
 bool exists_food(Floor *floor, Room *room, Position position);
 bool exists_weapon(Floor *floor, Room *room, Position position);
+bool exists_daemon(Floor *floor, Room *room, Position position);
 bool exists_room(Floor *floor, int y, int x);
 Room *get_room(Floor *floor, int y, int x);
 int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);
@@ -424,6 +441,8 @@ void draw_golds(Floor *floor);
 void draw_black_golds(Floor *floor);
 void draw_foods(Floor *floor);
 void draw_weapons(Floor *floor);
+void draw_daemons(Floor *floor);
+Room *get_current_room();
 Position get_absolute_position(Room *room);
 void remove_character();
 void place_character(Position position);
