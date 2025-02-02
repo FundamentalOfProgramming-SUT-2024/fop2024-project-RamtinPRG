@@ -3,6 +3,9 @@
 bool register_command(char *command, int num, ...)
 {
     bool output;
+
+    timeline_counter++;
+
     if (strcmp(command, "move") == 0)
     {
         va_list args;
@@ -50,6 +53,21 @@ bool register_command(char *command, int num, ...)
         }
         else
             output = false;
+    }
+    if (strcmp(command, "pick") == 0)
+    {
+        fprintf(log_file, "pick\n");
+        pick_character(game_message);
+        output = true;
+    }
+    if (strcmp(command, "eat") == 0)
+    {
+        va_list args;
+        va_start(args, num);
+        int index = va_arg(args, int);
+        fprintf(log_file, "eat %d\n", index);
+        eat_character(index, game_message);
+        va_end(args);
     }
 
     for (int i = 0; i < traps_count; i++)
@@ -105,6 +123,19 @@ bool register_command(char *command, int num, ...)
         }
     }
 
+    if (strcmp(command, "eat") != 0)
+    {
+        if (character.stomach == 0 && timeline_counter % 3 == 0)
+            character.health--;
+        if (character.health < 100 && character.stomach > 0 && timeline_counter % 3 == 0)
+        {
+            character.health++;
+            character.stomach--;
+        }
+        if (character.stomach > 0 && timeline_counter % 5 == 0)
+            character.stomach--;
+    }
+
     if (character.health <= 0)
     {
         output = false;
@@ -112,7 +143,7 @@ bool register_command(char *command, int num, ...)
     }
 
     setup_message_box();
-    setup_sidebar();
+    setup_sidebar(GUIDES);
 
     return output;
 }
@@ -158,6 +189,18 @@ void replay_commands()
                 position.y += floors[current_floor_index].up_stair.position.y;
                 place_character(position);
             }
+        }
+
+        else if (strcmp(command, "pick") == 0)
+        {
+            pick_character(game_message);
+        }
+
+        else if (strcmp(command, "eat") == 0)
+        {
+            int index;
+            sscanf(line, "eat %d", &index);
+            eat_character(index, game_message);
         }
 
         for (int i = 0; i < traps_count; i++)
@@ -213,8 +256,11 @@ void replay_commands()
             }
         }
 
+        if (strcmp(command, "eat") != 0 && character.stomach > 0 && timeline_counter % 5 == 0)
+            character.stomach -= 1;
+
         setup_message_box();
-        setup_sidebar();
+        setup_sidebar(GUIDES);
         refresh();
         usleep(5000);
     }

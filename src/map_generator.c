@@ -4,11 +4,15 @@ Floor floors[FLOORS];
 Trap *traps;
 Gold *golds;
 BlackGold *black_golds;
+Food *foods;
 int traps_count = 0;
 int golds_count = 0;
 int black_golds_count = 0;
+int foods_count = 0;
 int traps_to_rooms_ratio;
 int rooms_to_traps_ratio;
+int foods_to_rooms_ratio;
+int rooms_to_foods_ratio;
 int score_multiplier;
 
 void generate_map()
@@ -28,6 +32,8 @@ void generate_map()
         traps_to_rooms_ratio = 9;
         rooms_to_traps_ratio = 2;
     }
+    foods_to_rooms_ratio = 1;
+    rooms_to_foods_ratio = 3;
     score_multiplier = settings->difficulty + 1;
 
     floors[0].has_down_stair = false;
@@ -44,6 +50,7 @@ void generate_map()
     generate_traps();
     generate_golds();
     generate_black_golds();
+    generate_foods();
 }
 
 void generate_traps()
@@ -130,6 +137,35 @@ void generate_black_golds()
     }
 }
 
+void generate_foods()
+{
+    int total_rooms_count = 0;
+    for (int i = 0; i < FLOORS; i++)
+        total_rooms_count += floors[i].rooms_count;
+
+    int temp_foods_count = total_rooms_count * foods_to_rooms_ratio / rooms_to_foods_ratio;
+    foods = (Food *)calloc(temp_foods_count, sizeof(Food));
+
+    for (int i = 0; i < temp_foods_count; i++)
+    {
+        Food food;
+        do
+        {
+            food.floor_index = rand() % FLOORS;
+            food.floor = &floors[food.floor_index];
+            food.room_index = rand() % food.floor->rooms_count;
+            food.room = food.floor->rooms[food.room_index];
+            food.position.x = nrandom(1, food.room->width);
+            food.position.y = nrandom(1, food.room->height);
+        } while (exists_gold(food.floor, food.room, food.position) || exists_trap(food.floor, food.room, food.position) || exists_stair(food.floor, food.room, food.position) || exists_food(food.floor, food.room, food.position));
+        food.is_picked = false;
+        food.is_eaten = false;
+        food.value = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
+        foods[i] = food;
+        foods_count++;
+    }
+}
+
 bool exists_trap(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < traps_count; i++)
@@ -164,6 +200,16 @@ bool exists_black_gold(Floor *floor, Room *room, Position position)
     for (int i = 0; i < black_golds_count; i++)
     {
         if (black_golds[i].floor == floor && black_golds[i].room == room && black_golds[i].position.x == position.x && black_golds[i].position.y == position.y)
+            return true;
+    }
+    return false;
+}
+
+bool exists_food(Floor *floor, Room *room, Position position)
+{
+    for (int i = 0; i < foods_count; i++)
+    {
+        if (foods[i].floor == floor && foods[i].room == room && foods[i].position.x == position.x && foods[i].position.y == position.y)
             return true;
     }
     return false;

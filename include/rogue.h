@@ -86,6 +86,9 @@
 #define MIN_BLACK_GOLD_VALUE 100
 #define MAX_BLACK_GOLD_VALUE 300
 
+#define MIN_FOOD_VALUE 10
+#define MAX_FOOD_VALUE 30
+
 #define SCOREBOARD_ITEM_PER_PAGE 10
 
 // ______________ TYPES & VARIABLES___________
@@ -132,6 +135,12 @@ enum RoomType
     REGULAR_ROOM,
     TREASURE_ROOM,
     ENCHANT_ROOM
+};
+
+enum SidebarList
+{
+    GUIDES,
+    FOODS
 };
 
 typedef struct
@@ -281,12 +290,25 @@ typedef struct BlackGold
     bool is_discovered;
 } BlackGold;
 
+typedef struct Food
+{
+    Floor *floor;
+    Room *room;
+    int floor_index;
+    int room_index;
+    Position position;
+    int value;
+    bool is_picked;
+    bool is_eaten;
+} Food;
+
 typedef struct Character
 {
     Position position;
     Position prev_position;
     cchar_t under;
     int health;
+    int stomach;
     int gold;
     int score;
 } Character;
@@ -311,6 +333,9 @@ extern Gold *golds;
 extern int golds_count;
 extern BlackGold *black_golds;
 extern int black_golds_count;
+extern Food *foods;
+extern int foods_count;
+extern int timeline_counter;
 extern int current_floor_index;
 extern FILE *log_file;
 extern FILE *map_file;
@@ -352,10 +377,12 @@ void generate_floor(Floor *floor, Floor *prev_floor);
 void generate_traps();
 void generate_golds();
 void generate_black_golds();
+void generate_foods();
 bool exists_gold(Floor *floor, Room *room, Position position);
 bool exists_black_gold(Floor *floor, Room *room, Position position);
 bool exists_trap(Floor *floor, Room *room, Position position);
 bool exists_stair(Floor *floor, Room *room, Position position);
+bool exists_food(Floor *floor, Room *room, Position position);
 bool exists_room(Floor *floor, int y, int x);
 Room *get_room(Floor *floor, int y, int x);
 int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);
@@ -368,6 +395,7 @@ void draw_stairs(Floor *floor);
 void draw_traps(Floor *floor);
 void draw_golds(Floor *floor);
 void draw_black_golds(Floor *floor);
+void draw_foods(Floor *floor);
 Position get_absolute_position(Room *room);
 void remove_character();
 void place_character(Position position);
@@ -375,17 +403,24 @@ void teleport_character(Position position);
 void move_character(int direction, char *message);
 bool ascend_character(char *message);
 bool descend_character(char *message);
+void pick_character(char *message);
+void eat_character(int index, char *message);
+void eat_food();
+int inventory_foods_count();
+Food *food_inventory_by_index(int index);
 void setup_floor();
 bool register_command(char *command, int num, ...);
 void replay_commands();
 void save_map(Position *position);
 void load_map(Position *position);
-void setup_sidebar();
+void setup_sidebar(int list);
 Position get_sidebar_position();
 void update_health();
+void update_stomach();
 void update_gold();
 void update_score();
 void draw_guides();
+void draw_food_inventory();
 void draw_hline(Position position, int length);
 void setup_message_box();
 void setup_scoreboard(Player players[]);

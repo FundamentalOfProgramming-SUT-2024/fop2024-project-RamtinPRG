@@ -12,6 +12,7 @@ int current_floor_index;
 FILE *log_file;
 FILE *map_file;
 char game_message[500];
+int timeline_counter = 0;
 
 bool handle_game()
 {
@@ -32,15 +33,15 @@ bool handle_game()
     else
     {
         load_map(&position);
-        printw("hello");
-        refresh();
     }
 
+    timeline_counter = 0;
     current_floor_index = 0;
     initial_room = floors[0].rooms[0];
     initial_room->visible = true;
     player->continuable = true;
     character.health = 100;
+    character.stomach = 100;
     character.gold = 0;
     character.score = 0;
     strcpy(game_message, "Welcome to the dungeons of DOOM!");
@@ -96,10 +97,14 @@ bool handle_game()
             register_command("move", 1, W);
         else if (ch == 'q' || ch == 'Q')
             register_command("move", 1, NW);
-        else if (ch == '>' & 0x1F)
+        else if (ch == '>')
             register_command("ascend", 0);
-        else if (ch == '<' & 0x1F)
+        else if (ch == '<')
             register_command("descend", 0);
+        else if (ch == ('p' & 0x1F))
+            register_command("pick", 0);
+        else if (ch == ('e' & 0x1F))
+            eat_food();
 
         if (current_window != GAME)
         {
@@ -126,9 +131,11 @@ void game_exit_routine()
     free(traps);
     free(golds);
     free(black_golds);
+    free(foods);
     traps_count = 0;
     golds_count = 0;
     black_golds_count = 0;
+    foods_count = 0;
 }
 
 void setup_floor()
@@ -141,7 +148,8 @@ void setup_floor()
     draw_traps(&floors[current_floor_index]);
     draw_golds(&floors[current_floor_index]);
     draw_black_golds(&floors[current_floor_index]);
-    setup_sidebar();
+    draw_foods(&floors[current_floor_index]);
+    setup_sidebar(GUIDES);
     setup_message_box();
     // attroff(A_INVIS);
 }
@@ -208,6 +216,22 @@ void draw_black_golds(Floor *floor)
             attron(COLOR_PAIR(CHAR_SLATE));
             mvprintw(position.y, position.x, "♦");
             attroff(COLOR_PAIR(CHAR_SLATE));
+        }
+    }
+}
+
+void draw_foods(Floor *floor)
+{
+    for (int i = 0; i < foods_count; i++)
+    {
+        if (foods[i].floor == floor && !foods[i].is_picked)
+        {
+            Position position = get_absolute_position(foods[i].room);
+            position.x += foods[i].position.x;
+            position.y += foods[i].position.y;
+            attron(COLOR_PAIR(CHAR_BRONZE));
+            mvprintw(position.y, position.x, "♥");
+            attroff(COLOR_PAIR(CHAR_BRONZE));
         }
     }
 }
@@ -297,4 +321,94 @@ bool descend_character(char *message)
     }
     strcpy(message, "I see no way down!");
     return false;
+}
+
+int inventory_foods_count()
+{
+    int count = 0;
+    for (int i = 0; i < foods_count; i++)
+        if (foods[i].is_picked && !foods[i].is_eaten)
+            count++;
+    return count;
+}
+
+Food *food_inventory_by_index(int index)
+{
+    int count = 0;
+    for (int i = 0; i < foods_count; i++)
+    {
+        if (foods[i].is_picked && !foods[i].is_eaten)
+            count++;
+        if (count - 1 == index)
+        {
+            return &foods[i];
+        }
+    }
+    return NULL;
+}
+
+void pick_character(char *message)
+{
+    bool found = false;
+    for (int i = 0; i < foods_count; i++)
+    {
+        if (!foods[i].is_picked && foods[i].floor == &floors[current_floor_index])
+        {
+            Position position = get_absolute_position(foods[i].room);
+            position.x += foods[i].position.x;
+            position.y += foods[i].position.y;
+            if (character.position.x == position.x && character.position.y == position.y)
+            {
+                found = true;
+                if (inventory_foods_count() < 5)
+                {
+                    sprintf(message, "You found some food; It's added to your food inventory!");
+                    foods[i].is_picked = true;
+                    character.under = ground_character;
+                }
+                else
+                    sprintf(message, "You found some food but your inventory is already full!");
+            }
+        }
+    }
+    if (!found)
+        sprintf(message, "There's nothing to pick!");
+}
+
+void eat_character(int index, char *message)
+{
+    foods[index].is_picked = true;
+    foods[index].is_eaten = true;
+    character.stomach += foods[index].value;
+    if (character.stomach > 100)
+        character.stomach = 100;
+    sprintf(message, "You consumed %d units of food!", foods[index].value);
+}
+
+void eat_food()
+{
+    setup_sidebar(FOODS);
+    while (1)
+    {
+        ch = getch();
+        if ('a' <= ch && ch <= inventory_foods_count() + 'a' - 1)
+        {
+            int index = ch - 'a';
+            int count = 0;
+            for (int i = 0; i < foods_count; i++)
+            {
+                if (foods[i].is_picked && !foods[i].is_eaten)
+                    count++;
+                if (count - 1 == index)
+                {
+                    register_command("eat", 1, i);
+                    break;
+                }
+            }
+            break;
+        }
+        else if (ch == 'q')
+            break;
+    }
+    setup_sidebar(GUIDES);
 }

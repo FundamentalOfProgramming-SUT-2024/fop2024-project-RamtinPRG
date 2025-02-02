@@ -16,3 +16,5 @@
 [ golds[n].position.x ] [ golds[n].position.y ] [ golds[n].floor_index ] [ golds[n].room_index ] [ golds[n].value ]
 [ black_golds_count ]
 [ black_golds[n].position.x ] [ black_golds[n].position.y ] [ black_golds[n].floor_index ] [ black_golds[n].room_index ] [ black_golds[n].value ]
+[ foods_count ]
+[ foods[n].position.x ] [ foods[n].position.y ] [ foods[n].floor_index ] [ foods[n].room_index ] [ foods[n].value ]

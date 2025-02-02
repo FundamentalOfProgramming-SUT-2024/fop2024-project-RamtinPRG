@@ -43,6 +43,12 @@ void save_map(Position *position)
         fprintf(map_file, "%d %d %d %d %d\n", black_golds[i].position.x, black_golds[i].position.y, black_golds[i].floor_index, black_golds[i].room_index, black_golds[i].value);
     }
 
+    fprintf(map_file, "%d\n", foods_count);
+    for (int i = 0; i < foods_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d\n", foods[i].position.x, foods[i].position.y, foods[i].floor_index, foods[i].room_index, foods[i].value);
+    }
+
     fclose(map_file);
 }
 
@@ -118,6 +124,17 @@ void load_map(Position *position)
         black_golds[i].floor = &floors[black_golds[i].floor_index];
         black_golds[i].room = black_golds[i].floor->rooms[black_golds[i].room_index];
         black_golds[i].is_discovered = false;
+    }
+
+    fscanf(map_file, "%d", &foods_count);
+    foods = (Food *)calloc(foods_count, sizeof(Food));
+    for (int i = 0; i < foods_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d", &foods[i].position.x, &foods[i].position.y, &foods[i].floor_index, &foods[i].room_index, &foods[i].value);
+        foods[i].floor = &floors[foods[i].floor_index];
+        foods[i].room = foods[i].floor->rooms[foods[i].room_index];
+        foods[i].is_picked = false;
+        foods[i].is_eaten = false;
     }
 
     fclose(map_file);
