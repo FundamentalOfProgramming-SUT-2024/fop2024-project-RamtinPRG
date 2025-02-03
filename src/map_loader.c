@@ -79,6 +79,12 @@ void save_map(Position *position)
         fprintf(map_file, "%d %d %d %d %d %d\n", giants[i].position.x, giants[i].position.y, giants[i].floor_index, giants[i].room_index, giants[i].damage, giants[i].health);
     }
 
+    fprintf(map_file, "%d\n", undeeds_count);
+    for (int i = 0; i < undeeds_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d %d\n", undeeds[i].position.x, undeeds[i].position.y, undeeds[i].floor_index, undeeds[i].room_index, undeeds[i].damage, undeeds[i].health);
+    }
+
     fclose(map_file);
 }
 
@@ -219,6 +225,17 @@ void load_map(Position *position)
         giants[i].room = giants[i].floor->rooms[giants[i].room_index];
         giants[i].is_alive = true;
         giants[i].is_chasing = false;
+    }
+
+    fscanf(map_file, "%d", &undeeds_count);
+    undeeds = (Undeed *)calloc(undeeds_count, sizeof(Undeed));
+    for (int i = 0; i < undeeds_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d %d", &undeeds[i].position.x, &undeeds[i].position.y, &undeeds[i].floor_index, &undeeds[i].room_index, &undeeds[i].damage, &undeeds[i].health);
+        undeeds[i].floor = &floors[undeeds[i].floor_index];
+        undeeds[i].room = undeeds[i].floor->rooms[undeeds[i].room_index];
+        undeeds[i].is_alive = true;
+        undeeds[i].is_chasing = false;
     }
 
     fclose(map_file);

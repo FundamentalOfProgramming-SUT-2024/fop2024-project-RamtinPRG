@@ -10,6 +10,7 @@ Daemon *daemons;
 FireMonster *fire_monsters;
 Snake *snakes;
 Giant *giants;
+Undeed *undeeds;
 
 int traps_count = 0;
 int golds_count = 0;
@@ -20,6 +21,7 @@ int daemons_count = 0;
 int fire_monsters_count = 0;
 int snakes_count = 0;
 int giants_count = 0;
+int undeeds_count = 0;
 
 int traps_to_rooms_ratio;
 int rooms_to_traps_ratio;
@@ -41,6 +43,9 @@ int rooms_to_snakes_ratio;
 
 int giants_to_rooms_ratio;
 int rooms_to_giants_ratio;
+
+int undeeds_to_rooms_ratio;
+int rooms_to_undeeds_ratio;
 
 int score_multiplier;
 
@@ -80,6 +85,9 @@ void generate_map()
     snakes_to_rooms_ratio = 1;
     rooms_to_snakes_ratio = 8;
 
+    undeeds_to_rooms_ratio = 1;
+    rooms_to_undeeds_ratio = 9;
+
     score_multiplier = settings->difficulty + 1;
 
     floors[0].has_down_stair = false;
@@ -102,6 +110,7 @@ void generate_map()
     generate_fire_monsters();
     generate_snakes();
     generate_giants();
+    generate_undeeds();
 }
 
 void generate_traps()
@@ -376,6 +385,36 @@ void generate_giants()
     }
 }
 
+void generate_undeeds()
+{
+    int total_rooms_count = 0;
+    for (int i = 0; i < FLOORS; i++)
+        total_rooms_count += floors[i].rooms_count;
+
+    int temp_undeeds_count = total_rooms_count * undeeds_to_rooms_ratio / rooms_to_undeeds_ratio;
+    undeeds = (Undeed *)calloc(temp_undeeds_count, sizeof(Undeed));
+
+    for (int i = 0; i < temp_undeeds_count; i++)
+    {
+        Undeed undeed;
+        do
+        {
+            undeed.floor_index = rand() % FLOORS;
+            undeed.floor = &floors[undeed.floor_index];
+            undeed.room_index = rand() % undeed.floor->rooms_count;
+            undeed.room = undeed.floor->rooms[undeed.room_index];
+            undeed.position.x = nrandom(1, undeed.room->width);
+            undeed.position.y = nrandom(1, undeed.room->height);
+        } while (exists_gold(undeed.floor, undeed.room, undeed.position) || exists_trap(undeed.floor, undeed.room, undeed.position) || exists_stair(undeed.floor, undeed.room, undeed.position) || exists_food(undeed.floor, undeed.room, undeed.position) || exists_daemon(undeed.floor, undeed.room, undeed.position) || exists_fire_monster(undeed.floor, undeed.room, undeed.position) || exists_snake(undeed.floor, undeed.room, undeed.position) || exists_giant(undeed.floor, undeed.room, undeed.position) || exists_undeed(undeed.floor, undeed.room, undeed.position));
+        undeed.is_alive = true;
+        undeed.is_chasing = false;
+        undeed.health = 30;
+        undeed.damage = 30;
+        undeeds[i] = undeed;
+        undeeds_count++;
+    }
+}
+
 bool exists_trap(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < traps_count; i++)
@@ -470,6 +509,16 @@ bool exists_giant(Floor *floor, Room *room, Position position)
     for (int i = 0; i < giants_count; i++)
     {
         if (giants[i].floor == floor && giants[i].room == room && giants[i].position.x == position.x && giants[i].position.y == position.y)
+            return true;
+    }
+    return false;
+}
+
+bool exists_undeed(Floor *floor, Room *room, Position position)
+{
+    for (int i = 0; i < undeeds_count; i++)
+    {
+        if (undeeds[i].floor == floor && undeeds[i].room == room && undeeds[i].position.x == position.x && undeeds[i].position.y == position.y)
             return true;
     }
     return false;

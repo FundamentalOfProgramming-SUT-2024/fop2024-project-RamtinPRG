@@ -1,6 +1,6 @@
 #include "../include/rogue.h"
 
-#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ' || c == L'D' || c == L'F' || c == L'S' || c == L'G')
+#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ' || c == L'D' || c == L'F' || c == L'S' || c == L'G' || c == L'U')
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
 cchar_t trap_character = {0, {L'•'}, 4};
@@ -139,6 +139,7 @@ void game_exit_routine()
     free(fire_monsters);
     free(snakes);
     free(giants);
+    free(undeeds);
     traps_count = 0;
     golds_count = 0;
     black_golds_count = 0;
@@ -148,6 +149,7 @@ void game_exit_routine()
     fire_monsters_count = 0;
     snakes_count = 0;
     giants_count = 0;
+    undeeds_count = 0;
 }
 
 void setup_floor()
@@ -166,6 +168,7 @@ void setup_floor()
     draw_fire_monsters(&floors[current_floor_index]);
     draw_snakes(&floors[current_floor_index]);
     draw_giants(&floors[current_floor_index]);
+    draw_undeeds(&floors[current_floor_index]);
     setup_sidebar(GUIDES);
     setup_message_box();
     // attroff(A_INVIS);
@@ -334,6 +337,21 @@ void draw_giants(Floor *floor)
             position.y += giants[i].position.y;
             mvin_wch(position.y, position.x, &giants[i].under);
             mvprintw(position.y, position.x, "G");
+        }
+    }
+}
+
+void draw_undeeds(Floor *floor)
+{
+    for (int i = 0; i < undeeds_count; i++)
+    {
+        if (undeeds[i].floor == floor && undeeds[i].is_alive)
+        {
+            Position position = get_absolute_position(undeeds[i].room);
+            position.x += undeeds[i].position.x;
+            position.y += undeeds[i].position.y;
+            mvin_wch(position.y, position.x, &undeeds[i].under);
+            mvprintw(position.y, position.x, "U");
         }
     }
 }
