@@ -185,7 +185,7 @@ bool register_command(char *command, int num, ...)
 
             if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
             {
-                if (!exists_fire_monster(daemons[i].floor, daemons[i].room, position_copy) && !exists_daemon(daemons[i].floor, daemons[i].room, position_copy))
+                if (!exists_monster(daemons[i].floor, daemons[i].room, position_copy))
                 {
                     mvadd_wch(position.y, position.x, &daemons[i].under);
                     mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &daemons[i].under);
@@ -228,12 +228,55 @@ bool register_command(char *command, int num, ...)
 
             if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
             {
-                if (!exists_fire_monster(fire_monsters[i].floor, fire_monsters[i].room, position_copy) && !exists_daemon(fire_monsters[i].floor, fire_monsters[i].room, position_copy))
+                if (!exists_monster(fire_monsters[i].floor, fire_monsters[i].room, position_copy))
                 {
                     mvadd_wch(position.y, position.x, &fire_monsters[i].under);
                     mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &fire_monsters[i].under);
                     mvprintw(absolute_position_copy.y, absolute_position_copy.x, "F");
                     fire_monsters[i].position = position_copy;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < snakes_count; i++)
+    {
+        if (get_container_room() == snakes[i].room)
+        {
+            Position position = get_absolute_position(snakes[i].room);
+            Position position_copy = snakes[i].position;
+            position.x += snakes[i].position.x;
+            position.y += snakes[i].position.y;
+            Position absolute_position_copy = position;
+            if (position.x < character.position.x)
+            {
+                absolute_position_copy.x++;
+                position_copy.x++;
+            }
+            else if (position.x > character.position.x)
+            {
+                absolute_position_copy.x--;
+                position_copy.x--;
+            }
+            if (position.y < character.position.y)
+            {
+                absolute_position_copy.y++;
+                position_copy.y++;
+            }
+            else if (position.y > character.position.y)
+            {
+                absolute_position_copy.y--;
+                position_copy.y--;
+            }
+
+            if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+            {
+                if (!exists_monster(snakes[i].floor, snakes[i].room, position_copy))
+                {
+                    mvadd_wch(position.y, position.x, &snakes[i].under);
+                    mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &snakes[i].under);
+                    mvprintw(absolute_position_copy.y, absolute_position_copy.x, "S");
+                    snakes[i].position = position_copy;
                 }
             }
         }
@@ -406,7 +449,7 @@ void replay_commands()
 
                 if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
                 {
-                    if (!exists_fire_monster(daemons[i].floor, daemons[i].room, position_copy) && !exists_daemon(daemons[i].floor, daemons[i].room, position_copy))
+                    if (!exists_monster(daemons[i].floor, daemons[i].room, position_copy))
                     {
                         mvadd_wch(position.y, position.x, &daemons[i].under);
                         mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &daemons[i].under);
@@ -449,12 +492,55 @@ void replay_commands()
 
                 if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
                 {
-                    if (!exists_fire_monster(fire_monsters[i].floor, fire_monsters[i].room, position_copy) && !exists_daemon(fire_monsters[i].floor, fire_monsters[i].room, position_copy))
+                    if (!exists_monster(fire_monsters[i].floor, fire_monsters[i].room, position_copy))
                     {
                         mvadd_wch(position.y, position.x, &fire_monsters[i].under);
                         mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &fire_monsters[i].under);
                         mvprintw(absolute_position_copy.y, absolute_position_copy.x, "F");
                         fire_monsters[i].position = position_copy;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < snakes_count; i++)
+        {
+            if (get_container_room() == snakes[i].room)
+            {
+                Position position = get_absolute_position(snakes[i].room);
+                Position position_copy = snakes[i].position;
+                position.x += snakes[i].position.x;
+                position.y += snakes[i].position.y;
+                Position absolute_position_copy = position;
+                if (position.x < character.position.x)
+                {
+                    absolute_position_copy.x++;
+                    position_copy.x++;
+                }
+                else if (position.x > character.position.x)
+                {
+                    absolute_position_copy.x--;
+                    position_copy.x--;
+                }
+                if (position.y < character.position.y)
+                {
+                    absolute_position_copy.y++;
+                    position_copy.y++;
+                }
+                else if (position.y > character.position.y)
+                {
+                    absolute_position_copy.y--;
+                    position_copy.y--;
+                }
+
+                if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+                {
+                    if (!exists_monster(snakes[i].floor, snakes[i].room, position_copy))
+                    {
+                        mvadd_wch(position.y, position.x, &snakes[i].under);
+                        mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &snakes[i].under);
+                        mvprintw(absolute_position_copy.y, absolute_position_copy.x, "S");
+                        snakes[i].position = position_copy;
                     }
                 }
             }
@@ -480,4 +566,9 @@ void replay_commands()
     }
 
     fclose(log_file);
+}
+
+bool exists_monster(Floor *floor, Room *room, Position position)
+{
+    return exists_daemon(floor, room, position) || exists_fire_monster(floor, room, position) || exists_snake(floor, room, position);
 }

@@ -351,6 +351,19 @@ typedef struct FireMonster
     cchar_t under;
 } FireMonster;
 
+typedef struct Snake
+{
+    Floor *floor;
+    Room *room;
+    int floor_index;
+    int room_index;
+    Position position;
+    int damage;
+    int health;
+    bool is_alive;
+    cchar_t under;
+} Snake;
+
 typedef struct Character
 {
     Position position;
@@ -390,6 +403,8 @@ extern Daemon *daemons;
 extern int daemons_count;
 extern FireMonster *fire_monsters;
 extern int fire_monsters_count;
+extern Snake *snakes;
+extern int snakes_count;
 extern int timeline_counter;
 extern int current_floor_index;
 extern FILE *log_file;
@@ -436,6 +451,7 @@ void generate_foods();
 void generate_weapons();
 void generate_daemons();
 void generate_fire_monsters();
+void generate_snakes();
 bool exists_gold(Floor *floor, Room *room, Position position);
 bool exists_black_gold(Floor *floor, Room *room, Position position);
 bool exists_trap(Floor *floor, Room *room, Position position);
@@ -444,6 +460,8 @@ bool exists_food(Floor *floor, Room *room, Position position);
 bool exists_weapon(Floor *floor, Room *room, Position position);
 bool exists_daemon(Floor *floor, Room *room, Position position);
 bool exists_fire_monster(Floor *floor, Room *room, Position position);
+bool exists_snake(Floor *floor, Room *room, Position position);
+bool exists_monster(Floor *floor, Room *room, Position position);
 bool exists_room(Floor *floor, int y, int x);
 Room *get_room(Floor *floor, int y, int x);
 int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);
@@ -460,6 +478,7 @@ void draw_foods(Floor *floor);
 void draw_weapons(Floor *floor);
 void draw_daemons(Floor *floor);
 void draw_fire_monsters(Floor *floor);
+void draw_snakes(Floor *floor);
 Room *get_current_room();
 Room *get_container_room();
 Position get_absolute_position(Room *room);

@@ -1,6 +1,6 @@
 #include "../include/rogue.h"
 
-#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ' || c == L'D' || c == L'F')
+#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ' || c == L'D' || c == L'F' || c == L'S')
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
 cchar_t trap_character = {0, {L'•'}, 4};
@@ -137,6 +137,7 @@ void game_exit_routine()
     free(weapons);
     free(daemons);
     free(fire_monsters);
+    free(snakes);
     traps_count = 0;
     golds_count = 0;
     black_golds_count = 0;
@@ -144,6 +145,7 @@ void game_exit_routine()
     weapons_count = 0;
     daemons_count = 0;
     fire_monsters_count = 0;
+    snakes_count = 0;
 }
 
 void setup_floor()
@@ -160,6 +162,7 @@ void setup_floor()
     draw_weapons(&floors[current_floor_index]);
     draw_daemons(&floors[current_floor_index]);
     draw_fire_monsters(&floors[current_floor_index]);
+    draw_snakes(&floors[current_floor_index]);
     setup_sidebar(GUIDES);
     setup_message_box();
     // attroff(A_INVIS);
@@ -298,6 +301,21 @@ void draw_fire_monsters(Floor *floor)
             position.y += fire_monsters[i].position.y;
             mvin_wch(position.y, position.x, &fire_monsters[i].under);
             mvprintw(position.y, position.x, "F");
+        }
+    }
+}
+
+void draw_snakes(Floor *floor)
+{
+    for (int i = 0; i < snakes_count; i++)
+    {
+        if (snakes[i].floor == floor && snakes[i].is_alive)
+        {
+            Position position = get_absolute_position(snakes[i].room);
+            position.x += snakes[i].position.x;
+            position.y += snakes[i].position.y;
+            mvin_wch(position.y, position.x, &snakes[i].under);
+            mvprintw(position.y, position.x, "S");
         }
     }
 }

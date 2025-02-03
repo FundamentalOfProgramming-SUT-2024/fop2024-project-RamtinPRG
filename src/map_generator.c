@@ -8,6 +8,7 @@ Food *foods;
 Weapon *weapons;
 Daemon *daemons;
 FireMonster *fire_monsters;
+Snake *snakes;
 
 int traps_count = 0;
 int golds_count = 0;
@@ -16,6 +17,7 @@ int foods_count = 0;
 int weapons_count = 0;
 int daemons_count = 0;
 int fire_monsters_count = 0;
+int snakes_count = 0;
 
 int traps_to_rooms_ratio;
 int rooms_to_traps_ratio;
@@ -31,6 +33,9 @@ int rooms_to_daemons_ratio;
 
 int fire_monsters_to_rooms_ratio;
 int rooms_to_fire_monsters_ratio;
+
+int snakes_to_rooms_ratio;
+int rooms_to_snakes_ratio;
 
 int score_multiplier;
 
@@ -64,6 +69,9 @@ void generate_map()
     fire_monsters_to_rooms_ratio = 1;
     rooms_to_fire_monsters_ratio = 6;
 
+    snakes_to_rooms_ratio = 1;
+    rooms_to_snakes_ratio = 7;
+
     score_multiplier = settings->difficulty + 1;
 
     floors[0].has_down_stair = false;
@@ -84,6 +92,7 @@ void generate_map()
     generate_weapons();
     generate_daemons();
     generate_fire_monsters();
+    generate_snakes();
 }
 
 void generate_traps()
@@ -299,6 +308,35 @@ void generate_fire_monsters()
     }
 }
 
+void generate_snakes()
+{
+    int total_rooms_count = 0;
+    for (int i = 0; i < FLOORS; i++)
+        total_rooms_count += floors[i].rooms_count;
+
+    int temp_snakes_count = total_rooms_count * snakes_to_rooms_ratio / rooms_to_snakes_ratio;
+    snakes = (Snake *)calloc(temp_snakes_count, sizeof(Snake));
+
+    for (int i = 0; i < temp_snakes_count; i++)
+    {
+        Snake snake;
+        do
+        {
+            snake.floor_index = rand() % FLOORS;
+            snake.floor = &floors[snake.floor_index];
+            snake.room_index = rand() % snake.floor->rooms_count;
+            snake.room = snake.floor->rooms[snake.room_index];
+            snake.position.x = nrandom(1, snake.room->width);
+            snake.position.y = nrandom(1, snake.room->height);
+        } while (exists_gold(snake.floor, snake.room, snake.position) || exists_trap(snake.floor, snake.room, snake.position) || exists_stair(snake.floor, snake.room, snake.position) || exists_food(snake.floor, snake.room, snake.position) || exists_daemon(snake.floor, snake.room, snake.position) || exists_fire_monster(snake.floor, snake.room, snake.position) || exists_snake(snake.floor, snake.room, snake.position));
+        snake.is_alive = true;
+        snake.health = 20;
+        snake.damage = 20;
+        snakes[i] = snake;
+        snakes_count++;
+    }
+}
+
 bool exists_trap(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < traps_count; i++)
@@ -373,6 +411,16 @@ bool exists_fire_monster(Floor *floor, Room *room, Position position)
     for (int i = 0; i < fire_monsters_count; i++)
     {
         if (fire_monsters[i].floor == floor && fire_monsters[i].room == room && fire_monsters[i].position.x == position.x && fire_monsters[i].position.y == position.y)
+            return true;
+    }
+    return false;
+}
+
+bool exists_snake(Floor *floor, Room *room, Position position)
+{
+    for (int i = 0; i < snakes_count; i++)
+    {
+        if (snakes[i].floor == floor && snakes[i].room == room && snakes[i].position.x == position.x && snakes[i].position.y == position.y)
             return true;
     }
     return false;
