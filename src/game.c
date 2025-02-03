@@ -1,6 +1,6 @@
 #include "../include/rogue.h"
 
-#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ' || c == L'D')
+#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ' || c == L'D' || c == L'F')
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
 cchar_t trap_character = {0, {L'•'}, 4};
@@ -136,12 +136,14 @@ void game_exit_routine()
     free(foods);
     free(weapons);
     free(daemons);
+    free(fire_monsters);
     traps_count = 0;
     golds_count = 0;
     black_golds_count = 0;
     foods_count = 0;
     weapons_count = 0;
     daemons_count = 0;
+    fire_monsters_count = 0;
 }
 
 void setup_floor()
@@ -157,6 +159,7 @@ void setup_floor()
     draw_foods(&floors[current_floor_index]);
     draw_weapons(&floors[current_floor_index]);
     draw_daemons(&floors[current_floor_index]);
+    draw_fire_monsters(&floors[current_floor_index]);
     setup_sidebar(GUIDES);
     setup_message_box();
     // attroff(A_INVIS);
@@ -280,6 +283,21 @@ void draw_daemons(Floor *floor)
             position.y += daemons[i].position.y;
             mvin_wch(position.y, position.x, &daemons[i].under);
             mvprintw(position.y, position.x, "D");
+        }
+    }
+}
+
+void draw_fire_monsters(Floor *floor)
+{
+    for (int i = 0; i < fire_monsters_count; i++)
+    {
+        if (fire_monsters[i].floor == floor && fire_monsters[i].is_alive)
+        {
+            Position position = get_absolute_position(fire_monsters[i].room);
+            position.x += fire_monsters[i].position.x;
+            position.y += fire_monsters[i].position.y;
+            mvin_wch(position.y, position.x, &fire_monsters[i].under);
+            mvprintw(position.y, position.x, "F");
         }
     }
 }
@@ -532,6 +550,19 @@ Room *get_current_room()
         Room *room = floor->rooms[i];
         Position position = get_absolute_position(room);
         if (position.x <= character.position.x && character.position.x <= position.x + room->width + 1 && position.y <= character.position.y && character.position.y <= position.y + room->height + 1)
+            return room;
+    }
+    return NULL;
+}
+
+Room *get_container_room()
+{
+    Floor *floor = &floors[current_floor_index];
+    for (int i = 0; i < floor->rooms_count; i++)
+    {
+        Room *room = floor->rooms[i];
+        Position position = get_absolute_position(room);
+        if (position.x + 1 <= character.position.x && character.position.x <= position.x + room->width && position.y + 1 <= character.position.y && character.position.y <= position.y + room->height)
             return room;
     }
     return NULL;

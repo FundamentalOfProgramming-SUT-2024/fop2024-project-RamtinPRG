@@ -61,6 +61,12 @@ void save_map(Position *position)
         fprintf(map_file, "%d %d %d %d %d %d\n", daemons[i].position.x, daemons[i].position.y, daemons[i].floor_index, daemons[i].room_index, daemons[i].damage, daemons[i].health);
     }
 
+    fprintf(map_file, "%d\n", fire_monsters_count);
+    for (int i = 0; i < fire_monsters_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d %d\n", fire_monsters[i].position.x, fire_monsters[i].position.y, fire_monsters[i].floor_index, fire_monsters[i].room_index, fire_monsters[i].damage, fire_monsters[i].health);
+    }
+
     fclose(map_file);
 }
 
@@ -170,6 +176,16 @@ void load_map(Position *position)
         daemons[i].floor = &floors[daemons[i].floor_index];
         daemons[i].room = daemons[i].floor->rooms[daemons[i].room_index];
         daemons[i].is_alive = true;
+    }
+
+    fscanf(map_file, "%d", &fire_monsters_count);
+    fire_monsters = (FireMonster *)calloc(fire_monsters_count, sizeof(FireMonster));
+    for (int i = 0; i < fire_monsters_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d %d", &fire_monsters[i].position.x, &fire_monsters[i].position.y, &fire_monsters[i].floor_index, &fire_monsters[i].room_index, &fire_monsters[i].damage, &fire_monsters[i].health);
+        fire_monsters[i].floor = &floors[fire_monsters[i].floor_index];
+        fire_monsters[i].room = fire_monsters[i].floor->rooms[fire_monsters[i].room_index];
+        fire_monsters[i].is_alive = true;
     }
 
     fclose(map_file);

@@ -7,6 +7,7 @@ BlackGold *black_golds;
 Food *foods;
 Weapon *weapons;
 Daemon *daemons;
+FireMonster *fire_monsters;
 
 int traps_count = 0;
 int golds_count = 0;
@@ -14,6 +15,7 @@ int black_golds_count = 0;
 int foods_count = 0;
 int weapons_count = 0;
 int daemons_count = 0;
+int fire_monsters_count = 0;
 
 int traps_to_rooms_ratio;
 int rooms_to_traps_ratio;
@@ -26,6 +28,9 @@ int rooms_to_weapons_ratio;
 
 int daemons_to_rooms_ratio;
 int rooms_to_daemons_ratio;
+
+int fire_monsters_to_rooms_ratio;
+int rooms_to_fire_monsters_ratio;
 
 int score_multiplier;
 
@@ -46,12 +51,19 @@ void generate_map()
         traps_to_rooms_ratio = 9;
         rooms_to_traps_ratio = 2;
     }
+
     foods_to_rooms_ratio = 1;
     rooms_to_foods_ratio = 3;
+
     weapons_to_rooms_ratio = 1;
     rooms_to_weapons_ratio = 4;
+
     daemons_to_rooms_ratio = 1;
-    rooms_to_daemons_ratio = 4;
+    rooms_to_daemons_ratio = 5;
+
+    fire_monsters_to_rooms_ratio = 1;
+    rooms_to_fire_monsters_ratio = 6;
+
     score_multiplier = settings->difficulty + 1;
 
     floors[0].has_down_stair = false;
@@ -71,6 +83,7 @@ void generate_map()
     generate_foods();
     generate_weapons();
     generate_daemons();
+    generate_fire_monsters();
 }
 
 void generate_traps()
@@ -257,6 +270,35 @@ void generate_daemons()
     }
 }
 
+void generate_fire_monsters()
+{
+    int total_rooms_count = 0;
+    for (int i = 0; i < FLOORS; i++)
+        total_rooms_count += floors[i].rooms_count;
+
+    int temp_fire_monsters_count = total_rooms_count * fire_monsters_to_rooms_ratio / rooms_to_fire_monsters_ratio;
+    fire_monsters = (FireMonster *)calloc(temp_fire_monsters_count, sizeof(FireMonster));
+
+    for (int i = 0; i < temp_fire_monsters_count; i++)
+    {
+        FireMonster fire_monster;
+        do
+        {
+            fire_monster.floor_index = rand() % FLOORS;
+            fire_monster.floor = &floors[fire_monster.floor_index];
+            fire_monster.room_index = rand() % fire_monster.floor->rooms_count;
+            fire_monster.room = fire_monster.floor->rooms[fire_monster.room_index];
+            fire_monster.position.x = nrandom(1, fire_monster.room->width);
+            fire_monster.position.y = nrandom(1, fire_monster.room->height);
+        } while (exists_gold(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_trap(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_stair(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_food(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_daemon(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_fire_monster(fire_monster.floor, fire_monster.room, fire_monster.position));
+        fire_monster.is_alive = true;
+        fire_monster.health = 10;
+        fire_monster.damage = 10;
+        fire_monsters[i] = fire_monster;
+        fire_monsters_count++;
+    }
+}
+
 bool exists_trap(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < traps_count; i++)
@@ -321,6 +363,16 @@ bool exists_daemon(Floor *floor, Room *room, Position position)
     for (int i = 0; i < daemons_count; i++)
     {
         if (daemons[i].floor == floor && daemons[i].room == room && daemons[i].position.x == position.x && daemons[i].position.y == position.y)
+            return true;
+    }
+    return false;
+}
+
+bool exists_fire_monster(Floor *floor, Room *room, Position position)
+{
+    for (int i = 0; i < fire_monsters_count; i++)
+    {
+        if (fire_monsters[i].floor == floor && fire_monsters[i].room == room && fire_monsters[i].position.x == position.x && fire_monsters[i].position.y == position.y)
             return true;
     }
     return false;
