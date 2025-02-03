@@ -1,6 +1,6 @@
 #include "../include/rogue.h"
 
-#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ')
+#define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ' || c == L'D')
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
 
 cchar_t trap_character = {0, {L'•'}, 4};
@@ -531,7 +531,7 @@ Room *get_current_room()
     {
         Room *room = floor->rooms[i];
         Position position = get_absolute_position(room);
-        if (position.x <= character.position.x && character.position.x <= position.x + room->width && position.y <= character.position.y && character.position.y <= position.y + room->height)
+        if (position.x <= character.position.x && character.position.x <= position.x + room->width + 1 && position.y <= character.position.y && character.position.y <= position.y + room->height + 1)
             return room;
     }
     return NULL;
