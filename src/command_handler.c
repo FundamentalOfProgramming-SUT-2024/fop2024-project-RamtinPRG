@@ -282,6 +282,66 @@ bool register_command(char *command, int num, ...)
         }
     }
 
+    for (int i = 0; i < giants_count; i++)
+    {
+        if (get_container_room() == giants[i].room && giants[i].is_alive)
+        {
+            Position position = get_absolute_position(giants[i].room);
+            Position position_copy = giants[i].position;
+            position.x += giants[i].position.x;
+            position.y += giants[i].position.y;
+            Position absolute_position_copy = position;
+            if (position.x < character.position.x)
+            {
+                absolute_position_copy.x++;
+                position_copy.x++;
+            }
+            else if (position.x > character.position.x)
+            {
+                absolute_position_copy.x--;
+                position_copy.x--;
+            }
+            if (position.y < character.position.y)
+            {
+                absolute_position_copy.y++;
+                position_copy.y++;
+            }
+            else if (position.y > character.position.y)
+            {
+                absolute_position_copy.y--;
+                position_copy.y--;
+            }
+
+            if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+            {
+                if (giants[i].is_chasing)
+                {
+                    if (!exists_monster(giants[i].floor, giants[i].room, position_copy))
+                    {
+                        mvadd_wch(position.y, position.x, &giants[i].under);
+                        mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &giants[i].under);
+                        mvprintw(absolute_position_copy.y, absolute_position_copy.x, "G");
+                        giants[i].position = position_copy;
+                    }
+                    if (timeline_counter - giants[i].chasing_start >= 5)
+                        giants[i].is_chasing = false;
+                }
+            }
+            else
+            {
+                if (giants[i].is_chasing)
+                {
+                    giants[i].chasing_start = timeline_counter;
+                }
+                else
+                {
+                    giants[i].is_chasing = true;
+                    giants[i].chasing_start = timeline_counter;
+                }
+            }
+        }
+    }
+
     if (strcmp(command, "eat") != 0)
     {
         if (character.stomach == 0 && timeline_counter % 3 == 0)
@@ -546,6 +606,66 @@ void replay_commands()
             }
         }
 
+        for (int i = 0; i < giants_count; i++)
+        {
+            if (get_container_room() == giants[i].room && giants[i].is_alive)
+            {
+                Position position = get_absolute_position(giants[i].room);
+                Position position_copy = giants[i].position;
+                position.x += giants[i].position.x;
+                position.y += giants[i].position.y;
+                Position absolute_position_copy = position;
+                if (position.x < character.position.x)
+                {
+                    absolute_position_copy.x++;
+                    position_copy.x++;
+                }
+                else if (position.x > character.position.x)
+                {
+                    absolute_position_copy.x--;
+                    position_copy.x--;
+                }
+                if (position.y < character.position.y)
+                {
+                    absolute_position_copy.y++;
+                    position_copy.y++;
+                }
+                else if (position.y > character.position.y)
+                {
+                    absolute_position_copy.y--;
+                    position_copy.y--;
+                }
+
+                if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+                {
+                    if (giants[i].is_chasing)
+                    {
+                        if (!exists_monster(giants[i].floor, giants[i].room, position_copy))
+                        {
+                            mvadd_wch(position.y, position.x, &giants[i].under);
+                            mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &giants[i].under);
+                            mvprintw(absolute_position_copy.y, absolute_position_copy.x, "G");
+                            giants[i].position = position_copy;
+                        }
+                        if (timeline_counter - giants[i].chasing_start >= 5)
+                            giants[i].is_chasing = false;
+                    }
+                }
+                else
+                {
+                    if (giants[i].is_chasing)
+                    {
+                        giants[i].chasing_start = timeline_counter;
+                    }
+                    else
+                    {
+                        giants[i].is_chasing = true;
+                        giants[i].chasing_start = timeline_counter;
+                    }
+                }
+            }
+        }
+
         if (strcmp(command, "eat") != 0)
         {
             if (character.stomach == 0 && timeline_counter % 3 == 0)
@@ -570,5 +690,5 @@ void replay_commands()
 
 bool exists_monster(Floor *floor, Room *room, Position position)
 {
-    return exists_daemon(floor, room, position) || exists_fire_monster(floor, room, position) || exists_snake(floor, room, position);
+    return exists_daemon(floor, room, position) || exists_fire_monster(floor, room, position) || exists_snake(floor, room, position) || exists_giant(floor, room, position);
 }

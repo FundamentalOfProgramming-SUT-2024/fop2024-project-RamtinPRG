@@ -73,6 +73,12 @@ void save_map(Position *position)
         fprintf(map_file, "%d %d %d %d %d %d\n", snakes[i].position.x, snakes[i].position.y, snakes[i].floor_index, snakes[i].room_index, snakes[i].damage, snakes[i].health);
     }
 
+    fprintf(map_file, "%d\n", giants_count);
+    for (int i = 0; i < giants_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d %d\n", giants[i].position.x, giants[i].position.y, giants[i].floor_index, giants[i].room_index, giants[i].damage, giants[i].health);
+    }
+
     fclose(map_file);
 }
 
@@ -202,6 +208,17 @@ void load_map(Position *position)
         snakes[i].floor = &floors[snakes[i].floor_index];
         snakes[i].room = snakes[i].floor->rooms[snakes[i].room_index];
         snakes[i].is_alive = true;
+    }
+
+    fscanf(map_file, "%d", &giants_count);
+    giants = (Giant *)calloc(giants_count, sizeof(Giant));
+    for (int i = 0; i < giants_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d %d", &giants[i].position.x, &giants[i].position.y, &giants[i].floor_index, &giants[i].room_index, &giants[i].damage, &giants[i].health);
+        giants[i].floor = &floors[giants[i].floor_index];
+        giants[i].room = giants[i].floor->rooms[giants[i].room_index];
+        giants[i].is_alive = true;
+        giants[i].is_chasing = false;
     }
 
     fclose(map_file);
