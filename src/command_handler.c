@@ -155,7 +155,7 @@ bool register_command(char *command, int num, ...)
 
     for (int i = 0; i < daemons_count; i++)
     {
-        if (get_container_room() == daemons[i].room)
+        if (get_container_room() == daemons[i].room && daemons[i].is_alive)
         {
             Position position = get_absolute_position(daemons[i].room);
             Position position_copy = daemons[i].position;
@@ -198,7 +198,7 @@ bool register_command(char *command, int num, ...)
 
     for (int i = 0; i < fire_monsters_count; i++)
     {
-        if (get_container_room() == fire_monsters[i].room)
+        if (get_container_room() == fire_monsters[i].room && fire_monsters[i].is_alive)
         {
             Position position = get_absolute_position(fire_monsters[i].room);
             Position position_copy = fire_monsters[i].position;
@@ -241,7 +241,7 @@ bool register_command(char *command, int num, ...)
 
     for (int i = 0; i < snakes_count; i++)
     {
-        if (get_container_room() == snakes[i].room)
+        if (get_container_room() == snakes[i].room && snakes[i].is_alive)
         {
             Position position = get_absolute_position(snakes[i].room);
             Position position_copy = snakes[i].position;
@@ -419,7 +419,7 @@ void replay_commands()
 
         for (int i = 0; i < daemons_count; i++)
         {
-            if (get_container_room() == daemons[i].room)
+            if (get_container_room() == daemons[i].room && daemons[i].is_alive)
             {
                 Position position = get_absolute_position(daemons[i].room);
                 Position position_copy = daemons[i].position;
@@ -462,7 +462,7 @@ void replay_commands()
 
         for (int i = 0; i < fire_monsters_count; i++)
         {
-            if (get_container_room() == fire_monsters[i].room)
+            if (get_container_room() == fire_monsters[i].room && fire_monsters[i].is_alive)
             {
                 Position position = get_absolute_position(fire_monsters[i].room);
                 Position position_copy = fire_monsters[i].position;
@@ -505,7 +505,7 @@ void replay_commands()
 
         for (int i = 0; i < snakes_count; i++)
         {
-            if (get_container_room() == snakes[i].room)
+            if (get_container_room() == snakes[i].room && snakes[i].is_alive)
             {
                 Position position = get_absolute_position(snakes[i].room);
                 Position position_copy = snakes[i].position;
