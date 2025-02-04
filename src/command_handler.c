@@ -114,6 +114,17 @@ bool register_command(char *command, int num, ...)
         output = true;
     }
 
+    if (strcmp(command, "long-attack") == 0)
+    {
+        va_list args;
+        va_start(args, num);
+        int direction = va_arg(args, int);
+        fprintf(log_file, "long-attack %d\n", direction);
+        long_attack_character(direction);
+        va_end(args);
+        output = true;
+    }
+
     for (int i = 0; i < traps_count; i++)
     {
         if (traps[i].floor == &floors[current_floor_index])

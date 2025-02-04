@@ -150,7 +150,8 @@ enum SidebarList
 {
     GUIDES,
     FOODS,
-    WEAPONS
+    WEAPONS,
+    DIRECTIONS
 };
 
 typedef struct
@@ -323,6 +324,7 @@ typedef struct Weapon
     int type;
     bool is_picked;
     bool in_hand;
+    int count;
 } Weapon;
 
 typedef struct Daemon
@@ -521,6 +523,7 @@ void draw_snakes(Floor *floor);
 void draw_giants(Floor *floor);
 void draw_undeeds(Floor *floor);
 Room *get_current_room();
+int get_current_room_index();
 Room *get_container_room();
 Position get_absolute_position(Room *room);
 void remove_character();
@@ -532,6 +535,7 @@ bool descend_character(char *message);
 void pick_character(char *message);
 void eat_character(int index, char *message);
 void short_attack_character();
+void long_attack_character(int direction);
 void eat_food();
 void take_weapon();
 int inventory_foods_count();
@@ -552,6 +556,7 @@ void update_weapon();
 void draw_guides();
 void draw_food_inventory();
 void draw_weapon_inventory();
+void draw_directions();
 void draw_hline(Position position, int length);
 void setup_message_box();
 void add_message(char *message);

@@ -110,7 +110,27 @@ bool handle_game()
         else if (ch == ('w' & 0x1F))
             take_weapon();
         else if (ch == 't')
-            register_command("short-attack", 0);
+        {
+            Weapon *weapon = get_current_weapon();
+            if (weapon->type == MACE || weapon->type == SWORD)
+                register_command("short-attack", 0);
+            else
+            {
+                setup_sidebar(DIRECTIONS);
+                while (1)
+                {
+                    ch = getch();
+                    if ('a' <= ch && ch <= 'd')
+                    {
+                        register_command("long-attack", 1, ch - 'a');
+                        break;
+                    }
+                    else if (ch == 'q')
+                        break;
+                }
+                setup_sidebar(GUIDES);
+            }
+        }
 
         if (current_window != GAME)
         {
@@ -736,6 +756,213 @@ void short_attack_character()
     }
 }
 
+Position next_projectile_position(Position position, int direction)
+{
+    if (direction == 0)
+        position.x++;
+    if (direction == 1)
+        position.y--;
+    if (direction == 2)
+        position.x--;
+    if (direction == 3)
+        position.y++;
+    return position;
+}
+
+Position previous_projectile_position(Position position, int direction)
+{
+    if (direction == 0)
+        position.x--;
+    if (direction == 1)
+        position.y++;
+    if (direction == 2)
+        position.x++;
+    if (direction == 3)
+        position.y--;
+    return position;
+}
+
+void long_attack_character(int direction)
+{
+    char message[500];
+    Weapon *weapon = get_current_weapon();
+    weapon->count--;
+    cchar_t projectile_char;
+    int trajectory = 0, max_trajectory;
+    projectile_char.chars[1] = 0;
+    projectile_char.ext_color = CHAR_PINK;
+    projectile_char.attr = 0;
+    if (weapon->type == DAGGER)
+    {
+        projectile_char.chars[0] = L'𐃉';
+        max_trajectory = 5;
+    }
+    else if (weapon->type == WAND)
+    {
+        projectile_char.chars[0] = L'/';
+        max_trajectory = 10;
+    }
+    else if (weapon->type == ARROW)
+    {
+        projectile_char.chars[0] = L'↑';
+        max_trajectory = 5;
+    }
+    struct Projectile
+    {
+        Position position;
+        cchar_t under;
+    } projectile;
+    projectile.position = next_projectile_position(character.position, direction);
+    mvin_wch(projectile.position.y, projectile.position.x, &projectile.under);
+    while (!is_obstacle(projectile.under.chars[0]) && trajectory < max_trajectory)
+    {
+        mvadd_wch(projectile.position.y, projectile.position.x, &projectile_char);
+        refresh();
+        usleep(50000);
+        mvadd_wch(projectile.position.y, projectile.position.x, &projectile.under);
+        projectile.position = next_projectile_position(projectile.position, direction);
+        mvin_wch(projectile.position.y, projectile.position.x, &projectile.under);
+        trajectory++;
+    }
+
+    for (int i = 0; i < daemons_count; i++)
+    {
+        if (daemons[i].is_alive && daemons[i].room == get_container_room())
+        {
+            Position position = get_absolute_position(daemons[i].room);
+            position.x += daemons[i].position.x;
+            position.y += daemons[i].position.y;
+            if (projectile.position.x == position.x && projectile.position.y == position.y)
+            {
+                daemons[i].health -= weapon->damage;
+                sprintf(message, "You damaged a Daemon by %d!", weapon->damage);
+                add_message(message);
+                if (daemons[i].health <= 0)
+                {
+                    character.score += daemons[i].damage * score_multiplier;
+                    daemons[i].is_alive = false;
+                    mvadd_wch(position.y, position.x, &daemons[i].under);
+                    add_message("You killed a Daemon!");
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < fire_monsters_count; i++)
+    {
+        if (fire_monsters[i].is_alive && fire_monsters[i].room == get_container_room())
+        {
+            Position position = get_absolute_position(fire_monsters[i].room);
+            position.x += fire_monsters[i].position.x;
+            position.y += fire_monsters[i].position.y;
+            if (projectile.position.x == position.x && projectile.position.y == position.y)
+            {
+                fire_monsters[i].health -= weapon->damage;
+                sprintf(message, "You damaged a Fire Breathing Monster by %d!", weapon->damage);
+                add_message(message);
+                if (fire_monsters[i].health <= 0)
+                {
+                    character.score += fire_monsters[i].damage * score_multiplier;
+                    fire_monsters[i].is_alive = false;
+                    mvadd_wch(position.y, position.x, &fire_monsters[i].under);
+                    add_message("You killed a Fire Breathing Monster!");
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < snakes_count; i++)
+    {
+        if (snakes[i].is_alive && snakes[i].room == get_container_room())
+        {
+            Position position = get_absolute_position(snakes[i].room);
+            position.x += snakes[i].position.x;
+            position.y += snakes[i].position.y;
+            if (projectile.position.x == position.x && projectile.position.y == position.y)
+            {
+                snakes[i].health -= weapon->damage;
+                sprintf(message, "You damaged a Snake by %d!", weapon->damage);
+                add_message(message);
+                if (snakes[i].health <= 0)
+                {
+                    character.score += snakes[i].damage * score_multiplier;
+                    snakes[i].is_alive = false;
+                    mvadd_wch(position.y, position.x, &snakes[i].under);
+                    add_message("You killed a Snake!");
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < giants_count; i++)
+    {
+        if (giants[i].is_alive && giants[i].room == get_container_room())
+        {
+            Position position = get_absolute_position(giants[i].room);
+            position.x += giants[i].position.x;
+            position.y += giants[i].position.y;
+            if (projectile.position.x == position.x && projectile.position.y == position.y)
+            {
+                giants[i].health -= weapon->damage;
+                sprintf(message, "You damaged a Giant by %d!", weapon->damage);
+                add_message(message);
+                if (giants[i].health <= 0)
+                {
+                    character.score += giants[i].damage * score_multiplier;
+                    giants[i].is_alive = false;
+                    mvadd_wch(position.y, position.x, &giants[i].under);
+                    add_message("You killed a Giant!");
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < undeeds_count; i++)
+    {
+        if (undeeds[i].is_alive && undeeds[i].room == get_container_room())
+        {
+            Position position = get_absolute_position(undeeds[i].room);
+            position.x += undeeds[i].position.x;
+            position.y += undeeds[i].position.y;
+            if (projectile.position.x == position.x && projectile.position.y == position.y)
+            {
+                undeeds[i].health -= weapon->damage;
+                sprintf(message, "You damaged a Undeed by %d!", weapon->damage);
+                add_message(message);
+                if (undeeds[i].health <= 0)
+                {
+                    character.score += undeeds[i].damage * score_multiplier;
+                    undeeds[i].is_alive = false;
+                    mvadd_wch(position.y, position.x, &undeeds[i].under);
+                    add_message("You killed a Undeed!");
+                }
+            }
+        }
+    }
+
+    Weapon *new = &weapons[weapons_count];
+    new->count = 1;
+    new->type = weapon->type;
+    new->damage = weapon->damage;
+    new->floor = weapon->floor;
+    new->floor_index = weapon->floor_index;
+    new->in_hand = false;
+    new->is_picked = false;
+    new->room = get_current_room();
+    new->room_index = get_current_room_index();
+    new->position = previous_projectile_position(projectile.position, direction);
+    if (new->position.x == character.position.x &&new->position.y == character.position.y)
+        character.under = projectile_char;
+    else
+        mvadd_wch(new->position.y, new->position.x, &projectile_char);
+    Position abs_position = get_absolute_position(new->room);
+    new->position.x -= abs_position.x;
+    new->position.y -= abs_position.y;
+    weapons_count++;
+
+    refresh();
+}
+
 Room *get_current_room()
 {
     Floor *floor = &floors[current_floor_index];
@@ -747,6 +974,15 @@ Room *get_current_room()
             return room;
     }
     return NULL;
+}
+
+int get_current_room_index()
+{
+    Room *room = get_current_room();
+    for (int i = 0; i < floors[current_floor_index].rooms_count; i++)
+        if (room == floors[current_floor_index].rooms[i])
+            return i;
+    return -1;
 }
 
 Room *get_container_room()

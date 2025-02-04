@@ -233,7 +233,7 @@ void generate_weapons()
         total_rooms_count += floors[i].rooms_count;
 
     int temp_weapons_count = total_rooms_count * weapons_to_rooms_ratio / rooms_to_weapons_ratio;
-    weapons = (Weapon *)calloc(temp_weapons_count, sizeof(Weapon));
+    weapons = (Weapon *)calloc(temp_weapons_count * 20, sizeof(Weapon));
 
     weapons[0].floor_index = 0;
     weapons[0].floor = &floors[weapons[0].floor_index];
@@ -245,6 +245,7 @@ void generate_weapons()
     weapons[0].in_hand = true;
     weapons[0].damage = 5;
     weapons[0].type = MACE;
+    weapons[0].count = 1;
     weapons_count++;
 
     for (int i = 1; i < temp_weapons_count; i++)
@@ -265,13 +266,25 @@ void generate_weapons()
         // weapon.damage = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
         // weapon.damage = 10;
         if (weapon.type == DAGGER)
+        {
             weapon.damage = 12;
+            weapon.count = 10;
+        }
         if (weapon.type == WAND)
+        {
             weapon.damage = 15;
+            weapon.count = 8;
+        }
         if (weapon.type == ARROW)
+        {
             weapon.damage = 5;
+            weapon.count = 20;
+        }
         if (weapon.type == SWORD)
+        {
             weapon.damage = 10;
+            weapon.count = 1;
+        }
         weapons[i] = weapon;
         weapons_count++;
     }

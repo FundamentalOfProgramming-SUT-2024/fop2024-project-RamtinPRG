@@ -26,6 +26,8 @@ void setup_sidebar(int list)
         draw_food_inventory();
     if (list == WEAPONS)
         draw_weapon_inventory();
+    if (list == DIRECTIONS)
+        draw_directions();
 }
 
 Position get_sidebar_position()
@@ -233,7 +235,7 @@ void draw_weapon_inventory()
     position.y += 2;
     for (int i = 0; i < weapons_count; i++)
         if (weapons[i].is_picked && weapons[i].type == MACE)
-            count++;
+            count += weapons[i].count;
     move(position.y, position.x);
     if (count == 0)
         attron(A_DIM);
@@ -248,7 +250,7 @@ void draw_weapon_inventory()
     position.y += 2;
     for (int i = 0; i < weapons_count; i++)
         if (weapons[i].is_picked && weapons[i].type == DAGGER)
-            count++;
+            count += weapons[i].count;
     move(position.y, position.x);
     if (count == 0)
         attron(A_DIM);
@@ -263,7 +265,7 @@ void draw_weapon_inventory()
     position.y += 2;
     for (int i = 0; i < weapons_count; i++)
         if (weapons[i].is_picked && weapons[i].type == WAND)
-            count++;
+            count += weapons[i].count;
     move(position.y, position.x);
     if (count == 0)
         attron(A_DIM);
@@ -278,7 +280,7 @@ void draw_weapon_inventory()
     position.y += 2;
     for (int i = 0; i < weapons_count; i++)
         if (weapons[i].is_picked && weapons[i].type == ARROW)
-            count++;
+            count += weapons[i].count;
     move(position.y, position.x);
     if (count == 0)
         attron(A_DIM);
@@ -293,7 +295,7 @@ void draw_weapon_inventory()
     position.y += 2;
     for (int i = 0; i < weapons_count; i++)
         if (weapons[i].is_picked && weapons[i].type == SWORD)
-            count++;
+            count += weapons[i].count;
     move(position.y, position.x);
     if (count == 0)
         attron(A_DIM);
@@ -303,6 +305,49 @@ void draw_weapon_inventory()
     printw("SWORD  ( %d )", count);
     if (count == 0)
         attroff(A_DIM);
+
+    attron(A_ITALIC);
+    mvprintw(position.y + 4, position.x, "Press Q to exit...");
+    attroff(A_ITALIC);
+}
+
+void draw_directions()
+{
+    Position position = get_sidebar_position();
+    position.x += 3;
+    position.y += 14;
+
+    attron(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
+    mvprintw(position.y, position.x, "Which direction to shoot?");
+    attroff(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
+
+    position.y += 2;
+    move(position.y, position.x);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'a');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("Right");
+
+    position.y += 2;
+    move(position.y, position.x);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'b');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("Up");
+
+    position.y += 2;
+    move(position.y, position.x);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'c');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("Left");
+
+    position.y += 2;
+    move(position.y, position.x);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'd');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("Down");
 
     attron(A_ITALIC);
     mvprintw(position.y + 4, position.x, "Press Q to exit...");
