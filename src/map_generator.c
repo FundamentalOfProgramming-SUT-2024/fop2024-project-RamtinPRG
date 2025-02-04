@@ -243,8 +243,8 @@ void generate_weapons()
     weapons[0].position.y = 0;
     weapons[0].is_picked = true;
     weapons[0].in_hand = true;
-    weapons[0].damage = 10;
-    weapons[0].type = 0;
+    weapons[0].damage = 5;
+    weapons[0].type = MACE;
     weapons_count++;
 
     for (int i = 1; i < temp_weapons_count; i++)
@@ -259,11 +259,19 @@ void generate_weapons()
             weapon.position.x = nrandom(1, weapon.room->width);
             weapon.position.y = nrandom(1, weapon.room->height);
         } while (exists_gold(weapon.floor, weapon.room, weapon.position) || exists_trap(weapon.floor, weapon.room, weapon.position) || exists_stair(weapon.floor, weapon.room, weapon.position) || exists_food(weapon.floor, weapon.room, weapon.position) || exists_weapon(weapon.floor, weapon.room, weapon.position));
-        weapon.type = rand() % 5;
+        weapon.type = nrandom(1, 4);
         weapon.is_picked = false;
         weapon.in_hand = false;
         // weapon.damage = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
-        weapon.damage = 10;
+        // weapon.damage = 10;
+        if (weapon.type == DAGGER)
+            weapon.damage = 12;
+        if (weapon.type == WAND)
+            weapon.damage = 15;
+        if (weapon.type == ARROW)
+            weapon.damage = 5;
+        if (weapon.type == SWORD)
+            weapon.damage = 10;
         weapons[i] = weapon;
         weapons_count++;
     }
