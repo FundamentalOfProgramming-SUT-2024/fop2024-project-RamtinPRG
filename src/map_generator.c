@@ -243,6 +243,7 @@ void generate_weapons()
     weapons[0].position.y = 0;
     weapons[0].is_picked = true;
     weapons[0].in_hand = true;
+    weapons[0].damage = 10;
     weapons[0].type = 0;
     weapons_count++;
 

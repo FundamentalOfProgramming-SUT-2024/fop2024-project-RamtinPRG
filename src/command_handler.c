@@ -100,6 +100,13 @@ bool register_command(char *command, int num, ...)
         va_end(args);
     }
 
+    if (strcmp(command, "short-attack") == 0)
+    {
+        fprintf(log_file, "short-attack\n");
+        short_attack_character(game_message);
+        output = true;
+    }
+
     for (int i = 0; i < traps_count; i++)
     {
         if (traps[i].floor == &floors[current_floor_index])

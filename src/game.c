@@ -107,6 +107,8 @@ bool handle_game()
             eat_food();
         else if (ch == ('w' & 0x1F))
             take_weapon();
+        else if (ch == 't')
+            register_command("short-attack", 0);
 
         if (current_window != GAME)
         {
@@ -596,6 +598,121 @@ void take_weapon()
     setup_sidebar(GUIDES);
 }
 
+void short_attack_character(char *message)
+{
+    Position adjacent_cells[8];
+    int index = 0;
+    for (int i = -1; i < 2; i++)
+        for (int j = -1; j < 2; j++)
+            if (i != 0 || j != 0)
+            {
+                adjacent_cells[index] = character.position;
+                adjacent_cells[index].x += i;
+                adjacent_cells[index].y += j;
+                index++;
+            }
+
+    for (int i = 0; i < daemons_count; i++)
+    {
+        if (daemons[i].is_alive)
+        {
+            Position position = get_absolute_position(daemons[i].room);
+            position.x += daemons[i].position.x;
+            position.y += daemons[i].position.y;
+            for (int j = 0; j < 8; j++)
+                if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
+                {
+                    daemons[i].health -= get_current_weapon()->damage;
+                    if (daemons[i].health <= 0)
+                    {
+                        daemons[i].is_alive = false;
+                        mvadd_wch(position.y, position.x, &daemons[i].under);
+                    }
+                }
+        }
+    }
+
+    for (int i = 0; i < fire_monsters_count; i++)
+    {
+        if (fire_monsters[i].is_alive)
+        {
+            Position position = get_absolute_position(fire_monsters[i].room);
+            position.x += fire_monsters[i].position.x;
+            position.y += fire_monsters[i].position.y;
+            for (int j = 0; j < 8; j++)
+                if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
+                {
+                    fire_monsters[i].health -= get_current_weapon()->damage;
+                    if (fire_monsters[i].health <= 0)
+                    {
+                        fire_monsters[i].is_alive = false;
+                        mvadd_wch(position.y, position.x, &fire_monsters[i].under);
+                    }
+                }
+        }
+    }
+
+    for (int i = 0; i < snakes_count; i++)
+    {
+        if (snakes[i].is_alive)
+        {
+            Position position = get_absolute_position(snakes[i].room);
+            position.x += snakes[i].position.x;
+            position.y += snakes[i].position.y;
+            for (int j = 0; j < 8; j++)
+                if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
+                {
+                    snakes[i].health -= get_current_weapon()->damage;
+                    if (snakes[i].health <= 0)
+                    {
+                        snakes[i].is_alive = false;
+                        mvadd_wch(position.y, position.x, &snakes[i].under);
+                    }
+                }
+        }
+    }
+
+    for (int i = 0; i < giants_count; i++)
+    {
+        if (giants[i].is_alive)
+        {
+            Position position = get_absolute_position(giants[i].room);
+            position.x += giants[i].position.x;
+            position.y += giants[i].position.y;
+            for (int j = 0; j < 8; j++)
+                if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
+                {
+                    giants[i].health -= get_current_weapon()->damage;
+                    if (giants[i].health <= 0)
+                    {
+                        giants[i].is_alive = false;
+                        mvadd_wch(position.y, position.x, &giants[i].under);
+                    }
+                }
+        }
+    }
+
+    for (int i = 0; i < undeeds_count; i++)
+    {
+        if (undeeds[i].is_alive)
+        {
+            Position position = get_absolute_position(undeeds[i].room);
+            position.x += undeeds[i].position.x;
+            position.y += undeeds[i].position.y;
+            for (int j = 0; j < 8; j++)
+                if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
+                {
+                    undeeds[i].health -= get_current_weapon()->damage;
+                    if (undeeds[i].health <= 0)
+                    {
+                        undeeds[i].is_alive = false;
+                        mvadd_wch(position.y, position.x, &undeeds[i].under);
+                    }
+                }
+        }
+    }
+}
+
 Room *get_current_room()
 {
     Floor *floor = &floors[current_floor_index];
@@ -620,4 +737,11 @@ Room *get_container_room()
             return room;
     }
     return NULL;
+}
+
+Weapon *get_current_weapon()
+{
+    for (int i = 0; i < weapons_count; i++)
+        if (weapons[i].in_hand)
+            return &weapons[i];
 }
