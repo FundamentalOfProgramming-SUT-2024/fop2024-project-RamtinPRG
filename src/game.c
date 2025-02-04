@@ -11,7 +11,8 @@ Room *initial_room;
 int current_floor_index;
 FILE *log_file;
 FILE *map_file;
-char game_message[500];
+char game_message[20][500];
+int game_message_count = 0;
 int timeline_counter = 0;
 
 bool handle_game()
@@ -44,7 +45,8 @@ bool handle_game()
     character.stomach = 100;
     character.gold = 0;
     character.score = 0;
-    strcpy(game_message, "Welcome to the dungeons of DOOM!");
+    // strcpy(game_message, "Welcome to the dungeons of DOOM!");
+    add_message("Welcome to the dungeons of DOOM!");
     setup_floor();
     place_character(position);
     refresh();
@@ -598,8 +600,9 @@ void take_weapon()
     setup_sidebar(GUIDES);
 }
 
-void short_attack_character(char *message)
+void short_attack_character()
 {
+    char message[500];
     Position adjacent_cells[8];
     int index = 0;
     for (int i = -1; i < 2; i++)
@@ -614,7 +617,7 @@ void short_attack_character(char *message)
 
     for (int i = 0; i < daemons_count; i++)
     {
-        if (daemons[i].is_alive)
+        if (daemons[i].is_alive && daemons[i].room == get_container_room())
         {
             Position position = get_absolute_position(daemons[i].room);
             position.x += daemons[i].position.x;
@@ -623,10 +626,14 @@ void short_attack_character(char *message)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
                     daemons[i].health -= get_current_weapon()->damage;
+                    sprintf(message, "You damaged a nearby Daemon by %d!", get_current_weapon()->damage);
+                    add_message(message);
                     if (daemons[i].health <= 0)
                     {
+                        character.score += daemons[i].damage * score_multiplier;
                         daemons[i].is_alive = false;
                         mvadd_wch(position.y, position.x, &daemons[i].under);
+                        add_message("You killed a Daemon!");
                     }
                 }
         }
@@ -634,7 +641,7 @@ void short_attack_character(char *message)
 
     for (int i = 0; i < fire_monsters_count; i++)
     {
-        if (fire_monsters[i].is_alive)
+        if (fire_monsters[i].is_alive && fire_monsters[i].room == get_container_room())
         {
             Position position = get_absolute_position(fire_monsters[i].room);
             position.x += fire_monsters[i].position.x;
@@ -643,10 +650,14 @@ void short_attack_character(char *message)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
                     fire_monsters[i].health -= get_current_weapon()->damage;
+                    sprintf(message, "You damaged a nearby Fire Breathing Monster by %d!", get_current_weapon()->damage);
+                    add_message(message);
                     if (fire_monsters[i].health <= 0)
                     {
+                        character.score += fire_monsters[i].damage * score_multiplier;
                         fire_monsters[i].is_alive = false;
                         mvadd_wch(position.y, position.x, &fire_monsters[i].under);
+                        add_message("You killed a Fire Breathing Monster!");
                     }
                 }
         }
@@ -654,7 +665,7 @@ void short_attack_character(char *message)
 
     for (int i = 0; i < snakes_count; i++)
     {
-        if (snakes[i].is_alive)
+        if (snakes[i].is_alive && snakes[i].room == get_container_room())
         {
             Position position = get_absolute_position(snakes[i].room);
             position.x += snakes[i].position.x;
@@ -663,10 +674,14 @@ void short_attack_character(char *message)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
                     snakes[i].health -= get_current_weapon()->damage;
+                    sprintf(message, "You damaged a nearby Snake by %d!", get_current_weapon()->damage);
+                    add_message(message);
                     if (snakes[i].health <= 0)
                     {
+                        character.score += snakes[i].damage * score_multiplier;
                         snakes[i].is_alive = false;
                         mvadd_wch(position.y, position.x, &snakes[i].under);
+                        add_message("You killed a Snake!");
                     }
                 }
         }
@@ -674,7 +689,7 @@ void short_attack_character(char *message)
 
     for (int i = 0; i < giants_count; i++)
     {
-        if (giants[i].is_alive)
+        if (giants[i].is_alive && giants[i].room == get_container_room())
         {
             Position position = get_absolute_position(giants[i].room);
             position.x += giants[i].position.x;
@@ -683,10 +698,14 @@ void short_attack_character(char *message)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
                     giants[i].health -= get_current_weapon()->damage;
+                    sprintf(message, "You damaged a nearby Giant by %d!", get_current_weapon()->damage);
+                    add_message(message);
                     if (giants[i].health <= 0)
                     {
+                        character.score += giants[i].damage * score_multiplier;
                         giants[i].is_alive = false;
                         mvadd_wch(position.y, position.x, &giants[i].under);
+                        add_message("You killed a Giant!");
                     }
                 }
         }
@@ -694,7 +713,7 @@ void short_attack_character(char *message)
 
     for (int i = 0; i < undeeds_count; i++)
     {
-        if (undeeds[i].is_alive)
+        if (undeeds[i].is_alive && undeeds[i].room == get_container_room())
         {
             Position position = get_absolute_position(undeeds[i].room);
             position.x += undeeds[i].position.x;
@@ -703,10 +722,14 @@ void short_attack_character(char *message)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
                     undeeds[i].health -= get_current_weapon()->damage;
+                    sprintf(message, "You damaged a nearby Undeed by %d!", get_current_weapon()->damage);
+                    add_message(message);
                     if (undeeds[i].health <= 0)
                     {
+                        character.score += undeeds[i].damage * score_multiplier;
                         undeeds[i].is_alive = false;
                         mvadd_wch(position.y, position.x, &undeeds[i].under);
+                        add_message("You killed an Undeed!");
                     }
                 }
         }

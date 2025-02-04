@@ -487,7 +487,7 @@ bool exists_daemon(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < daemons_count; i++)
     {
-        if (daemons[i].floor == floor && daemons[i].room == room && daemons[i].position.x == position.x && daemons[i].position.y == position.y)
+        if (daemons[i].is_alive && daemons[i].floor == floor && daemons[i].room == room && daemons[i].position.x == position.x && daemons[i].position.y == position.y)
             return true;
     }
     return false;
@@ -497,7 +497,7 @@ bool exists_fire_monster(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < fire_monsters_count; i++)
     {
-        if (fire_monsters[i].floor == floor && fire_monsters[i].room == room && fire_monsters[i].position.x == position.x && fire_monsters[i].position.y == position.y)
+        if (fire_monsters[i].is_alive && fire_monsters[i].floor == floor && fire_monsters[i].room == room && fire_monsters[i].position.x == position.x && fire_monsters[i].position.y == position.y)
             return true;
     }
     return false;
@@ -507,7 +507,7 @@ bool exists_snake(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < snakes_count; i++)
     {
-        if (snakes[i].floor == floor && snakes[i].room == room && snakes[i].position.x == position.x && snakes[i].position.y == position.y)
+        if (snakes[i].is_alive && snakes[i].floor == floor && snakes[i].room == room && snakes[i].position.x == position.x && snakes[i].position.y == position.y)
             return true;
     }
     return false;
@@ -517,7 +517,7 @@ bool exists_giant(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < giants_count; i++)
     {
-        if (giants[i].floor == floor && giants[i].room == room && giants[i].position.x == position.x && giants[i].position.y == position.y)
+        if (giants[i].is_alive && giants[i].floor == floor && giants[i].room == room && giants[i].position.x == position.x && giants[i].position.y == position.y)
             return true;
     }
     return false;
@@ -527,7 +527,7 @@ bool exists_undeed(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < undeeds_count; i++)
     {
-        if (undeeds[i].floor == floor && undeeds[i].room == room && undeeds[i].position.x == position.x && undeeds[i].position.y == position.y)
+        if (undeeds[i].is_alive && undeeds[i].floor == floor && undeeds[i].room == room && undeeds[i].position.x == position.x && undeeds[i].position.y == position.y)
             return true;
     }
     return false;

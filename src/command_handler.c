@@ -3,6 +3,7 @@
 bool register_command(char *command, int num, ...)
 {
     bool output;
+    char message[500];
 
     timeline_counter++;
 
@@ -12,14 +13,15 @@ bool register_command(char *command, int num, ...)
         va_start(args, num);
         int direction = va_arg(args, int);
         fprintf(log_file, "move %d\n", direction);
-        move_character(direction, game_message);
+        move_character(direction, message);
+        // add_message(message);
         va_end(args);
         output = true;
     }
     if (strcmp(command, "ascend") == 0)
     {
         fprintf(log_file, "ascend\n");
-        if (ascend_character(game_message))
+        if (ascend_character(message))
         {
             if (current_floor_index == FLOORS)
             {
@@ -38,11 +40,12 @@ bool register_command(char *command, int num, ...)
         }
         else
             output = false;
+        add_message(message);
     }
     if (strcmp(command, "descend") == 0)
     {
         fprintf(log_file, "descend\n");
-        if (descend_character(game_message))
+        if (descend_character(message))
         {
             setup_floor();
             Position position = get_absolute_position(floors[current_floor_index].up_stair.room);
@@ -53,11 +56,13 @@ bool register_command(char *command, int num, ...)
         }
         else
             output = false;
+        add_message(message);
     }
     if (strcmp(command, "pick") == 0)
     {
         fprintf(log_file, "pick\n");
-        pick_character(game_message);
+        pick_character(message);
+        add_message(message);
         output = true;
     }
     if (strcmp(command, "eat") == 0)
@@ -66,7 +71,8 @@ bool register_command(char *command, int num, ...)
         va_start(args, num);
         int index = va_arg(args, int);
         fprintf(log_file, "eat %d\n", index);
-        eat_character(index, game_message);
+        eat_character(index, message);
+        add_message(message);
         va_end(args);
     }
 
@@ -96,14 +102,15 @@ bool register_command(char *command, int num, ...)
             strcpy(found_weapon, "ARROW");
         if (index == SWORD)
             strcpy(found_weapon, "SWORD");
-        sprintf(game_message, "You're now holding a %s!", found_weapon);
+        sprintf(message, "You're now holding a %s!", found_weapon);
+        add_message(message);
         va_end(args);
     }
 
     if (strcmp(command, "short-attack") == 0)
     {
         fprintf(log_file, "short-attack\n");
-        short_attack_character(game_message);
+        short_attack_character();
         output = true;
     }
 
@@ -116,7 +123,8 @@ bool register_command(char *command, int num, ...)
             position.y += traps[i].position.y;
             if (character.position.x == position.x && character.position.y == position.y)
             {
-                sprintf(game_message, "You stepped on a trap; Health reduced by %d%%!", traps[i].damage);
+                sprintf(message, "You stepped on a trap; Health reduced by %d%%!", traps[i].damage);
+                add_message(message);
                 traps[i].is_discovered = true;
                 character.health -= traps[i].damage;
                 character.under = trap_character;
@@ -133,7 +141,8 @@ bool register_command(char *command, int num, ...)
             position.y += golds[i].position.y;
             if (character.position.x == position.x && character.position.y == position.y)
             {
-                sprintf(game_message, "You found some gold; Added %d to your collection!", golds[i].value);
+                sprintf(message, "You found some gold; Added %d to your collection!", golds[i].value);
+                add_message(message);
                 golds[i].is_discovered = true;
                 character.gold += golds[i].value;
                 character.score += golds[i].value * score_multiplier;
@@ -151,7 +160,8 @@ bool register_command(char *command, int num, ...)
             position.y += black_golds[i].position.y;
             if (character.position.x == position.x && character.position.y == position.y)
             {
-                sprintf(game_message, "You found some BLACK gold; Added %d to your collection!", black_golds[i].value);
+                sprintf(message, "You found some BLACK gold; Added %d to your collection!", black_golds[i].value);
+                add_message(message);
                 black_golds[i].is_discovered = true;
                 character.gold += black_golds[i].value;
                 character.score += black_golds[i].value * score_multiplier;
@@ -200,6 +210,12 @@ bool register_command(char *command, int num, ...)
                     daemons[i].position = position_copy;
                 }
             }
+            else
+            {
+                character.health -= daemons[i].damage;
+                sprintf(message, "A nearby Daemon damaged you by %d!", daemons[i].damage);
+                add_message(message);
+            }
         }
     }
 
@@ -243,6 +259,12 @@ bool register_command(char *command, int num, ...)
                     fire_monsters[i].position = position_copy;
                 }
             }
+            else
+            {
+                character.health -= fire_monsters[i].damage;
+                sprintf(message, "A nearby Fire Breathing Monster damaged you by %d!", fire_monsters[i].damage);
+                add_message(message);
+            }
         }
     }
 
@@ -285,6 +307,12 @@ bool register_command(char *command, int num, ...)
                     mvprintw(absolute_position_copy.y, absolute_position_copy.x, "S");
                     snakes[i].position = position_copy;
                 }
+            }
+            else
+            {
+                character.health -= snakes[i].damage;
+                sprintf(message, "A nearby Snake damaged you by %d!", snakes[i].damage);
+                add_message(message);
             }
         }
     }
@@ -339,6 +367,9 @@ bool register_command(char *command, int num, ...)
                 if (giants[i].is_chasing)
                 {
                     giants[i].chasing_start = timeline_counter;
+                    character.health -= giants[i].damage;
+                    sprintf(message, "A nearby Giant damaged you by %d!", giants[i].damage);
+                    add_message(message);
                 }
                 else
                 {
@@ -399,6 +430,9 @@ bool register_command(char *command, int num, ...)
                 if (undeeds[i].is_chasing)
                 {
                     undeeds[i].chasing_start = timeline_counter;
+                    character.health -= undeeds[i].damage;
+                    sprintf(message, "A nearby Undeed damaged you by %d!", undeeds[i].damage);
+                    add_message(message);
                 }
                 else
                 {
@@ -436,6 +470,8 @@ bool register_command(char *command, int num, ...)
 
 void replay_commands()
 {
+    char message[500];
+
     char file_name[50] = "logs/";
     strcat(file_name, player->username);
     log_file = fopen(file_name, "r");
@@ -452,12 +488,13 @@ void replay_commands()
         {
             int direction;
             sscanf(line, "move %d", &direction);
-            move_character(direction, game_message);
+            move_character(direction, message);
+            // add_message(message);
         }
 
         else if (strcmp(command, "ascend") == 0)
         {
-            if (ascend_character(game_message))
+            if (ascend_character(message))
             {
                 setup_floor();
                 Position position = get_absolute_position(floors[current_floor_index].down_stair.room);
@@ -465,11 +502,12 @@ void replay_commands()
                 position.y += floors[current_floor_index].down_stair.position.y;
                 place_character(position);
             }
+            add_message(message);
         }
 
         else if (strcmp(command, "descend") == 0)
         {
-            if (descend_character(game_message))
+            if (descend_character(message))
             {
                 setup_floor();
                 Position position = get_absolute_position(floors[current_floor_index].up_stair.room);
@@ -477,18 +515,21 @@ void replay_commands()
                 position.y += floors[current_floor_index].up_stair.position.y;
                 place_character(position);
             }
+            add_message(message);
         }
 
         else if (strcmp(command, "pick") == 0)
         {
-            pick_character(game_message);
+            pick_character(message);
+            add_message(message);
         }
 
         else if (strcmp(command, "eat") == 0)
         {
             int index;
             sscanf(line, "eat %d", &index);
-            eat_character(index, game_message);
+            eat_character(index, message);
+            add_message(message);
         }
 
         for (int i = 0; i < traps_count; i++)
@@ -500,7 +541,8 @@ void replay_commands()
                 position.y += traps[i].position.y;
                 if (character.position.x == position.x && character.position.y == position.y)
                 {
-                    sprintf(game_message, "You stepped on a trap; Health reduced by %d%%!", traps[i].damage);
+                    sprintf(message, "You stepped on a trap; Health reduced by %d%%!", traps[i].damage);
+                    add_message(message);
                     traps[i].is_discovered = true;
                     character.health -= traps[i].damage;
                     character.under = trap_character;
@@ -517,7 +559,8 @@ void replay_commands()
                 position.y += golds[i].position.y;
                 if (character.position.x == position.x && character.position.y == position.y)
                 {
-                    sprintf(game_message, "You found some gold; Added %d to your collection!", golds[i].value);
+                    sprintf(message, "You found some gold; Added %d to your collection!", golds[i].value);
+                    add_message(message);
                     golds[i].is_discovered = true;
                     character.gold += golds[i].value;
                     character.score += golds[i].value * score_multiplier;
@@ -535,7 +578,8 @@ void replay_commands()
                 position.y += black_golds[i].position.y;
                 if (character.position.x == position.x && character.position.y == position.y)
                 {
-                    sprintf(game_message, "You found some BLACK gold; Added %d to your collection!", black_golds[i].value);
+                    sprintf(message, "You found some BLACK gold; Added %d to your collection!", black_golds[i].value);
+                    add_message(message);
                     black_golds[i].is_discovered = true;
                     character.gold += black_golds[i].value;
                     character.score += black_golds[i].value * score_multiplier;
@@ -817,5 +861,5 @@ void replay_commands()
 
 bool exists_monster(Floor *floor, Room *room, Position position)
 {
-    return exists_daemon(floor, room, position) || exists_fire_monster(floor, room, position) || exists_snake(floor, room, position) || exists_giant(floor, room, position);
+    return exists_daemon(floor, room, position) || exists_fire_monster(floor, room, position) || exists_snake(floor, room, position) || exists_giant(floor, room, position) || exists_undeed(floor, room, position);
 }
