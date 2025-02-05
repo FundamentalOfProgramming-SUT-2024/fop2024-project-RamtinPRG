@@ -14,6 +14,8 @@ FILE *map_file;
 char game_message[20][500];
 int game_message_count = 0;
 int timeline_counter = 0;
+bool visible_cells[FLOORS][MAP_SCREEN_HEIGHT][MAP_SCREEN_WIDTH] = {0};
+bool is_map_visible = false;
 
 bool handle_game()
 {
@@ -47,6 +49,10 @@ bool handle_game()
     character.score = 0;
     // strcpy(game_message, "Welcome to the dungeons of DOOM!");
     add_message("Welcome to the dungeons of DOOM!");
+    for (int i = 0; i < FLOORS; i++)
+        for (int j = 0; j < MAP_SCREEN_HEIGHT; j++)
+            for (int k = 0; k < MAP_SCREEN_WIDTH; k++)
+                visible_cells[i][j][k] = false;
     setup_floor();
     place_character(position);
     refresh();
@@ -131,6 +137,42 @@ bool handle_game()
                 setup_sidebar(GUIDES);
             }
         }
+        else if (ch == 'm')
+        {
+            is_map_visible = !is_map_visible;
+            if (is_map_visible)
+            {
+                for (int i = 0; i < MAP_SCREEN_HEIGHT; i++)
+                    for (int j = 0; j < MAP_SCREEN_WIDTH; j++)
+                    {
+                        cchar_t current;
+                        mvin_wch(SCREEN_OFFSET + i, SCREEN_OFFSET + j, &current);
+                        current.attr = current.attr & (~A_INVIS);
+                        mvadd_wch(SCREEN_OFFSET + i, SCREEN_OFFSET + j, &current);
+                    }
+            }
+            else
+            {
+                for (int i = 0; i < MAP_SCREEN_HEIGHT; i++)
+                    for (int j = 0; j < MAP_SCREEN_WIDTH; j++)
+                    {
+                        if (visible_cells[current_floor_index][i][j])
+                        {
+                            cchar_t current;
+                            mvin_wch(SCREEN_OFFSET + i, SCREEN_OFFSET + j, &current);
+                            current.attr = current.attr & (~A_INVIS);
+                            mvadd_wch(SCREEN_OFFSET + i, SCREEN_OFFSET + j, &current);
+                        }
+                        else
+                        {
+                            cchar_t current;
+                            mvin_wch(SCREEN_OFFSET + i, SCREEN_OFFSET + j, &current);
+                            current.attr = current.attr | A_INVIS;
+                            mvadd_wch(SCREEN_OFFSET + i, SCREEN_OFFSET + j, &current);
+                        }
+                    }
+            }
+        }
 
         if (current_window != GAME)
         {
@@ -179,8 +221,8 @@ void game_exit_routine()
 void setup_floor()
 {
     erase_scr();
+    attron(A_INVIS);
     draw_rooms(&floors[current_floor_index]);
-    // attron(A_INVIS);
     draw_corridors(&floors[current_floor_index]);
     draw_stairs(&floors[current_floor_index]);
     draw_traps(&floors[current_floor_index]);
@@ -193,9 +235,41 @@ void setup_floor()
     draw_snakes(&floors[current_floor_index]);
     draw_giants(&floors[current_floor_index]);
     draw_undeeds(&floors[current_floor_index]);
+    attroff(A_INVIS);
+    for (int i = 0; i < MAP_SCREEN_HEIGHT; i++)
+        for (int j = 0; j < MAP_SCREEN_WIDTH; j++)
+        {
+            if (visible_cells[current_floor_index][i][j])
+            {
+                cchar_t current;
+                mvin_wch(SCREEN_OFFSET + i, SCREEN_OFFSET + j, &current);
+                current.attr = current.attr & (~A_INVIS);
+                mvadd_wch(SCREEN_OFFSET + i, SCREEN_OFFSET + j, &current);
+            }
+        }
+    for (int i = 0; i < floors[current_floor_index].rooms_count; i++)
+    {
+        if (floors[current_floor_index].rooms[i]->visible)
+            show_room(floors[current_floor_index].rooms[i]);
+    }
     setup_sidebar(GUIDES);
     setup_message_box();
-    // attroff(A_INVIS);
+}
+
+void show_room(Room *room)
+{
+    Position position = get_absolute_position(room);
+    int width = room->width;
+    int height = room->height;
+    for (int j = 0; j < height + 2; j++)
+        for (int k = 0; k < width + 2; k++)
+        {
+            visible_cells[current_floor_index][position.y + j - SCREEN_OFFSET][position.x + k - SCREEN_OFFSET] = true;
+            cchar_t current;
+            mvin_wch(position.y + j, position.x + k, &current);
+            current.attr = current.attr & (~A_INVIS);
+            mvadd_wch(position.y + j, position.x + k, &current);
+        }
 }
 
 void draw_stairs(Floor *floor)
@@ -315,6 +389,8 @@ void draw_daemons(Floor *floor)
             position.x += daemons[i].position.x;
             position.y += daemons[i].position.y;
             mvin_wch(position.y, position.x, &daemons[i].under);
+            if (daemons[i].under.attr & A_INVIS)
+                daemons[i].under.attr &= (~A_INVIS);
             mvprintw(position.y, position.x, "D");
         }
     }
@@ -330,6 +406,8 @@ void draw_fire_monsters(Floor *floor)
             position.x += fire_monsters[i].position.x;
             position.y += fire_monsters[i].position.y;
             mvin_wch(position.y, position.x, &fire_monsters[i].under);
+            if (fire_monsters[i].under.attr & A_INVIS)
+                fire_monsters[i].under.attr &= (~A_INVIS);
             mvprintw(position.y, position.x, "F");
         }
     }
@@ -345,6 +423,8 @@ void draw_snakes(Floor *floor)
             position.x += snakes[i].position.x;
             position.y += snakes[i].position.y;
             mvin_wch(position.y, position.x, &snakes[i].under);
+            if (snakes[i].under.attr & A_INVIS)
+                snakes[i].under.attr &= (~A_INVIS);
             mvprintw(position.y, position.x, "S");
         }
     }
@@ -360,6 +440,8 @@ void draw_giants(Floor *floor)
             position.x += giants[i].position.x;
             position.y += giants[i].position.y;
             mvin_wch(position.y, position.x, &giants[i].under);
+            if (giants[i].under.attr & A_INVIS)
+                giants[i].under.attr &= (~A_INVIS);
             mvprintw(position.y, position.x, "G");
         }
     }
@@ -375,6 +457,8 @@ void draw_undeeds(Floor *floor)
             position.x += undeeds[i].position.x;
             position.y += undeeds[i].position.y;
             mvin_wch(position.y, position.x, &undeeds[i].under);
+            if (undeeds[i].under.attr & A_INVIS)
+                undeeds[i].under.attr &= (~A_INVIS);
             mvprintw(position.y, position.x, "U");
         }
     }
@@ -439,6 +523,31 @@ void move_character(int direction, char *message)
     if (!is_obstacle(dest.chars[0]))
     {
         teleport_character(position);
+        if (is_corridor(character.under.chars[0]) || character.under.chars[0] == L'+')
+        {
+            for (int i = -1; i < 2; i++)
+                for (int j = -1; j < 2; j++)
+                    if (i != 0 || j != 0)
+                    {
+                        cchar_t adjacent;
+                        mvin_wch(character.position.y + i, character.position.x + j, &adjacent);
+                        if (is_corridor(adjacent.chars[0]) || adjacent.chars[0] == L'+')
+                        {
+                            adjacent.attr = adjacent.attr & (~A_INVIS);
+                            mvadd_wch(character.position.y + i, character.position.x + j, &adjacent);
+                            visible_cells[current_floor_index][character.position.y + i - SCREEN_OFFSET][character.position.x + j - SCREEN_OFFSET] = true;
+                        }
+                    }
+        }
+        if (character.under.chars[0] == L'+')
+        {
+            Room *room = get_current_room();
+            if (!room->visible)
+            {
+                room->visible = true;
+                show_room(room);
+            }
+        }
         strcpy(message, "");
     }
 }
@@ -448,6 +557,11 @@ bool ascend_character(char *message)
     if (character.under.chars[0] == L'▲')
     {
         current_floor_index++;
+        if (!floors[current_floor_index].rooms[0]->visible)
+        {
+            floors[current_floor_index].rooms[0]->visible = true;
+            show_room(floors[current_floor_index].rooms[0]);
+        }
         strcpy(message, "To the next floor!");
         return true;
     }

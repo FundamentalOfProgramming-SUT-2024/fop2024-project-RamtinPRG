@@ -508,6 +508,7 @@ Room *get_room(Floor *floor, int y, int x);
 int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);
 int adjacent_room_direction(Room *a, Room *b);
 void game_exit_routine();
+void show_room(Room *room);
 void draw_room(Room *room, int walls_color_pair);
 void draw_rooms(Floor *floor);
 void draw_corridors(Floor *floor);
