@@ -6,6 +6,7 @@ Gold *golds;
 BlackGold *black_golds;
 Food *foods;
 Weapon *weapons;
+Potion *potions;
 Daemon *daemons;
 FireMonster *fire_monsters;
 Snake *snakes;
@@ -17,6 +18,7 @@ int golds_count = 0;
 int black_golds_count = 0;
 int foods_count = 0;
 int weapons_count = 0;
+int potions_count = 0;
 int daemons_count = 0;
 int fire_monsters_count = 0;
 int snakes_count = 0;
@@ -31,6 +33,9 @@ int rooms_to_foods_ratio;
 
 int weapons_to_rooms_ratio;
 int rooms_to_weapons_ratio;
+
+int potions_to_rooms_ratio;
+int rooms_to_potions_ratio;
 
 int daemons_to_rooms_ratio;
 int rooms_to_daemons_ratio;
@@ -73,6 +78,9 @@ void generate_map()
     weapons_to_rooms_ratio = 1;
     rooms_to_weapons_ratio = 4;
 
+    potions_to_rooms_ratio = 1;
+    rooms_to_potions_ratio = 5;
+
     daemons_to_rooms_ratio = 1;
     rooms_to_daemons_ratio = 5;
 
@@ -106,6 +114,7 @@ void generate_map()
     generate_black_golds();
     generate_foods();
     generate_weapons();
+    generate_potions();
     generate_daemons();
     generate_fire_monsters();
     generate_snakes();
@@ -287,6 +296,36 @@ void generate_weapons()
         }
         weapons[i] = weapon;
         weapons_count++;
+    }
+}
+
+void generate_potions()
+{
+    int total_rooms_count = 0;
+    for (int i = 0; i < FLOORS; i++)
+        total_rooms_count += floors[i].rooms_count;
+
+    int temp_potions_count = total_rooms_count * potions_to_rooms_ratio / potions_to_rooms_ratio;
+    potions = (Potion *)calloc(temp_potions_count, sizeof(Potion));
+
+    for (int i = 0; i < temp_potions_count; i++)
+    {
+        Potion potion;
+        do
+        {
+            potion.floor_index = rand() % FLOORS;
+            potion.floor = &floors[potion.floor_index];
+            potion.room_index = rand() % potion.floor->rooms_count;
+            potion.room = potion.floor->rooms[potion.room_index];
+            potion.position.x = nrandom(1, potion.room->width);
+            potion.position.y = nrandom(1, potion.room->height);
+            potion.is_picked = false;
+            potion.is_consumed = false;
+            potion.is_being_consumed = false;
+        } while (exists_item(potion.floor, potion.room, potion.position));
+        potion.type = rand() % 3;
+        potions[i] = potion;
+        potions_count++;
     }
 }
 
@@ -496,6 +535,16 @@ bool exists_weapon(Floor *floor, Room *room, Position position)
     return false;
 }
 
+bool exists_potion(Floor *floor, Room *room, Position position)
+{
+    for (int i = 0; i < potions_count; i++)
+    {
+        if (!potions[i].is_picked && potions[i].floor == floor && potions[i].room == room && potions[i].position.x == position.x && potions[i].position.y == position.y)
+            return true;
+    }
+    return false;
+}
+
 bool exists_daemon(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < daemons_count; i++)
@@ -548,7 +597,7 @@ bool exists_undeed(Floor *floor, Room *room, Position position)
 
 bool exists_item(Floor *floor, Room *room, Position position)
 {
-    return exists_monster(floor, room, position) || exists_trap(floor, room, position) || exists_stair(floor, room, position) || exists_gold(floor, room, position) || exists_black_gold(floor, room, position) || exists_food(floor, room, position) || exists_weapon(floor, room, position);
+    return exists_monster(floor, room, position) || exists_trap(floor, room, position) || exists_stair(floor, room, position) || exists_gold(floor, room, position) || exists_black_gold(floor, room, position) || exists_food(floor, room, position) || exists_weapon(floor, room, position) || exists_potion(floor, room, position);
 }
 
 void generate_floor(Floor *floor, Floor *prev_floor)

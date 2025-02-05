@@ -146,12 +146,20 @@ enum WeaponTypes
     SWORD
 };
 
+enum PotionTypes
+{
+    HEALTH_POTION,
+    SPEED_POTION,
+    DAMAGE_POTION
+};
+
 enum SidebarList
 {
     GUIDES,
     FOODS,
     WEAPONS,
-    DIRECTIONS
+    DIRECTIONS,
+    POTIONS,
 };
 
 typedef struct
@@ -327,6 +335,20 @@ typedef struct Weapon
     int count;
 } Weapon;
 
+typedef struct Potion
+{
+    Floor *floor;
+    Room *room;
+    int floor_index;
+    int room_index;
+    Position position;
+    int type;
+    bool is_picked;
+    bool is_consumed;
+    bool is_being_consumed;
+    int start_time;
+} Potion;
+
 typedef struct Daemon
 {
     Floor *floor;
@@ -431,6 +453,8 @@ extern Food *foods;
 extern int foods_count;
 extern Weapon *weapons;
 extern int weapons_count;
+extern Potion *potions;
+extern int potions_count;
 extern Daemon *daemons;
 extern int daemons_count;
 extern FireMonster *fire_monsters;
@@ -442,6 +466,9 @@ extern int giants_count;
 extern Undeed *undeeds;
 extern int undeeds_count;
 extern int timeline_counter;
+extern int speed_potion;
+extern int health_potion;
+extern int damage_potion;
 extern int current_floor_index;
 extern FILE *log_file;
 extern FILE *map_file;
@@ -486,6 +513,7 @@ void generate_golds();
 void generate_black_golds();
 void generate_foods();
 void generate_weapons();
+void generate_potions();
 void generate_daemons();
 void generate_fire_monsters();
 void generate_snakes();
@@ -497,6 +525,7 @@ bool exists_trap(Floor *floor, Room *room, Position position);
 bool exists_stair(Floor *floor, Room *room, Position position);
 bool exists_food(Floor *floor, Room *room, Position position);
 bool exists_weapon(Floor *floor, Room *room, Position position);
+bool exists_potion(Floor *floor, Room *room, Position position);
 bool exists_daemon(Floor *floor, Room *room, Position position);
 bool exists_fire_monster(Floor *floor, Room *room, Position position);
 bool exists_snake(Floor *floor, Room *room, Position position);
@@ -519,6 +548,7 @@ void draw_golds(Floor *floor);
 void draw_black_golds(Floor *floor);
 void draw_foods(Floor *floor);
 void draw_weapons(Floor *floor);
+void draw_potions(Floor *floor);
 void draw_daemons(Floor *floor);
 void draw_fire_monsters(Floor *floor);
 void draw_snakes(Floor *floor);
@@ -540,6 +570,7 @@ void short_attack_character();
 void long_attack_character(int direction);
 void eat_food();
 void take_weapon();
+void use_potion();
 int inventory_foods_count();
 Food *food_inventory_by_index(int index);
 Weapon *get_current_weapon();
@@ -559,6 +590,7 @@ void draw_guides();
 void draw_food_inventory();
 void draw_weapon_inventory();
 void draw_directions();
+void draw_potion_inventory();
 void draw_hline(Position position, int length);
 void setup_message_box();
 void add_message(char *message);

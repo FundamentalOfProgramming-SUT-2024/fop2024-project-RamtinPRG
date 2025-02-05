@@ -14,6 +14,9 @@ FILE *map_file;
 char game_message[20][500];
 int game_message_count = 0;
 int timeline_counter = 0;
+int speed_potion = 0;
+int health_potion = 0;
+int damage_potion = 0;
 bool visible_cells[FLOORS][MAP_SCREEN_HEIGHT][MAP_SCREEN_WIDTH] = {0};
 bool is_map_visible = false;
 
@@ -39,6 +42,10 @@ bool handle_game()
     }
 
     timeline_counter = 0;
+    speed_potion = 0;
+    health_potion = 0;
+    damage_potion = 0;
+    is_map_visible = false;
     current_floor_index = 0;
     initial_room = floors[0].rooms[0];
     initial_room->visible = true;
@@ -283,6 +290,8 @@ bool handle_game()
             eat_food();
         else if (ch == ('w' & 0x1F))
             take_weapon();
+        else if (ch == ('u' & 0x1F))
+            use_potion();
         else if (ch == 't')
         {
             Weapon *weapon = get_current_weapon();
@@ -369,6 +378,7 @@ void game_exit_routine()
     free(black_golds);
     free(foods);
     free(weapons);
+    free(potions);
     free(daemons);
     free(fire_monsters);
     free(snakes);
@@ -379,6 +389,7 @@ void game_exit_routine()
     black_golds_count = 0;
     foods_count = 0;
     weapons_count = 0;
+    potions_count = 0;
     daemons_count = 0;
     fire_monsters_count = 0;
     snakes_count = 0;
@@ -398,6 +409,7 @@ void setup_floor()
     draw_black_golds(&floors[current_floor_index]);
     draw_foods(&floors[current_floor_index]);
     draw_weapons(&floors[current_floor_index]);
+    draw_potions(&floors[current_floor_index]);
     draw_daemons(&floors[current_floor_index]);
     draw_fire_monsters(&floors[current_floor_index]);
     draw_snakes(&floors[current_floor_index]);
@@ -543,6 +555,34 @@ void draw_weapons(Floor *floor)
             if (weapons[i].type == SWORD)
                 mvprintw(position.y, position.x, "⁋");
             attroff(COLOR_PAIR(CHAR_PINK));
+        }
+    }
+}
+
+void draw_potions(Floor *floor)
+{
+    for (int i = 0; i < potions_count; i++)
+    {
+        if (potions[i].floor == floor && !potions[i].is_picked)
+        {
+            Position position = get_absolute_position(potions[i].room);
+            position.x += potions[i].position.x;
+            position.y += potions[i].position.y;
+            if (potions[i].type == HEALTH_POTION)
+                attron(COLOR_PAIR(CHAR_LIME));
+            else if (potions[i].type == DAMAGE_POTION)
+                attron(COLOR_PAIR(CHAR_BRONZE));
+            else if (potions[i].type == SPEED_POTION)
+                attron(COLOR_PAIR(CHAR_PINK));
+
+            mvprintw(position.y, position.x, "⧗");
+
+            if (potions[i].type == HEALTH_POTION)
+                attroff(COLOR_PAIR(CHAR_LIME));
+            else if (potions[i].type == DAMAGE_POTION)
+                attroff(COLOR_PAIR(CHAR_BRONZE));
+            else if (potions[i].type == SPEED_POTION)
+                attroff(COLOR_PAIR(CHAR_PINK));
         }
     }
 }
@@ -834,6 +874,30 @@ void pick_character(char *message)
             }
         }
     }
+
+    for (int i = 0; i < potions_count; i++)
+    {
+        if (!potions[i].is_picked && potions[i].floor == &floors[current_floor_index])
+        {
+            Position position = get_absolute_position(potions[i].room);
+            position.x += potions[i].position.x;
+            position.y += potions[i].position.y;
+            if (character.position.x == position.x && character.position.y == position.y)
+            {
+                found = true;
+                char found_potion[20];
+                if (potions[i].type == HEALTH_POTION)
+                    strcpy(found_potion, "HEALTH");
+                if (potions[i].type == SPEED_POTION)
+                    strcpy(found_potion, "SPEED");
+                if (potions[i].type == WAND)
+                    strcpy(found_potion, "DAMAGE");
+                sprintf(message, "You found a %s; It's added to your potion inventory!", found_potion);
+                potions[i].is_picked = true;
+                character.under = ground_character;
+            }
+        }
+    }
     if (!found)
         sprintf(message, "There's nothing to pick!");
 }
@@ -902,6 +966,32 @@ void take_weapon()
     setup_sidebar(GUIDES);
 }
 
+void use_potion()
+{
+    setup_sidebar(POTIONS);
+    while (1)
+    {
+        ch = getch();
+        if ('a' <= ch && ch <= 'c')
+        {
+            int index = ch - 'a';
+            bool found = false;
+            for (int i = 0; i < potions_count; i++)
+                if (potions[i].is_picked && potions[i].type == index && !potions[i].is_consumed && !potions[i].is_being_consumed)
+                {
+                    register_command("potion", 1, index);
+                    found = true;
+                    break;
+                }
+            if (found)
+                break;
+        }
+        else if (ch == 'q')
+            break;
+    }
+    setup_sidebar(GUIDES);
+}
+
 void short_attack_character()
 {
     char message[500];
@@ -917,6 +1007,8 @@ void short_attack_character()
                 index++;
             }
 
+    int damage = get_current_weapon()->damage * (damage_potion ? 2 : 1);
+
     for (int i = 0; i < daemons_count; i++)
     {
         if (daemons[i].is_alive && daemons[i].room == get_container_room())
@@ -927,8 +1019,8 @@ void short_attack_character()
             for (int j = 0; j < 8; j++)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
-                    daemons[i].health -= get_current_weapon()->damage;
-                    sprintf(message, "You damaged a nearby Daemon by %d!", get_current_weapon()->damage);
+                    daemons[i].health -= damage;
+                    sprintf(message, "You damaged a nearby Daemon by %d!", damage);
                     add_message(message);
                     if (daemons[i].health <= 0)
                     {
@@ -951,8 +1043,8 @@ void short_attack_character()
             for (int j = 0; j < 8; j++)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
-                    fire_monsters[i].health -= get_current_weapon()->damage;
-                    sprintf(message, "You damaged a nearby Fire Breathing Monster by %d!", get_current_weapon()->damage);
+                    fire_monsters[i].health -= damage;
+                    sprintf(message, "You damaged a nearby Fire Breathing Monster by %d!", damage);
                     add_message(message);
                     if (fire_monsters[i].health <= 0)
                     {
@@ -975,8 +1067,8 @@ void short_attack_character()
             for (int j = 0; j < 8; j++)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
-                    snakes[i].health -= get_current_weapon()->damage;
-                    sprintf(message, "You damaged a nearby Snake by %d!", get_current_weapon()->damage);
+                    snakes[i].health -= damage;
+                    sprintf(message, "You damaged a nearby Snake by %d!", damage);
                     add_message(message);
                     if (snakes[i].health <= 0)
                     {
@@ -999,8 +1091,8 @@ void short_attack_character()
             for (int j = 0; j < 8; j++)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
-                    giants[i].health -= get_current_weapon()->damage;
-                    sprintf(message, "You damaged a nearby Giant by %d!", get_current_weapon()->damage);
+                    giants[i].health -= damage;
+                    sprintf(message, "You damaged a nearby Giant by %d!", damage);
                     add_message(message);
                     if (giants[i].health <= 0)
                     {
@@ -1023,8 +1115,8 @@ void short_attack_character()
             for (int j = 0; j < 8; j++)
                 if (adjacent_cells[j].x == position.x && adjacent_cells[j].y == position.y)
                 {
-                    undeeds[i].health -= get_current_weapon()->damage;
-                    sprintf(message, "You damaged a nearby Undeed by %d!", get_current_weapon()->damage);
+                    undeeds[i].health -= damage;
+                    sprintf(message, "You damaged a nearby Undeed by %d!", damage);
                     add_message(message);
                     if (undeeds[i].health <= 0)
                     {
@@ -1107,6 +1199,8 @@ void long_attack_character(int direction)
         trajectory++;
     }
 
+    int damage = weapon->damage * (damage_potion ? 2 : 1);
+
     for (int i = 0; i < daemons_count; i++)
     {
         if (daemons[i].is_alive && daemons[i].room == get_container_room())
@@ -1116,8 +1210,8 @@ void long_attack_character(int direction)
             position.y += daemons[i].position.y;
             if (projectile.position.x == position.x && projectile.position.y == position.y)
             {
-                daemons[i].health -= weapon->damage;
-                sprintf(message, "You damaged a Daemon by %d!", weapon->damage);
+                daemons[i].health -= damage;
+                sprintf(message, "You damaged a Daemon by %d!", damage);
                 add_message(message);
                 if (daemons[i].health <= 0)
                 {
@@ -1139,8 +1233,8 @@ void long_attack_character(int direction)
             position.y += fire_monsters[i].position.y;
             if (projectile.position.x == position.x && projectile.position.y == position.y)
             {
-                fire_monsters[i].health -= weapon->damage;
-                sprintf(message, "You damaged a Fire Breathing Monster by %d!", weapon->damage);
+                fire_monsters[i].health -= damage;
+                sprintf(message, "You damaged a Fire Breathing Monster by %d!", damage);
                 add_message(message);
                 if (fire_monsters[i].health <= 0)
                 {
@@ -1162,8 +1256,8 @@ void long_attack_character(int direction)
             position.y += snakes[i].position.y;
             if (projectile.position.x == position.x && projectile.position.y == position.y)
             {
-                snakes[i].health -= weapon->damage;
-                sprintf(message, "You damaged a Snake by %d!", weapon->damage);
+                snakes[i].health -= damage;
+                sprintf(message, "You damaged a Snake by %d!", damage);
                 add_message(message);
                 if (snakes[i].health <= 0)
                 {
@@ -1185,8 +1279,8 @@ void long_attack_character(int direction)
             position.y += giants[i].position.y;
             if (projectile.position.x == position.x && projectile.position.y == position.y)
             {
-                giants[i].health -= weapon->damage;
-                sprintf(message, "You damaged a Giant by %d!", weapon->damage);
+                giants[i].health -= damage;
+                sprintf(message, "You damaged a Giant by %d!", damage);
                 add_message(message);
                 if (giants[i].health <= 0)
                 {
@@ -1208,8 +1302,8 @@ void long_attack_character(int direction)
             position.y += undeeds[i].position.y;
             if (projectile.position.x == position.x && projectile.position.y == position.y)
             {
-                undeeds[i].health -= weapon->damage;
-                sprintf(message, "You damaged a Undeed by %d!", weapon->damage);
+                undeeds[i].health -= damage;
+                sprintf(message, "You damaged a Undeed by %d!", damage);
                 add_message(message);
                 if (undeeds[i].health <= 0)
                 {
@@ -1226,8 +1320,8 @@ void long_attack_character(int direction)
     new->count = 1;
     new->type = weapon->type;
     new->damage = weapon->damage;
-    new->floor = weapon->floor;
-    new->floor_index = weapon->floor_index;
+    new->floor = &floors[current_floor_index];
+    new->floor_index = current_floor_index;
     new->in_hand = false;
     new->is_picked = false;
     new->room = get_current_room();

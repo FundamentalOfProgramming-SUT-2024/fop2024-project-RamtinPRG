@@ -28,6 +28,8 @@ void setup_sidebar(int list)
         draw_weapon_inventory();
     if (list == DIRECTIONS)
         draw_directions();
+    if (list == POTIONS)
+        draw_potion_inventory();
 }
 
 Position get_sidebar_position()
@@ -348,6 +350,66 @@ void draw_directions()
     printw("%c)   ", 'd');
     attroff(A_BOLD | COLOR_PAIR(2));
     printw("Down");
+
+    attron(A_ITALIC);
+    mvprintw(position.y + 4, position.x, "Press Q to exit...");
+    attroff(A_ITALIC);
+}
+
+void draw_potion_inventory()
+{
+    Position position = get_sidebar_position();
+    position.x += 3;
+    position.y += 14;
+
+    attron(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
+    mvprintw(position.y, position.x, "Potions:");
+    attroff(A_ITALIC | A_UNDERLINE | A_BOLD | COLOR_PAIR(1));
+
+    int count = 0;
+    position.y += 2;
+    for (int i = 0; i < potions_count; i++)
+        if (potions[i].is_picked && potions[i].type == HEALTH_POTION && !potions[i].is_being_consumed && !potions[i].is_consumed)
+            count++;
+    move(position.y, position.x);
+    if (count == 0)
+        attron(A_DIM);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'a');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("Health   ( %d )", count);
+    if (count == 0)
+        attroff(A_DIM);
+
+    count = 0;
+    position.y += 2;
+    for (int i = 0; i < potions_count; i++)
+        if (potions[i].is_picked && potions[i].type == SPEED_POTION && !potions[i].is_being_consumed && !potions[i].is_consumed)
+            count++;
+    move(position.y, position.x);
+    if (count == 0)
+        attron(A_DIM);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'b');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("Speed    ( %d )", count);
+    if (count == 0)
+        attroff(A_DIM);
+
+    count = 0;
+    position.y += 2;
+    for (int i = 0; i < potions_count; i++)
+        if (potions[i].is_picked && potions[i].type == DAMAGE_POTION && !potions[i].is_being_consumed && !potions[i].is_consumed)
+            count++;
+    move(position.y, position.x);
+    if (count == 0)
+        attron(A_DIM);
+    attron(A_BOLD | COLOR_PAIR(2));
+    printw("%c)   ", 'c');
+    attroff(A_BOLD | COLOR_PAIR(2));
+    printw("Damage   ( %d )", count);
+    if (count == 0)
+        attroff(A_DIM);
 
     attron(A_ITALIC);
     mvprintw(position.y + 4, position.x, "Press Q to exit...");
