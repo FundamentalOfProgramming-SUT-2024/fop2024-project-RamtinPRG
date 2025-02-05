@@ -133,8 +133,8 @@ void generate_traps()
             trap.room = trap.floor->rooms[trap.room_index];
             trap.position.x = nrandom(1, trap.room->width);
             trap.position.y = nrandom(1, trap.room->height);
+            trap.is_discovered = false;
         } while (exists_trap(trap.floor, trap.room, trap.position) || exists_stair(trap.floor, trap.room, trap.position));
-        trap.is_discovered = false;
         trap.damage = nrandom(MIN_TRAP_DAMAGE, MAX_TRAP_DAMAGE);
         traps[i] = trap;
         traps_count++;
@@ -161,8 +161,8 @@ void generate_golds()
             gold.room = gold.floor->rooms[gold.room_index];
             gold.position.x = nrandom(1, gold.room->width);
             gold.position.y = nrandom(1, gold.room->height);
+            gold.is_discovered = false;
         } while (exists_gold(gold.floor, gold.room, gold.position) || exists_trap(gold.floor, gold.room, gold.position) || exists_stair(gold.floor, gold.room, gold.position));
-        gold.is_discovered = false;
         gold.value = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
         golds[i] = gold;
         golds_count++;
@@ -189,8 +189,8 @@ void generate_black_golds()
             gold.room = gold.floor->rooms[gold.room_index];
             gold.position.x = nrandom(1, gold.room->width);
             gold.position.y = nrandom(1, gold.room->height);
+            gold.is_discovered = false;
         } while (exists_black_gold(gold.floor, gold.room, gold.position) || exists_gold(gold.floor, gold.room, gold.position) || exists_trap(gold.floor, gold.room, gold.position) || exists_stair(gold.floor, gold.room, gold.position));
-        gold.is_discovered = false;
         gold.value = nrandom(MIN_BLACK_GOLD_VALUE, MAX_BLACK_GOLD_VALUE);
         black_golds[i] = gold;
         black_golds_count++;
@@ -217,9 +217,9 @@ void generate_foods()
             food.room = food.floor->rooms[food.room_index];
             food.position.x = nrandom(1, food.room->width);
             food.position.y = nrandom(1, food.room->height);
+            food.is_picked = false;
+            food.is_eaten = false;
         } while (exists_gold(food.floor, food.room, food.position) || exists_trap(food.floor, food.room, food.position) || exists_stair(food.floor, food.room, food.position) || exists_food(food.floor, food.room, food.position));
-        food.is_picked = false;
-        food.is_eaten = false;
         food.value = nrandom(MIN_FOOD_VALUE, MAX_FOOD_VALUE);
         foods[i] = food;
         foods_count++;
@@ -259,10 +259,10 @@ void generate_weapons()
             weapon.room = weapon.floor->rooms[weapon.room_index];
             weapon.position.x = nrandom(1, weapon.room->width);
             weapon.position.y = nrandom(1, weapon.room->height);
+            weapon.is_picked = false;
+            weapon.in_hand = false;
         } while (exists_gold(weapon.floor, weapon.room, weapon.position) || exists_trap(weapon.floor, weapon.room, weapon.position) || exists_stair(weapon.floor, weapon.room, weapon.position) || exists_food(weapon.floor, weapon.room, weapon.position) || exists_weapon(weapon.floor, weapon.room, weapon.position));
         weapon.type = nrandom(1, 4);
-        weapon.is_picked = false;
-        weapon.in_hand = false;
         // weapon.damage = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
         // weapon.damage = 10;
         if (weapon.type == DAGGER)
@@ -310,10 +310,10 @@ void generate_daemons()
             daemon.room = daemon.floor->rooms[daemon.room_index];
             daemon.position.x = nrandom(1, daemon.room->width);
             daemon.position.y = nrandom(1, daemon.room->height);
+            daemon.is_alive = true;
+            daemon.health = 5;
+            daemon.damage = 5;
         } while (exists_gold(daemon.floor, daemon.room, daemon.position) || exists_trap(daemon.floor, daemon.room, daemon.position) || exists_stair(daemon.floor, daemon.room, daemon.position) || exists_food(daemon.floor, daemon.room, daemon.position) || exists_daemon(daemon.floor, daemon.room, daemon.position));
-        daemon.is_alive = true;
-        daemon.health = 5;
-        daemon.damage = 5;
         daemons[i] = daemon;
         daemons_count++;
     }
@@ -339,10 +339,10 @@ void generate_fire_monsters()
             fire_monster.room = fire_monster.floor->rooms[fire_monster.room_index];
             fire_monster.position.x = nrandom(1, fire_monster.room->width);
             fire_monster.position.y = nrandom(1, fire_monster.room->height);
+            fire_monster.is_alive = true;
+            fire_monster.health = 10;
+            fire_monster.damage = 10;
         } while (exists_gold(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_trap(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_stair(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_food(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_daemon(fire_monster.floor, fire_monster.room, fire_monster.position) || exists_fire_monster(fire_monster.floor, fire_monster.room, fire_monster.position));
-        fire_monster.is_alive = true;
-        fire_monster.health = 10;
-        fire_monster.damage = 10;
         fire_monsters[i] = fire_monster;
         fire_monsters_count++;
     }
@@ -368,10 +368,10 @@ void generate_snakes()
             snake.room = snake.floor->rooms[snake.room_index];
             snake.position.x = nrandom(1, snake.room->width);
             snake.position.y = nrandom(1, snake.room->height);
+            snake.is_alive = true;
+            snake.health = 20;
+            snake.damage = 20;
         } while (exists_gold(snake.floor, snake.room, snake.position) || exists_trap(snake.floor, snake.room, snake.position) || exists_stair(snake.floor, snake.room, snake.position) || exists_food(snake.floor, snake.room, snake.position) || exists_daemon(snake.floor, snake.room, snake.position) || exists_fire_monster(snake.floor, snake.room, snake.position) || exists_snake(snake.floor, snake.room, snake.position));
-        snake.is_alive = true;
-        snake.health = 20;
-        snake.damage = 20;
         snakes[i] = snake;
         snakes_count++;
     }
@@ -397,11 +397,11 @@ void generate_giants()
             giant.room = giant.floor->rooms[giant.room_index];
             giant.position.x = nrandom(1, giant.room->width);
             giant.position.y = nrandom(1, giant.room->height);
+            giant.is_alive = true;
+            giant.is_chasing = false;
+            giant.health = 15;
+            giant.damage = 15;
         } while (exists_gold(giant.floor, giant.room, giant.position) || exists_trap(giant.floor, giant.room, giant.position) || exists_stair(giant.floor, giant.room, giant.position) || exists_food(giant.floor, giant.room, giant.position) || exists_daemon(giant.floor, giant.room, giant.position) || exists_fire_monster(giant.floor, giant.room, giant.position) || exists_snake(giant.floor, giant.room, giant.position) || exists_giant(giant.floor, giant.room, giant.position));
-        giant.is_alive = true;
-        giant.is_chasing = false;
-        giant.health = 15;
-        giant.damage = 15;
         giants[i] = giant;
         giants_count++;
     }
@@ -427,11 +427,11 @@ void generate_undeeds()
             undeed.room = undeed.floor->rooms[undeed.room_index];
             undeed.position.x = nrandom(1, undeed.room->width);
             undeed.position.y = nrandom(1, undeed.room->height);
+            undeed.is_alive = true;
+            undeed.is_chasing = false;
+            undeed.health = 30;
+            undeed.damage = 30;
         } while (exists_gold(undeed.floor, undeed.room, undeed.position) || exists_trap(undeed.floor, undeed.room, undeed.position) || exists_stair(undeed.floor, undeed.room, undeed.position) || exists_food(undeed.floor, undeed.room, undeed.position) || exists_daemon(undeed.floor, undeed.room, undeed.position) || exists_fire_monster(undeed.floor, undeed.room, undeed.position) || exists_snake(undeed.floor, undeed.room, undeed.position) || exists_giant(undeed.floor, undeed.room, undeed.position) || exists_undeed(undeed.floor, undeed.room, undeed.position));
-        undeed.is_alive = true;
-        undeed.is_chasing = false;
-        undeed.health = 30;
-        undeed.damage = 30;
         undeeds[i] = undeed;
         undeeds_count++;
     }
@@ -460,7 +460,7 @@ bool exists_gold(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < golds_count; i++)
     {
-        if (golds[i].floor == floor && golds[i].room == room && golds[i].position.x == position.x && golds[i].position.y == position.y)
+        if (!golds[i].is_discovered && golds[i].floor == floor && golds[i].room == room && golds[i].position.x == position.x && golds[i].position.y == position.y)
             return true;
     }
     return false;
@@ -470,7 +470,7 @@ bool exists_black_gold(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < black_golds_count; i++)
     {
-        if (black_golds[i].floor == floor && black_golds[i].room == room && black_golds[i].position.x == position.x && black_golds[i].position.y == position.y)
+        if (!black_golds[i].is_discovered && black_golds[i].floor == floor && black_golds[i].room == room && black_golds[i].position.x == position.x && black_golds[i].position.y == position.y)
             return true;
     }
     return false;
@@ -480,7 +480,7 @@ bool exists_food(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < foods_count; i++)
     {
-        if (foods[i].floor == floor && foods[i].room == room && foods[i].position.x == position.x && foods[i].position.y == position.y)
+        if (!foods[i].is_picked && foods[i].floor == floor && foods[i].room == room && foods[i].position.x == position.x && foods[i].position.y == position.y)
             return true;
     }
     return false;
@@ -490,7 +490,7 @@ bool exists_weapon(Floor *floor, Room *room, Position position)
 {
     for (int i = 0; i < weapons_count; i++)
     {
-        if (weapons[i].floor == floor && weapons[i].room == room && weapons[i].position.x == position.x && weapons[i].position.y == position.y)
+        if (!weapons[i].is_picked && weapons[i].floor == floor && weapons[i].room == room && weapons[i].position.x == position.x && weapons[i].position.y == position.y)
             return true;
     }
     return false;
@@ -544,6 +544,11 @@ bool exists_undeed(Floor *floor, Room *room, Position position)
             return true;
     }
     return false;
+}
+
+bool exists_item(Floor *floor, Room *room, Position position)
+{
+    return exists_monster(floor, room, position) || exists_trap(floor, room, position) || exists_stair(floor, room, position) || exists_gold(floor, room, position) || exists_black_gold(floor, room, position) || exists_food(floor, room, position) || exists_weapon(floor, room, position);
 }
 
 void generate_floor(Floor *floor, Floor *prev_floor)

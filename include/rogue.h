@@ -503,6 +503,7 @@ bool exists_snake(Floor *floor, Room *room, Position position);
 bool exists_giant(Floor *floor, Room *room, Position position);
 bool exists_undeed(Floor *floor, Room *room, Position position);
 bool exists_monster(Floor *floor, Room *room, Position position);
+bool exists_item(Floor *floor, Room *room, Position position);
 bool exists_room(Floor *floor, int y, int x);
 Room *get_room(Floor *floor, int y, int x);
 int empty_adjacent_blocks(Floor *floor, Room *room, Position blocks[4]);

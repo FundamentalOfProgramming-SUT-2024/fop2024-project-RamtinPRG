@@ -89,22 +89,190 @@ bool handle_game()
             current_floor_index--;
             setup_floor();
         }
-        else if (ch == 'w' || ch == 'W')
+        else if (ch == 'w')
             register_command("move", 1, N);
-        else if (ch == 'e' || ch == 'E')
+        else if (ch == 'W')
+        {
+            cchar_t next_char;
+            Room *room = get_current_room();
+            Position abs_position = get_absolute_position(room);
+            Position next = character.position;
+            next.y--;
+            mvin_wch(next.y, next.x, &next_char);
+            next.y -= abs_position.y;
+            next.x -= abs_position.x;
+            while (!exists_item(&floors[current_floor_index], room, next) && !is_obstacle(next_char.chars[0]))
+            {
+                register_command("move", 1, N);
+                next = character.position;
+                next.y--;
+                mvin_wch(next.y, next.x, &next_char);
+                next.y -= abs_position.y;
+                next.x -= abs_position.x;
+            }
+        }
+        else if (ch == 'e')
             register_command("move", 1, NE);
-        else if (ch == 'd' || ch == 'D')
+        else if (ch == 'E')
+        {
+            cchar_t next_char;
+            Room *room = get_current_room();
+            Position abs_position = get_absolute_position(room);
+            Position next = character.position;
+            next.y--;
+            next.x++;
+            mvin_wch(next.y, next.x, &next_char);
+            next.y -= abs_position.y;
+            next.x -= abs_position.x;
+            while (!exists_item(&floors[current_floor_index], room, next) && !is_obstacle(next_char.chars[0]))
+            {
+                register_command("move", 1, NE);
+                next = character.position;
+                next.y--;
+                next.x++;
+                mvin_wch(next.y, next.x, &next_char);
+                next.y -= abs_position.y;
+                next.x -= abs_position.x;
+            }
+        }
+        else if (ch == 'd')
             register_command("move", 1, E);
-        else if (ch == 'c' || ch == 'C')
+        else if (ch == 'D')
+        {
+            cchar_t next_char;
+            Room *room = get_current_room();
+            Position abs_position = get_absolute_position(room);
+            Position next = character.position;
+            next.x++;
+            mvin_wch(next.y, next.x, &next_char);
+            next.y -= abs_position.y;
+            next.x -= abs_position.x;
+            while (!exists_item(&floors[current_floor_index], room, next) && !is_obstacle(next_char.chars[0]))
+            {
+                register_command("move", 1, E);
+                next = character.position;
+                next.x++;
+                mvin_wch(next.y, next.x, &next_char);
+                next.y -= abs_position.y;
+                next.x -= abs_position.x;
+            }
+        }
+        else if (ch == 'c')
             register_command("move", 1, SE);
-        else if (ch == 's' || ch == 'S')
+        else if (ch == 'C')
+        {
+            cchar_t next_char;
+            Room *room = get_current_room();
+            Position abs_position = get_absolute_position(room);
+            Position next = character.position;
+            next.y++;
+            next.x++;
+            mvin_wch(next.y, next.x, &next_char);
+            next.y -= abs_position.y;
+            next.x -= abs_position.x;
+            while (!exists_item(&floors[current_floor_index], room, next) && !is_obstacle(next_char.chars[0]))
+            {
+                register_command("move", 1, SE);
+                next = character.position;
+                next.y++;
+                next.x++;
+                mvin_wch(next.y, next.x, &next_char);
+                next.y -= abs_position.y;
+                next.x -= abs_position.x;
+            }
+        }
+        else if (ch == 's')
             register_command("move", 1, S);
-        else if (ch == 'z' || ch == 'Z')
+        else if (ch == 'S')
+        {
+            cchar_t next_char;
+            Room *room = get_current_room();
+            Position abs_position = get_absolute_position(room);
+            Position next = character.position;
+            next.y++;
+            mvin_wch(next.y, next.x, &next_char);
+            next.y -= abs_position.y;
+            next.x -= abs_position.x;
+            while (!exists_item(&floors[current_floor_index], room, next) && !is_obstacle(next_char.chars[0]))
+            {
+                register_command("move", 1, S);
+                next = character.position;
+                next.y++;
+                mvin_wch(next.y, next.x, &next_char);
+                next.y -= abs_position.y;
+                next.x -= abs_position.x;
+            }
+        }
+        else if (ch == 'z')
             register_command("move", 1, SW);
-        else if (ch == 'a' || ch == 'A')
+        else if (ch == 'Z')
+        {
+            cchar_t next_char;
+            Room *room = get_current_room();
+            Position abs_position = get_absolute_position(room);
+            Position next = character.position;
+            next.y++;
+            next.x--;
+            mvin_wch(next.y, next.x, &next_char);
+            next.y -= abs_position.y;
+            next.x -= abs_position.x;
+            while (!exists_item(&floors[current_floor_index], room, next) && !is_obstacle(next_char.chars[0]))
+            {
+                register_command("move", 1, SW);
+                next = character.position;
+                next.y++;
+                next.x--;
+                mvin_wch(next.y, next.x, &next_char);
+                next.y -= abs_position.y;
+                next.x -= abs_position.x;
+            }
+        }
+        else if (ch == 'a')
             register_command("move", 1, W);
-        else if (ch == 'q' || ch == 'Q')
+        else if (ch == 'A')
+        {
+            cchar_t next_char;
+            Room *room = get_current_room();
+            Position abs_position = get_absolute_position(room);
+            Position next = character.position;
+            next.x--;
+            mvin_wch(next.y, next.x, &next_char);
+            next.y -= abs_position.y;
+            next.x -= abs_position.x;
+            while (!exists_item(&floors[current_floor_index], room, next) && !is_obstacle(next_char.chars[0]))
+            {
+                register_command("move", 1, W);
+                next = character.position;
+                next.x--;
+                mvin_wch(next.y, next.x, &next_char);
+                next.y -= abs_position.y;
+                next.x -= abs_position.x;
+            }
+        }
+        else if (ch == 'q')
             register_command("move", 1, NW);
+        else if (ch == 'Q')
+        {
+            cchar_t next_char;
+            Room *room = get_current_room();
+            Position abs_position = get_absolute_position(room);
+            Position next = character.position;
+            next.y--;
+            next.x--;
+            mvin_wch(next.y, next.x, &next_char);
+            next.y -= abs_position.y;
+            next.x -= abs_position.x;
+            while (!exists_item(&floors[current_floor_index], room, next) && !is_obstacle(next_char.chars[0]))
+            {
+                register_command("move", 1, NW);
+                next = character.position;
+                next.y--;
+                next.x--;
+                mvin_wch(next.y, next.x, &next_char);
+                next.y -= abs_position.y;
+                next.x -= abs_position.x;
+            }
+        }
         else if (ch == '>')
             register_command("ascend", 0);
         else if (ch == '<')
