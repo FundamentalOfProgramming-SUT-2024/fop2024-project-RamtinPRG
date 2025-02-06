@@ -1,5 +1,35 @@
 #include "../include/rogue.h"
 
+char get_random_char(int type)
+{
+    if (type == 0)
+        return 'A' + rand() % 26;
+    if (type == 1)
+        return 'a' + rand() % 26;
+    if (type == 2)
+        return '0' + rand() % 10;
+    return "!@#$%^&*"[rand() % 8];
+}
+
+void generate_password(char *password, int length)
+{
+    if (length < 7)
+        length = 7;
+
+    srand(time(NULL));
+
+    password[0] = get_random_char(0);
+    password[1] = get_random_char(1);
+    password[2] = get_random_char(2);
+
+    for (int i = 3; i < length; i++)
+    {
+        password[i] = get_random_char(rand() % 4);
+    }
+
+    password[length] = '\0';
+}
+
 bool handle_signup()
 {
     int field_index = 0, total_indices = 4;
@@ -79,6 +109,14 @@ bool handle_signup()
             curs_set(0);
             return 1;
         }
+        else if (ch == KEY_F(6))
+        {
+            char generated_password[CREDENTIALS_MAX_LENGTH + 1];
+            generate_password(generated_password, 12);
+            move(19, 2);
+            clrtoeol();
+            printw("Your password: %s", generated_password);
+        }
         else if (ch == KEY_BACKSPACE)
         {
             if (fields[field_index].cursor_index > 0)
@@ -143,6 +181,10 @@ bool handle_signup()
                 player->score = 0;
                 player->best_score = 0;
                 player->games_count = 0;
+                settings->difficulty = EASY;
+                settings->color_settings->current_color_index = 0;
+                settings->music_settings->current_music_index = 0;
+                settings->music_settings->volume = 100;
 
                 save_user_data();
                 save_settings();
