@@ -129,7 +129,8 @@ void generate_traps()
         total_rooms_count += floors[i].rooms_count;
 
     int temp_traps_count = total_rooms_count * traps_to_rooms_ratio / rooms_to_traps_ratio;
-    traps = (Trap *)calloc(temp_traps_count, sizeof(Trap));
+    int treasure_room_traps = floors[FLOORS - 1].rooms[floors[FLOORS - 1].rooms_count - 1]->width * floors[FLOORS - 1].rooms[floors[FLOORS - 1].rooms_count - 1]->height / 5;
+    traps = (Trap *)calloc(temp_traps_count + treasure_room_traps, sizeof(Trap));
 
     for (int i = 0; i < temp_traps_count; i++)
     {
@@ -148,6 +149,24 @@ void generate_traps()
         traps[i] = trap;
         traps_count++;
     }
+
+    for (int i = 0; i < treasure_room_traps; i++)
+    {
+        Trap trap;
+        trap.floor_index = FLOORS - 1;
+        trap.floor = &floors[trap.floor_index];
+        trap.room_index = trap.floor->rooms_count - 1;
+        trap.room = trap.floor->rooms[trap.room_index];
+        do
+        {
+            trap.position.x = nrandom(1, trap.room->width);
+            trap.position.y = nrandom(1, trap.room->height);
+            trap.is_discovered = false;
+        } while (exists_trap(trap.floor, trap.room, trap.position) || exists_stair(trap.floor, trap.room, trap.position));
+        trap.damage = nrandom(MIN_TRAP_DAMAGE, MAX_TRAP_DAMAGE);
+        traps[i] = trap;
+        traps_count++;
+    }
 }
 
 void generate_golds()
@@ -157,7 +176,8 @@ void generate_golds()
         total_rooms_count += floors[i].rooms_count;
 
     int temp_golds_count = total_rooms_count * GOLDS_TO_ROOMS_RATIO / ROOMS_TO_GOLDS_RATIO;
-    golds = (Gold *)calloc(temp_golds_count, sizeof(Gold));
+    int treasure_room_golds = floors[FLOORS - 1].rooms[floors[FLOORS - 1].rooms_count - 1]->width * floors[FLOORS - 1].rooms[floors[FLOORS - 1].rooms_count - 1]->height / 5;
+    golds = (Gold *)calloc(temp_golds_count + treasure_room_golds, sizeof(Gold));
 
     for (int i = 0; i < temp_golds_count; i++)
     {
@@ -168,6 +188,24 @@ void generate_golds()
             gold.floor = &floors[gold.floor_index];
             gold.room_index = rand() % gold.floor->rooms_count;
             gold.room = gold.floor->rooms[gold.room_index];
+            gold.position.x = nrandom(1, gold.room->width);
+            gold.position.y = nrandom(1, gold.room->height);
+            gold.is_discovered = false;
+        } while (exists_gold(gold.floor, gold.room, gold.position) || exists_trap(gold.floor, gold.room, gold.position) || exists_stair(gold.floor, gold.room, gold.position));
+        gold.value = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
+        golds[i] = gold;
+        golds_count++;
+    }
+
+    for (int i = 0; i < treasure_room_golds; i++)
+    {
+        Gold gold;
+        gold.floor_index = FLOORS - 1;
+        gold.floor = &floors[gold.floor_index];
+        gold.room_index = gold.floor->rooms_count - 1;
+        gold.room = gold.floor->rooms[gold.room_index];
+        do
+        {
             gold.position.x = nrandom(1, gold.room->width);
             gold.position.y = nrandom(1, gold.room->height);
             gold.is_discovered = false;
