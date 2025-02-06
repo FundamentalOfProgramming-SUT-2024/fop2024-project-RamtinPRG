@@ -12,23 +12,23 @@ bool handle_main_menu()
          L"  ░▒ ░ ▒░  ░ ▒ ▒░   ░   ░ ░░▒░ ░ ░  ░ ░  ░",
          L"  ░░   ░ ░ ░ ░ ▒  ░ ░   ░  ░░░ ░ ░    ░   ",
          L"   ░         ░ ░        ░    ░        ░  ░"};
-    char menu_items[][21] = {"New Game", "Continue", "Scoreboard", "Settings", "Exit"};
-    int items_count = 5, item_index = 0, menu_width = 20;
+    char menu_items[][21] = {"New Game", "Continue", "Scoreboard", "Settings", "Profile", "Exit"};
+    int items_count = 6, item_index = 0, menu_width = 20;
     MenuItem items[items_count];
 
     for (int i = 0; i < items_count; i++)
     {
         items[i].label = (char *)calloc(50, sizeof(char));
         strcpy(items[i].label, menu_items[i]);
-        items[i].position.y = 12 + i * 2;
-        items[i].position.x = 2;
+        items[i].position.y = 13 + i * 2;
+        items[i].position.x = 4;
     }
 
     erase_scr();
 
     for (int i = 0; i < LOGO_HEIGHT; i++)
         for (int j = 0; j < LOGO_WIDTH; j++)
-            mvadd_wch(i + 1, j + 2, &((cchar_t){0, {logo[i][j]}, 4}));
+            mvadd_wch(i + 2, j + 4, &((cchar_t){0, {logo[i][j]}, 4}));
     draw_menu(stdscr, items, items_count, item_index);
 
     while (1)
@@ -79,6 +79,12 @@ bool handle_main_menu()
                 return true;
             }
             else if (item_index == 4)
+            {
+                current_window = PROFILE;
+                previous_window = MAIN_MENU;
+                return true;
+            }
+            else if (item_index == 5)
                 return false;
         }
     }

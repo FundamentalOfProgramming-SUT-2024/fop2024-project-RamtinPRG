@@ -56,8 +56,8 @@ bool handle_settings()
         items[i].label_color_pair_index = 2;
         items[i].option_color_pair_index = 2;
         strcpy(items[i].label, settings_labels[i]);
-        items[i].position.y = 18 + i * 2;
-        items[i].position.x = 2;
+        items[i].position.y = 19 + i * 2;
+        items[i].position.x = 4;
     }
 
     items[0].options_count = 3;
@@ -102,18 +102,18 @@ bool handle_settings()
 
     for (int i = 0; i < LOGO_HEIGHT; i++)
         for (int j = 0; j < LOGO_WIDTH; j++)
-            mvadd_wch(i + 1, j + 2, &((cchar_t){0, {logo[i][j]}, 4}));
+            mvadd_wch(i + 2, j + 4, &((cchar_t){0, {logo[i][j]}, 4}));
 
     attron(A_BOLD | COLOR_PAIR(1));
-    mvprintw(12, 2, "Settings");
+    mvprintw(13, 4, "Settings");
     attroff(A_BOLD | COLOR_PAIR(1));
 
     attron(COLOR_PAIR(3));
-    mvprintw(14, 2, "* ");
+    mvprintw(15, 4, "* ");
     attron(A_ITALIC | A_UNDERLINE);
     printw("Press F4 to exit the settings, press ENTER to apply the settings.");
     attroff(A_ITALIC | A_UNDERLINE);
-    mvprintw(15, 2, "* ");
+    mvprintw(16, 4, "* ");
     attron(A_ITALIC | A_UNDERLINE);
     printw("Use arrow keys to change the settings.");
     attroff(A_ITALIC | A_UNDERLINE | COLOR_PAIR(3));

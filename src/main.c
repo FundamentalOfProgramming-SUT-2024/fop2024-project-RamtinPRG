@@ -31,6 +31,11 @@ int main()
             if (!handle_settings())
                 break;
         }
+        else if (current_window == PROFILE)
+        {
+            if (!handle_profile())
+                break;
+        }
         else if (current_window == GAME)
         {
             // generate_map();

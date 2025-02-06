@@ -100,6 +100,7 @@ enum Window
     MAIN_MENU,
     SCOREBOARD,
     SETTINGS,
+    PROFILE,
     GAME,
     DEFEAT,
     VICTORY
@@ -501,6 +502,7 @@ bool handle_login();
 bool handle_signup();
 bool handle_main_menu();
 bool handle_settings();
+bool handle_profile();
 bool handle_game();
 bool handle_defeat();
 bool handle_victory();
