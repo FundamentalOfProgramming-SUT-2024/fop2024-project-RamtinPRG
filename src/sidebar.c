@@ -205,14 +205,12 @@ void draw_food_inventory()
         {
             Food *food = food_inventory_by_index(i);
             char name[50];
-            if (food->type == REGULAR_FOOD)
+            if (food->type == REGULAR_FOOD || food->type == ROTTEN_FOOD)
                 strcpy(name, "REGULAR");
             if (food->type == SUPER_FOOD)
                 strcpy(name, "SUPER");
             if (food->type == MAGICAL_FOOD)
                 strcpy(name, "MAGICAL");
-            if (food->type == ROTTEN_FOOD)
-                strcpy(name, "ROTTEN");
             position.y += 2;
             move(position.y, position.x);
             attron(A_BOLD | COLOR_PAIR(2));

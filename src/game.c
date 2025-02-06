@@ -536,7 +536,9 @@ void draw_foods(Floor *floor)
             Position position = get_absolute_position(foods[i].room);
             position.x += foods[i].position.x;
             position.y += foods[i].position.y;
-            if (foods[i].type == REGULAR_FOOD || foods[i].type == ROTTEN_FOOD)
+            if (foods[i].type == ROTTEN_FOOD)
+                attron(COLOR_PAIR(CHAR_SLATE));
+            else if (foods[i].type == REGULAR_FOOD || foods[i].type == ROTTEN_FOOD)
                 attron(COLOR_PAIR(CHAR_BRONZE));
             else if (foods[i].type == SUPER_FOOD)
                 attron(COLOR_PAIR(CHAR_YELLOW));
@@ -545,7 +547,9 @@ void draw_foods(Floor *floor)
 
             mvprintw(position.y, position.x, "♥");
 
-            if (foods[i].type == REGULAR_FOOD || foods[i].type == ROTTEN_FOOD)
+            if (foods[i].type == ROTTEN_FOOD)
+                attroff(COLOR_PAIR(CHAR_SLATE));
+            else if (foods[i].type == REGULAR_FOOD || foods[i].type == ROTTEN_FOOD)
                 attroff(COLOR_PAIR(CHAR_BRONZE));
             else if (foods[i].type == SUPER_FOOD)
                 attroff(COLOR_PAIR(CHAR_YELLOW));
@@ -944,10 +948,18 @@ void eat_character(int index, char *message)
 {
     foods[index].is_picked = true;
     foods[index].is_eaten = true;
-    character.stomach += foods[index].value;
-    if (character.stomach > 100)
-        character.stomach = 100;
-    sprintf(message, "You consumed %d units of food!", foods[index].value);
+    if (foods[index].type != ROTTEN_FOOD)
+    {
+        character.stomach += foods[index].value;
+        if (character.stomach > 100)
+            character.stomach = 100;
+        sprintf(message, "You consumed %d units of food!", foods[index].value);
+    }
+    else
+    {
+        character.health -= foods[index].value / 2;
+        sprintf(message, "You consumed %d units of ROTTEN food; It damaged you by %d!", foods[index].value, foods[index].value / 2);
+    }
 }
 
 void eat_food()
