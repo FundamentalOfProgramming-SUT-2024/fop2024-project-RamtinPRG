@@ -377,6 +377,8 @@ void draw_rooms(Floor *floor)
             draw_room(floor->rooms[i], COLOR_WALL);
         else if (floor->rooms[i]->type == TREASURE_ROOM)
             draw_room(floor->rooms[i], CHAR_YELLOW);
+        else if (floor->rooms[i]->type == ENCHANT_ROOM)
+            draw_room(floor->rooms[i], CHAR_PINK);
     }
 }
 

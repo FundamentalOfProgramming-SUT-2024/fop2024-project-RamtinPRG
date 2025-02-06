@@ -688,7 +688,7 @@ void generate_floor(Floor *floor, Floor *prev_floor)
         rooms[i]->position.x = nrandom(0, MAX_ROOM_WIDTH - rooms[i]->width);
         rooms[i]->position.y = nrandom(0, MAX_ROOM_HEIGHT - rooms[i]->height);
         rooms[i]->visible = false;
-        rooms[i]->type = REGULAR_ROOM;
+        rooms[i]->type = rand() % 2;
 
         int direction = adjacent_room_direction(rooms[i], rooms[room_index]);
         rooms[i]->doors[direction].exists = true;

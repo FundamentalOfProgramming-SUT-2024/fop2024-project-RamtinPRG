@@ -134,8 +134,8 @@ enum Direction
 enum RoomType
 {
     REGULAR_ROOM,
+    ENCHANT_ROOM,
     TREASURE_ROOM,
-    ENCHANT_ROOM
 };
 
 enum WeaponTypes
