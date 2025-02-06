@@ -4,7 +4,6 @@ bool register_command(char *command, int num, ...)
 {
     bool output;
     char message[500];
-    mvprintw(0, 0, "%d %d", timeline_counter, speed_potion);
     if (speed_potion == 0)
         timeline_counter++;
     for (int i = 0; i < potions_count; i++)
@@ -521,20 +520,20 @@ bool register_command(char *command, int num, ...)
                 }
             }
         }
-    }
 
-    if (strcmp(command, "eat") != 0)
-    {
-        if (character.stomach == 0 && timeline_counter % 3 == 0)
-            character.health--;
-        if (character.health < 100 && character.stomach > 0 && timeline_counter % 3 == 0)
+        if (strcmp(command, "eat") != 0)
         {
-            character.health++;
-            character.health += health_potion * 3;
-            character.stomach--;
+            if (character.stomach == 0 && timeline_counter % 3 == 0)
+                character.health--;
+            if (character.health < 100 && character.stomach > 0 && timeline_counter % 3 == 0)
+            {
+                character.health++;
+                character.health += health_potion * 3;
+                character.stomach--;
+            }
+            if (character.stomach > 0 && timeline_counter % 5 == 0)
+                character.stomach--;
         }
-        if (character.stomach > 0 && timeline_counter % 5 == 0)
-            character.stomach--;
     }
 
     if (character.health <= 0)
@@ -543,7 +542,7 @@ bool register_command(char *command, int num, ...)
         current_window = DEFEAT;
     }
 
-    setup_message_box();
+    setup_message_box(false);
     setup_sidebar(GUIDES);
 
     return output;
@@ -563,7 +562,42 @@ void replay_commands()
         char command[50];
         sscanf(line, "%s", command);
 
-        timeline_counter++;
+        if (speed_potion == 0)
+            timeline_counter++;
+        for (int i = 0; i < potions_count; i++)
+            if (potions[i].type == SPEED_POTION && potions[i].is_being_consumed)
+            {
+                speed_potion++;
+                if (speed_potion > 1)
+                    speed_potion = 0;
+                if (timeline_counter - potions[i].start_time > 20)
+                {
+                    speed_potion = 0;
+                    potions[i].is_being_consumed = false;
+                    potions[i].is_consumed = true;
+                    add_message("You're SPEED potion is expired!");
+                }
+            }
+            else if (potions[i].type == HEALTH_POTION && potions[i].is_being_consumed)
+            {
+                if (timeline_counter - potions[i].start_time > 40)
+                {
+                    health_potion = 0;
+                    potions[i].is_being_consumed = false;
+                    potions[i].is_consumed = true;
+                    add_message("You're HEALTH potion is expired!");
+                }
+            }
+            else if (potions[i].type == DAMAGE_POTION && potions[i].is_being_consumed)
+            {
+                if (timeline_counter - potions[i].start_time > 40)
+                {
+                    damage_potion = 0;
+                    potions[i].is_being_consumed = false;
+                    potions[i].is_consumed = true;
+                    add_message("You're DAMAGE potion is expired!");
+                }
+            }
 
         if (strcmp(command, "move") == 0)
         {
@@ -611,6 +645,74 @@ void replay_commands()
             sscanf(line, "eat %d", &index);
             eat_character(index, message);
             add_message(message);
+        }
+
+        else if (strcmp(command, "weapon") == 0)
+        {
+            int index;
+            sscanf(line, "weapon %d", &index);
+            for (int i = 0; i < weapons_count; i++)
+                if (weapons[i].in_hand)
+                {
+                    weapons[i].in_hand = false;
+                    break;
+                }
+            for (int i = 0; i < weapons_count; i++)
+                if (weapons[i].is_picked && weapons[i].type == index)
+                    weapons[i].in_hand = true;
+            char found_weapon[20];
+            if (index == MACE)
+                strcpy(found_weapon, "MACE");
+            if (index == DAGGER)
+                strcpy(found_weapon, "DAGGER");
+            if (index == WAND)
+                strcpy(found_weapon, "WAND");
+            if (index == ARROW)
+                strcpy(found_weapon, "ARROW");
+            if (index == SWORD)
+                strcpy(found_weapon, "SWORD");
+            sprintf(message, "You're now holding a %s!", found_weapon);
+            add_message(message);
+        }
+
+        else if (strcmp(command, "potion") == 0)
+        {
+            int index;
+            sscanf(line, "potion %d", &index);
+            for (int i = 0; i < potions_count; i++)
+                if (potions[i].is_picked && potions[i].type == index && !potions[i].is_being_consumed && !potions[i].is_consumed)
+                {
+                    potions[i].is_being_consumed = true;
+                    potions[i].start_time = timeline_counter;
+                    if (potions[i].type == HEALTH_POTION)
+                        health_potion = 1;
+                    if (potions[i].type == SPEED_POTION)
+                        speed_potion = 1;
+                    if (potions[i].type == DAMAGE_POTION)
+                        damage_potion = 1;
+                    break;
+                }
+            char found_potion[20];
+            if (index == HEALTH_POTION)
+                strcpy(found_potion, "HEALTH");
+            if (index == SPEED_POTION)
+                strcpy(found_potion, "SPEED");
+            if (index == DAMAGE_POTION)
+                strcpy(found_potion, "DAMAGE");
+            sprintf(message, "You're consuming a %s potion!", found_potion);
+            add_message(message);
+        }
+
+        else if (strcmp(command, "short-attack") == 0)
+        {
+            short_attack_character();
+        }
+
+        else if (strcmp(command, "long-attack") == 0)
+        {
+            int direction;
+            sscanf(line, "long-attack %d", &direction);
+            long_attack_character(direction);
         }
 
         for (int i = 0; i < traps_count; i++)
@@ -669,269 +771,297 @@ void replay_commands()
             }
         }
 
-        for (int i = 0; i < daemons_count; i++)
+        if (speed_potion == 0)
         {
-            if (get_container_room() == daemons[i].room && daemons[i].is_alive)
+            for (int i = 0; i < daemons_count; i++)
             {
-                Position position = get_absolute_position(daemons[i].room);
-                Position position_copy = daemons[i].position;
-                position.x += daemons[i].position.x;
-                position.y += daemons[i].position.y;
-                Position absolute_position_copy = position;
-                if (position.x < character.position.x)
+                if (get_container_room() == daemons[i].room && daemons[i].is_alive)
                 {
-                    absolute_position_copy.x++;
-                    position_copy.x++;
-                }
-                else if (position.x > character.position.x)
-                {
-                    absolute_position_copy.x--;
-                    position_copy.x--;
-                }
-                if (position.y < character.position.y)
-                {
-                    absolute_position_copy.y++;
-                    position_copy.y++;
-                }
-                else if (position.y > character.position.y)
-                {
-                    absolute_position_copy.y--;
-                    position_copy.y--;
-                }
-
-                if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
-                {
-                    if (!exists_monster(daemons[i].floor, daemons[i].room, position_copy))
+                    Position position = get_absolute_position(daemons[i].room);
+                    Position position_copy = daemons[i].position;
+                    position.x += daemons[i].position.x;
+                    position.y += daemons[i].position.y;
+                    Position absolute_position_copy = position;
+                    if (position.x < character.position.x)
                     {
-                        mvadd_wch(position.y, position.x, &daemons[i].under);
-                        mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &daemons[i].under);
-                        mvprintw(absolute_position_copy.y, absolute_position_copy.x, "D");
-                        daemons[i].position = position_copy;
+                        absolute_position_copy.x++;
+                        position_copy.x++;
                     }
-                }
-            }
-        }
-
-        for (int i = 0; i < fire_monsters_count; i++)
-        {
-            if (get_container_room() == fire_monsters[i].room && fire_monsters[i].is_alive)
-            {
-                Position position = get_absolute_position(fire_monsters[i].room);
-                Position position_copy = fire_monsters[i].position;
-                position.x += fire_monsters[i].position.x;
-                position.y += fire_monsters[i].position.y;
-                Position absolute_position_copy = position;
-                if (position.x < character.position.x)
-                {
-                    absolute_position_copy.x++;
-                    position_copy.x++;
-                }
-                else if (position.x > character.position.x)
-                {
-                    absolute_position_copy.x--;
-                    position_copy.x--;
-                }
-                if (position.y < character.position.y)
-                {
-                    absolute_position_copy.y++;
-                    position_copy.y++;
-                }
-                else if (position.y > character.position.y)
-                {
-                    absolute_position_copy.y--;
-                    position_copy.y--;
-                }
-
-                if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
-                {
-                    if (!exists_monster(fire_monsters[i].floor, fire_monsters[i].room, position_copy))
+                    else if (position.x > character.position.x)
                     {
-                        mvadd_wch(position.y, position.x, &fire_monsters[i].under);
-                        mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &fire_monsters[i].under);
-                        mvprintw(absolute_position_copy.y, absolute_position_copy.x, "F");
-                        fire_monsters[i].position = position_copy;
+                        absolute_position_copy.x--;
+                        position_copy.x--;
                     }
-                }
-            }
-        }
-
-        for (int i = 0; i < snakes_count; i++)
-        {
-            if (get_container_room() == snakes[i].room && snakes[i].is_alive)
-            {
-                Position position = get_absolute_position(snakes[i].room);
-                Position position_copy = snakes[i].position;
-                position.x += snakes[i].position.x;
-                position.y += snakes[i].position.y;
-                Position absolute_position_copy = position;
-                if (position.x < character.position.x)
-                {
-                    absolute_position_copy.x++;
-                    position_copy.x++;
-                }
-                else if (position.x > character.position.x)
-                {
-                    absolute_position_copy.x--;
-                    position_copy.x--;
-                }
-                if (position.y < character.position.y)
-                {
-                    absolute_position_copy.y++;
-                    position_copy.y++;
-                }
-                else if (position.y > character.position.y)
-                {
-                    absolute_position_copy.y--;
-                    position_copy.y--;
-                }
-
-                if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
-                {
-                    if (!exists_monster(snakes[i].floor, snakes[i].room, position_copy))
+                    if (position.y < character.position.y)
                     {
-                        mvadd_wch(position.y, position.x, &snakes[i].under);
-                        mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &snakes[i].under);
-                        mvprintw(absolute_position_copy.y, absolute_position_copy.x, "S");
-                        snakes[i].position = position_copy;
+                        absolute_position_copy.y++;
+                        position_copy.y++;
                     }
-                }
-            }
-        }
-
-        for (int i = 0; i < giants_count; i++)
-        {
-            if (get_container_room() == giants[i].room && giants[i].is_alive)
-            {
-                Position position = get_absolute_position(giants[i].room);
-                Position position_copy = giants[i].position;
-                position.x += giants[i].position.x;
-                position.y += giants[i].position.y;
-                Position absolute_position_copy = position;
-                if (position.x < character.position.x)
-                {
-                    absolute_position_copy.x++;
-                    position_copy.x++;
-                }
-                else if (position.x > character.position.x)
-                {
-                    absolute_position_copy.x--;
-                    position_copy.x--;
-                }
-                if (position.y < character.position.y)
-                {
-                    absolute_position_copy.y++;
-                    position_copy.y++;
-                }
-                else if (position.y > character.position.y)
-                {
-                    absolute_position_copy.y--;
-                    position_copy.y--;
-                }
-
-                if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
-                {
-                    if (giants[i].is_chasing)
+                    else if (position.y > character.position.y)
                     {
-                        if (!exists_monster(giants[i].floor, giants[i].room, position_copy))
+                        absolute_position_copy.y--;
+                        position_copy.y--;
+                    }
+
+                    if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+                    {
+                        if (!exists_monster(daemons[i].floor, daemons[i].room, position_copy))
                         {
-                            mvadd_wch(position.y, position.x, &giants[i].under);
-                            mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &giants[i].under);
-                            mvprintw(absolute_position_copy.y, absolute_position_copy.x, "G");
-                            giants[i].position = position_copy;
+                            mvadd_wch(position.y, position.x, &daemons[i].under);
+                            mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &daemons[i].under);
+                            mvprintw(absolute_position_copy.y, absolute_position_copy.x, "D");
+                            daemons[i].position = position_copy;
                         }
-                        if (timeline_counter - giants[i].chasing_start >= 5)
-                            giants[i].is_chasing = false;
-                    }
-                }
-                else
-                {
-                    if (giants[i].is_chasing)
-                    {
-                        giants[i].chasing_start = timeline_counter;
                     }
                     else
                     {
-                        giants[i].is_chasing = true;
-                        giants[i].chasing_start = timeline_counter;
+                        character.health -= daemons[i].damage;
+                        sprintf(message, "A nearby Daemon damaged you by %d!", daemons[i].damage);
+                        add_message(message);
                     }
                 }
             }
-        }
 
-        for (int i = 0; i < undeeds_count; i++)
-        {
-            if (get_container_room() == undeeds[i].room && undeeds[i].is_alive)
+            for (int i = 0; i < fire_monsters_count; i++)
             {
-                Position position = get_absolute_position(undeeds[i].room);
-                Position position_copy = undeeds[i].position;
-                position.x += undeeds[i].position.x;
-                position.y += undeeds[i].position.y;
-                Position absolute_position_copy = position;
-                if (position.x < character.position.x)
+                if (get_container_room() == fire_monsters[i].room && fire_monsters[i].is_alive)
                 {
-                    absolute_position_copy.x++;
-                    position_copy.x++;
-                }
-                else if (position.x > character.position.x)
-                {
-                    absolute_position_copy.x--;
-                    position_copy.x--;
-                }
-                if (position.y < character.position.y)
-                {
-                    absolute_position_copy.y++;
-                    position_copy.y++;
-                }
-                else if (position.y > character.position.y)
-                {
-                    absolute_position_copy.y--;
-                    position_copy.y--;
-                }
-
-                if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
-                {
-                    if (undeeds[i].is_chasing)
+                    Position position = get_absolute_position(fire_monsters[i].room);
+                    Position position_copy = fire_monsters[i].position;
+                    position.x += fire_monsters[i].position.x;
+                    position.y += fire_monsters[i].position.y;
+                    Position absolute_position_copy = position;
+                    if (position.x < character.position.x)
                     {
-                        if (!exists_monster(undeeds[i].floor, undeeds[i].room, position_copy))
-                        {
-                            mvadd_wch(position.y, position.x, &undeeds[i].under);
-                            mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &undeeds[i].under);
-                            mvprintw(absolute_position_copy.y, absolute_position_copy.x, "U");
-                            undeeds[i].position = position_copy;
-                        }
-                        if (timeline_counter - undeeds[i].chasing_start >= 5)
-                            undeeds[i].is_chasing = false;
+                        absolute_position_copy.x++;
+                        position_copy.x++;
                     }
-                }
-                else
-                {
-                    if (undeeds[i].is_chasing)
+                    else if (position.x > character.position.x)
                     {
-                        undeeds[i].chasing_start = timeline_counter;
+                        absolute_position_copy.x--;
+                        position_copy.x--;
+                    }
+                    if (position.y < character.position.y)
+                    {
+                        absolute_position_copy.y++;
+                        position_copy.y++;
+                    }
+                    else if (position.y > character.position.y)
+                    {
+                        absolute_position_copy.y--;
+                        position_copy.y--;
+                    }
+
+                    if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+                    {
+                        if (!exists_monster(fire_monsters[i].floor, fire_monsters[i].room, position_copy))
+                        {
+                            mvadd_wch(position.y, position.x, &fire_monsters[i].under);
+                            mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &fire_monsters[i].under);
+                            mvprintw(absolute_position_copy.y, absolute_position_copy.x, "F");
+                            fire_monsters[i].position = position_copy;
+                        }
                     }
                     else
                     {
-                        undeeds[i].is_chasing = true;
-                        undeeds[i].chasing_start = timeline_counter;
+                        character.health -= fire_monsters[i].damage;
+                        sprintf(message, "A nearby Fire Breathing Monster damaged you by %d!", fire_monsters[i].damage);
+                        add_message(message);
                     }
                 }
             }
-        }
 
-        if (strcmp(command, "eat") != 0)
-        {
-            if (character.stomach == 0 && timeline_counter % 3 == 0)
-                character.health--;
-            if (character.health < 100 && character.stomach > 0 && timeline_counter % 3 == 0)
+            for (int i = 0; i < snakes_count; i++)
             {
-                character.health++;
-                character.stomach--;
+                if (get_container_room() == snakes[i].room && snakes[i].is_alive)
+                {
+                    Position position = get_absolute_position(snakes[i].room);
+                    Position position_copy = snakes[i].position;
+                    position.x += snakes[i].position.x;
+                    position.y += snakes[i].position.y;
+                    Position absolute_position_copy = position;
+                    if (position.x < character.position.x)
+                    {
+                        absolute_position_copy.x++;
+                        position_copy.x++;
+                    }
+                    else if (position.x > character.position.x)
+                    {
+                        absolute_position_copy.x--;
+                        position_copy.x--;
+                    }
+                    if (position.y < character.position.y)
+                    {
+                        absolute_position_copy.y++;
+                        position_copy.y++;
+                    }
+                    else if (position.y > character.position.y)
+                    {
+                        absolute_position_copy.y--;
+                        position_copy.y--;
+                    }
+
+                    if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+                    {
+                        if (!exists_monster(snakes[i].floor, snakes[i].room, position_copy))
+                        {
+                            mvadd_wch(position.y, position.x, &snakes[i].under);
+                            mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &snakes[i].under);
+                            mvprintw(absolute_position_copy.y, absolute_position_copy.x, "S");
+                            snakes[i].position = position_copy;
+                        }
+                    }
+                    else
+                    {
+                        character.health -= snakes[i].damage;
+                        sprintf(message, "A nearby Snake damaged you by %d!", snakes[i].damage);
+                        add_message(message);
+                    }
+                }
             }
-            if (character.stomach > 0 && timeline_counter % 5 == 0)
-                character.stomach--;
+
+            for (int i = 0; i < giants_count; i++)
+            {
+                if (get_container_room() == giants[i].room && giants[i].is_alive)
+                {
+                    Position position = get_absolute_position(giants[i].room);
+                    Position position_copy = giants[i].position;
+                    position.x += giants[i].position.x;
+                    position.y += giants[i].position.y;
+                    Position absolute_position_copy = position;
+                    if (position.x < character.position.x)
+                    {
+                        absolute_position_copy.x++;
+                        position_copy.x++;
+                    }
+                    else if (position.x > character.position.x)
+                    {
+                        absolute_position_copy.x--;
+                        position_copy.x--;
+                    }
+                    if (position.y < character.position.y)
+                    {
+                        absolute_position_copy.y++;
+                        position_copy.y++;
+                    }
+                    else if (position.y > character.position.y)
+                    {
+                        absolute_position_copy.y--;
+                        position_copy.y--;
+                    }
+
+                    if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+                    {
+                        if (giants[i].is_chasing)
+                        {
+                            if (!exists_monster(giants[i].floor, giants[i].room, position_copy))
+                            {
+                                mvadd_wch(position.y, position.x, &giants[i].under);
+                                mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &giants[i].under);
+                                mvprintw(absolute_position_copy.y, absolute_position_copy.x, "G");
+                                giants[i].position = position_copy;
+                            }
+                            if (timeline_counter - giants[i].chasing_start >= 5)
+                                giants[i].is_chasing = false;
+                        }
+                    }
+                    else
+                    {
+                        if (giants[i].is_chasing)
+                        {
+                            giants[i].chasing_start = timeline_counter;
+                            character.health -= giants[i].damage;
+                            sprintf(message, "A nearby Giant damaged you by %d!", giants[i].damage);
+                            add_message(message);
+                        }
+                        else
+                        {
+                            giants[i].is_chasing = true;
+                            giants[i].chasing_start = timeline_counter;
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < undeeds_count; i++)
+            {
+                if (get_container_room() == undeeds[i].room && undeeds[i].is_alive)
+                {
+                    Position position = get_absolute_position(undeeds[i].room);
+                    Position position_copy = undeeds[i].position;
+                    position.x += undeeds[i].position.x;
+                    position.y += undeeds[i].position.y;
+                    Position absolute_position_copy = position;
+                    if (position.x < character.position.x)
+                    {
+                        absolute_position_copy.x++;
+                        position_copy.x++;
+                    }
+                    else if (position.x > character.position.x)
+                    {
+                        absolute_position_copy.x--;
+                        position_copy.x--;
+                    }
+                    if (position.y < character.position.y)
+                    {
+                        absolute_position_copy.y++;
+                        position_copy.y++;
+                    }
+                    else if (position.y > character.position.y)
+                    {
+                        absolute_position_copy.y--;
+                        position_copy.y--;
+                    }
+
+                    if (absolute_position_copy.x != character.position.x || absolute_position_copy.y != character.position.y)
+                    {
+                        if (undeeds[i].is_chasing)
+                        {
+                            if (!exists_monster(undeeds[i].floor, undeeds[i].room, position_copy))
+                            {
+                                mvadd_wch(position.y, position.x, &undeeds[i].under);
+                                mvin_wch(absolute_position_copy.y, absolute_position_copy.x, &undeeds[i].under);
+                                mvprintw(absolute_position_copy.y, absolute_position_copy.x, "U");
+                                undeeds[i].position = position_copy;
+                            }
+                            if (timeline_counter - undeeds[i].chasing_start >= 5)
+                                undeeds[i].is_chasing = false;
+                        }
+                    }
+                    else
+                    {
+                        if (undeeds[i].is_chasing)
+                        {
+                            undeeds[i].chasing_start = timeline_counter;
+                            character.health -= undeeds[i].damage;
+                            sprintf(message, "A nearby Undeed damaged you by %d!", undeeds[i].damage);
+                            add_message(message);
+                        }
+                        else
+                        {
+                            undeeds[i].is_chasing = true;
+                            undeeds[i].chasing_start = timeline_counter;
+                        }
+                    }
+                }
+            }
+
+            if (strcmp(command, "eat") != 0)
+            {
+                if (character.stomach == 0 && timeline_counter % 3 == 0)
+                    character.health--;
+                if (character.health < 100 && character.stomach > 0 && timeline_counter % 3 == 0)
+                {
+                    character.health++;
+                    character.health += health_potion * 3;
+                    character.stomach--;
+                }
+                if (character.stomach > 0 && timeline_counter % 5 == 0)
+                    character.stomach--;
+            }
         }
 
-        setup_message_box();
+        setup_message_box(true);
         setup_sidebar(GUIDES);
         refresh();
         usleep(5000);

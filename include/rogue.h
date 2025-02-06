@@ -592,7 +592,7 @@ void draw_weapon_inventory();
 void draw_directions();
 void draw_potion_inventory();
 void draw_hline(Position position, int length);
-void setup_message_box();
+void setup_message_box(bool replay_mode);
 void add_message(char *message);
 void setup_scoreboard(Player players[]);
 int compare_players(const void *ap, const void *bp);

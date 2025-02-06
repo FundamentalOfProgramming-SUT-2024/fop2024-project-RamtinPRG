@@ -1,6 +1,6 @@
 #include "../include/rogue.h"
 
-void setup_message_box()
+void setup_message_box(bool replay_mode)
 {
     int width = MAP_SCREEN_WIDTH + H_GAP + SIDEBAR_WIDTH;
     Position position;
@@ -25,8 +25,9 @@ void setup_message_box()
         for (int i = 1; i < game_message_count; i++)
         {
             printw("     Press SPACE...");
-            while ((ch = getch()) != ' ')
-                ;
+            if (!replay_mode)
+                while ((ch = getch()) != ' ')
+                    ;
             attron(COLOR_PAIR(CHAR_YELLOW));
             erase_box(position, width, MESSAGES_HEIGHT + 1);
             attron(A_BOLD);

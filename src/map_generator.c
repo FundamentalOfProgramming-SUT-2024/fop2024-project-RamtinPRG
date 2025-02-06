@@ -114,12 +114,12 @@ void generate_map()
     generate_black_golds();
     generate_foods();
     generate_weapons();
-    generate_potions();
     generate_daemons();
     generate_fire_monsters();
     generate_snakes();
     generate_giants();
     generate_undeeds();
+    generate_potions();
 }
 
 void generate_traps()

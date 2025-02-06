@@ -52,7 +52,13 @@ void save_map(Position *position)
     fprintf(map_file, "%d\n", weapons_count);
     for (int i = 0; i < weapons_count; i++)
     {
-        fprintf(map_file, "%d %d %d %d %d %d\n", weapons[i].position.x, weapons[i].position.y, weapons[i].floor_index, weapons[i].room_index, weapons[i].damage, weapons[i].type);
+        fprintf(map_file, "%d %d %d %d %d %d %d\n", weapons[i].position.x, weapons[i].position.y, weapons[i].floor_index, weapons[i].room_index, weapons[i].damage, weapons[i].type, weapons[i].count);
+    }
+
+    fprintf(map_file, "%d\n", potions_count);
+    for (int i = 0; i < potions_count; i++)
+    {
+        fprintf(map_file, "%d %d %d %d %d\n", potions[i].position.x, potions[i].position.y, potions[i].floor_index, potions[i].room_index, potions[i].type);
     }
 
     fprintf(map_file, "%d\n", daemons_count);
@@ -174,10 +180,10 @@ void load_map(Position *position)
     }
 
     fscanf(map_file, "%d", &weapons_count);
-    weapons = (Weapon *)calloc(weapons_count, sizeof(Weapon));
+    weapons = (Weapon *)calloc(weapons_count * 20, sizeof(Weapon));
     for (int i = 0; i < weapons_count; i++)
     {
-        fscanf(map_file, "%d %d %d %d %d %d", &weapons[i].position.x, &weapons[i].position.y, &weapons[i].floor_index, &weapons[i].room_index, &weapons[i].damage, &weapons[i].type);
+        fscanf(map_file, "%d %d %d %d %d %d %d", &weapons[i].position.x, &weapons[i].position.y, &weapons[i].floor_index, &weapons[i].room_index, &weapons[i].damage, &weapons[i].type, &weapons[i].count);
         weapons[i].floor = &floors[weapons[i].floor_index];
         weapons[i].room = weapons[i].floor->rooms[weapons[i].room_index];
         weapons[i].is_picked = false;
@@ -185,6 +191,18 @@ void load_map(Position *position)
     }
     weapons[0].is_picked = true;
     weapons[0].in_hand = true;
+
+    fscanf(map_file, "%d", &potions_count);
+    potions = (Potion *)calloc(potions_count, sizeof(Potion));
+    for (int i = 0; i < potions_count; i++)
+    {
+        fscanf(map_file, "%d %d %d %d %d", &potions[i].position.x, &potions[i].position.y, &potions[i].floor_index, &potions[i].room_index, &potions[i].type);
+        potions[i].floor = &floors[potions[i].floor_index];
+        potions[i].room = potions[i].floor->rooms[potions[i].room_index];
+        potions[i].is_picked = false;
+        potions[i].is_being_consumed = false;
+        potions[i].is_consumed = false;
+    }
 
     fscanf(map_file, "%d", &daemons_count);
     daemons = (Daemon *)calloc(daemons_count, sizeof(Daemon));

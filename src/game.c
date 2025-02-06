@@ -433,7 +433,7 @@ void setup_floor()
             show_room(floors[current_floor_index].rooms[i]);
     }
     setup_sidebar(GUIDES);
-    setup_message_box();
+    setup_message_box(false);
 }
 
 void show_room(Room *room)
@@ -765,7 +765,7 @@ bool ascend_character(char *message)
     if (character.under.chars[0] == L'▲')
     {
         current_floor_index++;
-        if (!floors[current_floor_index].rooms[0]->visible)
+        if (current_floor_index < FLOORS && !floors[current_floor_index].rooms[0]->visible)
         {
             floors[current_floor_index].rooms[0]->visible = true;
             show_room(floors[current_floor_index].rooms[0]);
