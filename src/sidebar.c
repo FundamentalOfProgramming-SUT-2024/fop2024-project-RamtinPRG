@@ -249,13 +249,13 @@ void draw_weapon_inventory()
         if (weapons[i].is_picked && weapons[i].type == MACE)
             count += weapons[i].count;
     move(position.y, position.x);
-    if (count == 0)
+    if (count <= 0)
         attron(A_DIM);
     attron(A_BOLD | COLOR_PAIR(2));
     printw("%c)   ", 'a');
     attroff(A_BOLD | COLOR_PAIR(2));
     printw("MACE   ( %d )", count);
-    if (count == 0)
+    if (count <= 0)
         attroff(A_DIM);
 
     count = 0;
@@ -264,13 +264,13 @@ void draw_weapon_inventory()
         if (weapons[i].is_picked && weapons[i].type == DAGGER)
             count += weapons[i].count;
     move(position.y, position.x);
-    if (count == 0)
+    if (count <= 0)
         attron(A_DIM);
     attron(A_BOLD | COLOR_PAIR(2));
     printw("%c)   ", 'b');
     attroff(A_BOLD | COLOR_PAIR(2));
     printw("DAGGER ( %d )", count);
-    if (count == 0)
+    if (count <= 0)
         attroff(A_DIM);
 
     count = 0;
@@ -279,13 +279,13 @@ void draw_weapon_inventory()
         if (weapons[i].is_picked && weapons[i].type == WAND)
             count += weapons[i].count;
     move(position.y, position.x);
-    if (count == 0)
+    if (count <= 0)
         attron(A_DIM);
     attron(A_BOLD | COLOR_PAIR(2));
     printw("%c)   ", 'c');
     attroff(A_BOLD | COLOR_PAIR(2));
     printw("WAND   ( %d )", count);
-    if (count == 0)
+    if (count <= 0)
         attroff(A_DIM);
 
     count = 0;
@@ -294,13 +294,13 @@ void draw_weapon_inventory()
         if (weapons[i].is_picked && weapons[i].type == ARROW)
             count += weapons[i].count;
     move(position.y, position.x);
-    if (count == 0)
+    if (count <= 0)
         attron(A_DIM);
     attron(A_BOLD | COLOR_PAIR(2));
     printw("%c)   ", 'd');
     attroff(A_BOLD | COLOR_PAIR(2));
     printw("ARROW  ( %d )", count);
-    if (count == 0)
+    if (count <= 0)
         attroff(A_DIM);
 
     count = 0;
@@ -309,13 +309,13 @@ void draw_weapon_inventory()
         if (weapons[i].is_picked && weapons[i].type == SWORD)
             count += weapons[i].count;
     move(position.y, position.x);
-    if (count == 0)
+    if (count <= 0)
         attron(A_DIM);
     attron(A_BOLD | COLOR_PAIR(2));
     printw("%c)   ", 'e');
     attroff(A_BOLD | COLOR_PAIR(2));
     printw("SWORD  ( %d )", count);
-    if (count == 0)
+    if (count <= 0)
         attroff(A_DIM);
 
     attron(A_ITALIC);

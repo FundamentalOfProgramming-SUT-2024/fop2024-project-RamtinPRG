@@ -19,9 +19,9 @@ void save_map(Position *position)
         for (int j = 0; j < floor->rooms_count; j++)
         {
             Room *room = floor->rooms[j];
-            fprintf(map_file, "%d %d %d %d %d %d %d %d\n", room->position.x, room->position.y, room->block.x, room->block.y, room->width, room->height, room->visible, room->type);
+            fprintf(map_file, "%d %d %d %d %d %d %d\n", room->position.x, room->position.y, room->block.x, room->block.y, room->width, room->height, room->type);
             for (int k = 0; k < 4; k++)
-                fprintf(map_file, "%d %d %d\n", room->doors[k].position.x, room->doors[k].position.y, room->doors[k].exists);
+                fprintf(map_file, "%d %d %d %d\n", room->doors[k].position.x, room->doors[k].position.y, room->doors[k].exists, room->doors[k].secret);
         }
     }
 
@@ -122,15 +122,17 @@ void load_map(Position *position)
         {
             floor->rooms[j] = (Room *)calloc(1, sizeof(Room));
             Room *room = floor->rooms[j];
-            int visible;
-            fscanf(map_file, "%d %d %d %d %d %d %d %d", &room->position.x, &room->position.y, &room->block.x, &room->block.y, &room->width, &room->height, &visible, &room->type);
-            room->visible = (bool)visible;
+            // int visible;
+            fscanf(map_file, "%d %d %d %d %d %d %d", &room->position.x, &room->position.y, &room->block.x, &room->block.y, &room->width, &room->height, &room->type);
+            // room->visible = (bool)visible;
 
             for (int k = 0; k < 4; k++)
             {
-                int exists;
-                fscanf(map_file, "%d %d %d", &room->doors[k].position.x, &room->doors[k].position.y, &exists);
+                int exists, secret;
+                fscanf(map_file, "%d %d %d %d", &room->doors[k].position.x, &room->doors[k].position.y, &exists, &secret);
                 room->doors[k].exists = (bool)exists;
+                room->doors[k].secret = (bool)secret;
+                room->doors[k].is_discovered = false;
             }
         }
 

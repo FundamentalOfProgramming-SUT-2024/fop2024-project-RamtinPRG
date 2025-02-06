@@ -300,19 +300,27 @@ bool handle_game()
                 register_command("short-attack", 0);
             else
             {
-                setup_sidebar(DIRECTIONS);
-                while (1)
+                int count = 0;
+                for (int i = 0; i < weapons_count; i++)
+                    if (weapons[i].is_picked && weapons[i].type == weapon->type)
+                        count += weapons[i].count;
+                mvprintw(0, 0, "%d", count);
+                if (count > 0)
                 {
-                    ch = getch();
-                    if ('a' <= ch && ch <= 'd')
+                    setup_sidebar(DIRECTIONS);
+                    while (1)
                     {
-                        register_command("long-attack", 1, ch - 'a');
-                        break;
+                        ch = getch();
+                        if ('a' <= ch && ch <= 'd')
+                        {
+                            register_command("long-attack", 1, ch - 'a');
+                            break;
+                        }
+                        else if (ch == 'q')
+                            break;
                     }
-                    else if (ch == 'q')
-                        break;
+                    setup_sidebar(GUIDES);
                 }
-                setup_sidebar(GUIDES);
             }
         }
         else if (ch == 'm')
@@ -981,7 +989,7 @@ void take_weapon()
             int index = ch - 'a';
             bool found = false;
             for (int i = 0; i < weapons_count; i++)
-                if (weapons[i].is_picked && weapons[i].type == index)
+                if (weapons[i].is_picked && weapons[i].type == index && weapons[i].count > 0)
                 {
                     register_command("weapon", 1, index);
                     found = true;
