@@ -62,6 +62,24 @@ bool handle_login()
             curs_set(0);
             return 1;
         }
+        else if (ch == KEY_F(6))
+        {
+            player->signed_in = true;
+            strcpy(player->username, "GUEST");
+            strcpy(player->password, "");
+            strcpy(player->email, "");
+
+            load_user_data("GUEST", player);
+            load_settings();
+#if ENABLE_MUSIC
+            set_volume();
+            load_music();
+#endif
+
+            current_window = MAIN_MENU;
+            curs_set(0);
+            return 1;
+        }
         else if (ch == KEY_BACKSPACE)
         {
             if (fields[field_index].cursor_index > 0)
@@ -114,6 +132,10 @@ bool handle_login()
 
                     load_user_data(username, player);
                     load_settings();
+#if ENABLE_MUSIC
+                    set_volume();
+                    load_music();
+#endif
 
                     current_window = MAIN_MENU;
                     curs_set(0);

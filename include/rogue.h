@@ -190,6 +190,7 @@ typedef struct
     char **musics;
     int current_music_index;
     int musics_count;
+    int volume;
 } MusicSettings;
 
 typedef struct
@@ -609,6 +610,7 @@ int compare_strings(char *a, char *b);
 
 #if ENABLE_MUSIC
 void load_music();
+void set_volume();
 #endif
 
 #endif

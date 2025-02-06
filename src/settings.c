@@ -12,6 +12,7 @@ void load_settings()
     fscanf(settings_file, "%d", &settings->difficulty);
     fscanf(settings_file, "%d", &settings->color_settings->current_color_index);
     fscanf(settings_file, "%d", &settings->music_settings->current_music_index);
+    fscanf(settings_file, "%d", &settings->music_settings->volume);
     fclose(settings_file);
 }
 
@@ -25,6 +26,7 @@ void save_settings()
     fprintf(settings_file, "%d\n", settings->difficulty);
     fprintf(settings_file, "%d\n", settings->color_settings->current_color_index);
     fprintf(settings_file, "%d\n", settings->music_settings->current_music_index);
+    fprintf(settings_file, "%d\n", settings->music_settings->volume);
     fclose(settings_file);
 }
 
@@ -41,8 +43,8 @@ bool handle_settings()
          L"  ░░   ░ ░ ░ ░ ▒  ░ ░   ░  ░░░ ░ ░    ░   ",
          L"   ░         ░ ░        ░    ░        ░  ░"};
     bool applied = true;
-    int items_count = 3, item_index = 0, labels_length = 30, options_length = 15;
-    char settings_labels[][21] = {"Difficulty", "Character's color", "Music"};
+    int items_count = 4, item_index = 0, labels_length = 30, options_length = 15;
+    char settings_labels[][21] = {"Difficulty", "Character's color", "Music", "Volume"};
     SettingItem items[items_count];
 
     for (int i = 0; i < items_count; i++)
@@ -87,6 +89,15 @@ bool handle_settings()
     }
     items[2].option_index = music_settings->current_music_index;
 
+    items[3].options_count = 101;
+    items[3].options = (char **)malloc(items[3].options_count * sizeof(char *));
+    for (int i = 0; i < items[3].options_count; i++)
+    {
+        items[3].options[i] = (char *)malloc((options_length + 1) * sizeof(char));
+        sprintf(items[3].options[i], "%d%%", i);
+    }
+    items[3].option_index = music_settings->volume;
+
     erase_scr();
 
     for (int i = 0; i < LOGO_HEIGHT; i++)
@@ -130,6 +141,10 @@ bool handle_settings()
                 load_music();
 #endif
             }
+            music_settings->volume = items[3].option_index;
+#if ENABLE_MUSIC
+            set_volume();
+#endif
             if (!applied)
             {
                 mvprintw(25, 2, "Changes applied!");

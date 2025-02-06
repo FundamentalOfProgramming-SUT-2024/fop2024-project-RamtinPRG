@@ -133,7 +133,6 @@ bool setup()
     SDL_Init(SDL_INIT_AUDIO);
     Mix_Init(MIX_INIT_MP3);
     Mix_OpenAudio(44100, AUDIO_F32SYS, 2, 1024);
-    load_music();
 #endif
 
     // ____________ RANDOM SEED ________________
@@ -458,5 +457,10 @@ void load_music()
     Mix_FreeMusic(music);
     music = Mix_LoadMUS(music_file_name);
     Mix_PlayMusic(music, -1);
+}
+
+void set_volume()
+{
+    Mix_VolumeMusic(music_settings->volume);
 }
 #endif

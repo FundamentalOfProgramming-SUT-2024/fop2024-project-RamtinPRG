@@ -146,6 +146,10 @@ bool handle_signup()
 
                 save_user_data();
                 save_settings();
+#if ENABLE_MUSIC
+                set_volume();
+                load_music();
+#endif
 
                 current_window = MAIN_MENU;
                 curs_set(0);
