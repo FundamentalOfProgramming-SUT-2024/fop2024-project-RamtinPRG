@@ -153,6 +153,14 @@ enum PotionTypes
     DAMAGE_POTION
 };
 
+enum FoodTypes
+{
+    REGULAR_FOOD,
+    SUPER_FOOD,
+    MAGICAL_FOOD,
+    ROTTEN_FOOD
+};
+
 enum SidebarList
 {
     GUIDES,
@@ -319,6 +327,7 @@ typedef struct Food
     int value;
     bool is_picked;
     bool is_eaten;
+    int type;
 } Food;
 
 typedef struct Weapon

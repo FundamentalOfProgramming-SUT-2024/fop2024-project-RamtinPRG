@@ -267,6 +267,7 @@ void generate_foods()
             food.is_picked = false;
             food.is_eaten = false;
         } while (exists_gold(food.floor, food.room, food.position) || exists_trap(food.floor, food.room, food.position) || exists_stair(food.floor, food.room, food.position) || exists_food(food.floor, food.room, food.position));
+        food.type = rand() % 4;
         food.value = nrandom(MIN_FOOD_VALUE, MAX_FOOD_VALUE);
         foods[i] = food;
         foods_count++;

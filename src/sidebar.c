@@ -203,12 +203,22 @@ void draw_food_inventory()
     else
         for (int i = 0; i < count; i++)
         {
+            Food *food = food_inventory_by_index(i);
+            char name[50];
+            if (food->type == REGULAR_FOOD)
+                strcpy(name, "REGULAR");
+            if (food->type == SUPER_FOOD)
+                strcpy(name, "SUPER");
+            if (food->type == MAGICAL_FOOD)
+                strcpy(name, "MAGICAL");
+            if (food->type == ROTTEN_FOOD)
+                strcpy(name, "ROTTEN");
             position.y += 2;
             move(position.y, position.x);
             attron(A_BOLD | COLOR_PAIR(2));
             printw("%c)   ", 'a' + i);
             attroff(A_BOLD | COLOR_PAIR(2));
-            printw("Regular ( %d )", food_inventory_by_index(i)->value);
+            printw("%s ( %d )", name, food->value);
         }
 
     attron(A_ITALIC);

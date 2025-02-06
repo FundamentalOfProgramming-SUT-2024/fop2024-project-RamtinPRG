@@ -527,9 +527,21 @@ void draw_foods(Floor *floor)
             Position position = get_absolute_position(foods[i].room);
             position.x += foods[i].position.x;
             position.y += foods[i].position.y;
-            attron(COLOR_PAIR(CHAR_BRONZE));
+            if (foods[i].type == REGULAR_FOOD || foods[i].type == ROTTEN_FOOD)
+                attron(COLOR_PAIR(CHAR_BRONZE));
+            else if (foods[i].type == SUPER_FOOD)
+                attron(COLOR_PAIR(CHAR_YELLOW));
+            else if (foods[i].type == MAGICAL_FOOD)
+                attron(COLOR_PAIR(CHAR_VIOLET));
+
             mvprintw(position.y, position.x, "♥");
-            attroff(COLOR_PAIR(CHAR_BRONZE));
+
+            if (foods[i].type == REGULAR_FOOD || foods[i].type == ROTTEN_FOOD)
+                attroff(COLOR_PAIR(CHAR_BRONZE));
+            else if (foods[i].type == SUPER_FOOD)
+                attroff(COLOR_PAIR(CHAR_YELLOW));
+            else if (foods[i].type == MAGICAL_FOOD)
+                attroff(COLOR_PAIR(CHAR_VIOLET));
         }
     }
 }

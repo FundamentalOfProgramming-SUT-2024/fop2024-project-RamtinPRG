@@ -46,7 +46,7 @@ void save_map(Position *position)
     fprintf(map_file, "%d\n", foods_count);
     for (int i = 0; i < foods_count; i++)
     {
-        fprintf(map_file, "%d %d %d %d %d\n", foods[i].position.x, foods[i].position.y, foods[i].floor_index, foods[i].room_index, foods[i].value);
+        fprintf(map_file, "%d %d %d %d %d %d\n", foods[i].position.x, foods[i].position.y, foods[i].floor_index, foods[i].room_index, foods[i].value, foods[i].type);
     }
 
     fprintf(map_file, "%d\n", weapons_count);
@@ -172,7 +172,7 @@ void load_map(Position *position)
     foods = (Food *)calloc(foods_count, sizeof(Food));
     for (int i = 0; i < foods_count; i++)
     {
-        fscanf(map_file, "%d %d %d %d %d", &foods[i].position.x, &foods[i].position.y, &foods[i].floor_index, &foods[i].room_index, &foods[i].value);
+        fscanf(map_file, "%d %d %d %d %d %d", &foods[i].position.x, &foods[i].position.y, &foods[i].floor_index, &foods[i].room_index, &foods[i].value, &foods[i].type);
         foods[i].floor = &floors[foods[i].floor_index];
         foods[i].room = foods[i].floor->rooms[foods[i].room_index];
         foods[i].is_picked = false;
