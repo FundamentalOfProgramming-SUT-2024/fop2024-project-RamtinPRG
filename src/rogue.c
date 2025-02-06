@@ -339,11 +339,34 @@ void draw_room(Room *room, int walls_color_pair)
             mvprintw(i + position.y + 1, j + position.x + 1, ".");
     attroff(A_DIM);
 
-    attron(COLOR_PAIR(COLOR_DOOR));
     for (int i = 0; i < 4; i++)
         if (room->doors[i].exists)
-            mvprintw(y + room->doors[i].position.y, x + room->doors[i].position.x, "+");
-    attroff(COLOR_PAIR(COLOR_DOOR));
+        {
+            if (!room->doors[i].secret)
+            {
+                attron(COLOR_PAIR(COLOR_DOOR));
+                mvprintw(y + room->doors[i].position.y, x + room->doors[i].position.x, "+");
+                attroff(COLOR_PAIR(COLOR_DOOR));
+            }
+            else if (room->doors[i].is_discovered)
+            {
+                attron(COLOR_PAIR(COLOR_DOOR));
+                mvprintw(y + room->doors[i].position.y, x + room->doors[i].position.x, "?");
+                attroff(COLOR_PAIR(COLOR_DOOR));
+            }
+            else if (i == 0 || i == 2)
+            {
+                attron(COLOR_PAIR(walls_color_pair));
+                mvprintw(y + room->doors[i].position.y, x + room->doors[i].position.x, "┃");
+                attroff(COLOR_PAIR(walls_color_pair));
+            }
+            else
+            {
+                attron(COLOR_PAIR(walls_color_pair));
+                mvprintw(y + room->doors[i].position.y, x + room->doors[i].position.x, "━");
+                attroff(COLOR_PAIR(walls_color_pair));
+            }
+        }
 }
 
 void draw_rooms(Floor *floor)

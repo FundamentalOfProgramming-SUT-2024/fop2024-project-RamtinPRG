@@ -250,6 +250,8 @@ typedef struct
 {
     Position position;
     bool exists;
+    bool secret;
+    bool is_discovered;
 } Door;
 
 typedef struct

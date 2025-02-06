@@ -2,6 +2,7 @@
 
 #define is_obstacle(c) (c == L'╭' || c == L'╮' || c == L'╰' || c == L'╯' || c == L'┌' || c == L'┐' || c == L'└' || c == L'┘' || c == L'│' || c == L'─' || c == L' ' || c == L'D' || c == L'F' || c == L'S' || c == L'G' || c == L'U')
 #define is_corridor(c) (c == L'█' || c == L'▓' || c == L'▒' || c == L'░')
+#define is_door(c) (c == L'?' || c == L'+' || c == L'┃' || c == L'━')
 
 cchar_t trap_character = {0, {L'•'}, 4};
 cchar_t ground_character = {A_DIM, {L'.'}, 0};
@@ -743,7 +744,24 @@ void move_character(int direction, char *message)
     if (!is_obstacle(dest.chars[0]))
     {
         teleport_character(position);
-        if (is_corridor(character.under.chars[0]) || character.under.chars[0] == L'+')
+        if (character.under.chars[0] == L'━' || character.under.chars[0] == L'┃')
+        {
+            character.under.chars[0] = '?';
+            character.under.ext_color = COLOR_DOOR;
+            Room *room = get_current_room();
+            for (int i = 0; i < 4; i++)
+            {
+                if (room->doors[i].exists && room->doors[i].secret)
+                {
+                    Position position = get_absolute_position(room);
+                    position.x += room->doors[i].position.x;
+                    position.y += room->doors[i].position.y;
+                    if (position.x == character.position.x && position.y == character.position.y)
+                        room->doors[i].is_discovered = true;
+                }
+            }
+        }
+        if (is_corridor(character.under.chars[0]) || is_door(character.under.chars[0]))
         {
             for (int i = -1; i < 2; i++)
                 for (int j = -1; j < 2; j++)
@@ -751,7 +769,7 @@ void move_character(int direction, char *message)
                     {
                         cchar_t adjacent;
                         mvin_wch(character.position.y + i, character.position.x + j, &adjacent);
-                        if (is_corridor(adjacent.chars[0]) || adjacent.chars[0] == L'+')
+                        if (is_corridor(adjacent.chars[0]) || is_door(adjacent.chars[0]))
                         {
                             adjacent.attr = adjacent.attr & (~A_INVIS);
                             mvadd_wch(character.position.y + i, character.position.x + j, &adjacent);
@@ -759,7 +777,7 @@ void move_character(int direction, char *message)
                         }
                     }
         }
-        if (character.under.chars[0] == L'+')
+        if (is_door(character.under.chars[0]))
         {
             Room *room = get_current_room();
             if (!room->visible)

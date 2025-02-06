@@ -692,6 +692,14 @@ void generate_floor(Floor *floor, Floor *prev_floor)
 
         int direction = adjacent_room_direction(rooms[i], rooms[room_index]);
         rooms[i]->doors[direction].exists = true;
+        int r = rand() % 10;
+        if (r < 2)
+        {
+            rooms[i]->doors[direction].secret = true;
+            rooms[i]->doors[direction].is_discovered = false;
+        }
+        else
+            rooms[i]->doors[direction].secret = false;
         if (direction == 0)
         {
             rooms[i]->doors[direction].position.x = rooms[i]->width + 1;
@@ -715,6 +723,14 @@ void generate_floor(Floor *floor, Floor *prev_floor)
 
         direction = (direction + 2) % 4;
         rooms[room_index]->doors[direction].exists = true;
+        r = rand() % 10;
+        if (r < 2)
+        {
+            rooms[room_index]->doors[direction].secret = true;
+            rooms[room_index]->doors[direction].is_discovered = false;
+        }
+        else
+            rooms[room_index]->doors[direction].secret = false;
         if (direction == 0)
         {
             rooms[room_index]->doors[direction].position.x = rooms[room_index]->width + 1;
