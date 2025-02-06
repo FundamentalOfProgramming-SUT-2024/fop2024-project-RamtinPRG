@@ -164,7 +164,7 @@ void generate_traps()
             trap.is_discovered = false;
         } while (exists_trap(trap.floor, trap.room, trap.position) || exists_stair(trap.floor, trap.room, trap.position));
         trap.damage = nrandom(MIN_TRAP_DAMAGE, MAX_TRAP_DAMAGE);
-        traps[i] = trap;
+        traps[i + temp_traps_count] = trap;
         traps_count++;
     }
 }
@@ -211,7 +211,7 @@ void generate_golds()
             gold.is_discovered = false;
         } while (exists_gold(gold.floor, gold.room, gold.position) || exists_trap(gold.floor, gold.room, gold.position) || exists_stair(gold.floor, gold.room, gold.position));
         gold.value = nrandom(MIN_GOLD_VALUE, MAX_GOLD_VALUE);
-        golds[i] = gold;
+        golds[i + temp_golds_count] = gold;
         golds_count++;
     }
 }
